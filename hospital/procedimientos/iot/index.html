@@ -1,0 +1,1809 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>IOT — URGlab</title>
+<link rel="stylesheet" href="../../../fonts.css">
+<style>
+:root{
+  --bg:#f4f6f9;--surface:#ffffff;--border:rgba(0,0,0,0.09);
+  --text:#1a2636;--muted:#8898aa;--teal:#09c797;--teal-s:rgba(9,199,151,0.10);
+  --blue:#1a7fc8;--blue-s:rgba(26,127,200,0.08);
+  --warn:#e8400c;--warn-s:rgba(232,64,12,0.08);
+  --yellow:#f0c040;--yellow-s:rgba(240,192,64,0.12);
+  --display:'Barlow Condensed',sans-serif;--body:'IBM Plex Sans',sans-serif;--mono:'IBM Plex Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);font-family:var(--body);min-height:100svh;padding-bottom:80px}
+
+/* HEADER */
+header{background:linear-gradient(135deg,#1a7fc8 0%,#1a6fad 100%);border-bottom:3px solid #09c797;
+  padding:12px 18px;position:sticky;top:0;z-index:100;
+  display:grid;grid-template-columns:48px 1fr 48px;align-items:center;gap:8px;min-height:68px}
+.back-btn{display:flex;align-items:center;justify-content:center;width:38px;height:38px;
+  border-radius:10px;background:rgba(255,255,255,0.15);border:none;cursor:pointer;
+  color:white;transition:background .15s;text-decoration:none}
+.back-btn:active{background:rgba(255,255,255,0.28)}
+.hdr-center{text-align:center}
+.hdr-label{font-family:var(--body);font-size:.58rem;font-weight:600;color:#09c797;
+  letter-spacing:.12em;text-transform:uppercase;margin-bottom:2px}
+.hdr-title{font-family:var(--display);font-size:1.4rem;font-weight:800;color:#fff;
+  letter-spacing:.04em;text-transform:uppercase;line-height:1}
+.hdr-sub{font-size:.62rem;color:rgba(255,255,255,.7);margin-top:2px;display:none}
+
+/* VIEWS */
+.view{display:none}.view.active{display:block}
+
+/* CONTAINER */
+.cnt{max-width:480px;margin:0 auto;padding:0 16px}
+
+/* BANNERS */
+.banner{border-radius:12px;padding:12px 16px;display:flex;align-items:flex-start;gap:10px;margin:8px 0}
+.b-warn{background:#fff8e6;border:1.5px solid var(--yellow)}
+.b-ok{background:var(--teal-s);border:1.5px solid var(--teal)}
+.b-icon{font-size:1rem;flex-shrink:0;margin-top:1px}
+.b-text{font-size:.8rem;line-height:1.4}
+.b-warn .b-text{color:#7a5800}.b-ok .b-text{color:#077d60}
+.b-text strong{display:block;margin-bottom:2px}
+.b-link{display:inline-block;margin-top:6px;background:var(--yellow);color:#5a3e00;
+  border:none;border-radius:8px;padding:5px 10px;font-size:.76rem;font-weight:600;
+  cursor:pointer;text-decoration:none}
+
+/* BUTTONS */
+.btn-primary{width:100%;padding:16px;border-radius:14px;background:var(--blue);color:white;
+  border:none;font-family:var(--display);font-size:1.3rem;font-weight:800;
+  letter-spacing:.06em;text-transform:uppercase;cursor:pointer;transition:opacity .15s;display:block;text-align:center}
+.btn-primary:active{opacity:.85}
+.btn-outline{width:100%;padding:13px;border-radius:14px;background:var(--surface);
+  color:var(--blue);border:2px solid var(--blue);font-family:var(--display);font-size:1.1rem;
+  font-weight:700;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;transition:background .15s}
+.btn-outline:active{background:var(--blue-s)}
+.btn-teal{width:100%;padding:16px;border-radius:14px;background:var(--teal);color:white;
+  border:none;font-family:var(--display);font-size:1.3rem;font-weight:800;
+  letter-spacing:.06em;text-transform:uppercase;cursor:pointer;transition:opacity .15s}
+.btn-teal:active{opacity:.85}
+.btn-ghost{width:100%;padding:12px;border-radius:14px;background:transparent;
+  color:var(--muted);border:1.5px solid var(--border);font-family:var(--display);
+  font-size:1rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;cursor:pointer}
+
+/* HOME */
+.home-wrap{max-width:480px;margin:0 auto;padding:28px 16px;display:flex;flex-direction:column;gap:14px}
+.home-hero{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px 24px;text-align:center}
+.home-icon{font-size:2.8rem;margin-bottom:10px}
+.home-title{font-family:var(--display);font-size:2rem;font-weight:800;color:var(--text);
+  text-transform:uppercase;letter-spacing:.04em;line-height:1}
+.home-desc{font-size:.85rem;color:var(--muted);margin-top:8px;line-height:1.5}
+
+/* SECTION CARD */
+.scard{background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-bottom:12px;overflow:hidden}
+.scard-title{font-family:var(--mono);font-size:.6rem;font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--muted);padding:10px 16px 6px;border-bottom:1px solid var(--border)}
+.form-row{padding:12px 16px;border-bottom:1px solid var(--border)}
+.form-row:last-child{border-bottom:none}
+.form-label{font-size:.72rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
+.form-input{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:9px 12px;
+  font-family:var(--body);font-size:.9rem;color:var(--text);background:var(--bg);
+  outline:none;transition:border-color .15s}
+.form-input:focus{border-color:var(--blue);background:white}
+
+/* INDICACION */
+.ind-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}
+.ind-pill{padding:13px 10px;border-radius:12px;border:2px solid var(--border);background:var(--bg);
+  cursor:pointer;text-align:center;font-size:.82rem;font-weight:600;color:var(--text);
+  transition:all .15s;line-height:1.3;-webkit-user-select:none;user-select:none}
+.ind-pill.sel{border-color:var(--blue);background:var(--blue-s);color:var(--blue)}
+.ind-pill:active{transform:scale(.97)}
+
+/* MACOCHA / OBESE rows */
+.mac-item{display:flex;align-items:center;justify-content:space-between;
+  padding:11px 16px;border-bottom:1px solid var(--border);cursor:pointer;
+  transition:background .1s;-webkit-user-select:none;user-select:none}
+.mac-item:last-child{border-bottom:none}
+.mac-item:active{background:var(--bg)}
+.mac-item.ck{background:var(--teal-s)}
+.mac-left{display:flex;align-items:center;gap:11px}
+.mac-box{width:22px;height:22px;border-radius:6px;border:2px solid var(--border);
+  display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
+.mac-item.ck .mac-box{background:var(--teal);border-color:var(--teal)}
+.mac-name{font-size:.87rem;color:var(--text)}
+.mac-pts{font-family:var(--mono);font-size:.72rem;font-weight:700;color:var(--muted);
+  background:var(--bg);padding:3px 8px;border-radius:6px}
+.mac-item.ck .mac-pts{color:var(--blue);background:var(--blue-s)}
+.mac-score{display:flex;align-items:center;justify-content:space-between;
+  padding:12px 16px;background:var(--bg);border-top:2px solid var(--border)}
+.mac-score-num{font-family:var(--display);font-size:1.8rem;font-weight:800;color:var(--text)}
+.mbadge{display:inline-flex;align-items:center;font-size:.68rem;font-weight:700;
+  padding:5px 11px;border-radius:20px;letter-spacing:.04em;text-transform:uppercase}
+.mb-ok{background:rgba(9,199,151,.15);color:#077d60}
+.mb-mod{background:var(--yellow-s);color:#7a5800}
+.mb-high{background:var(--warn-s);color:var(--warn)}
+
+/* PROGRESS BAR */
+.prog-wrap{background:var(--surface);border-bottom:1px solid var(--border);
+  padding:10px 0 6px;position:sticky;top:71px;z-index:90}
+.prog-segs{max-width:480px;margin:0 auto;padding:0 16px;display:flex;gap:5px}
+.pseg{flex:1;height:5px;border-radius:3px;background:#e0e6ed;transition:background .3s}
+.pseg.done{background:var(--teal)}.pseg.act{background:var(--blue)}
+.prog-labels{max-width:480px;margin:4px auto 0;padding:0 16px;display:flex;justify-content:space-between}
+.plbl{font-family:var(--mono);font-size:.5rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+
+/* PHASE */
+.phase{margin-bottom:8px}
+.phase-hdr{display:flex;align-items:center;gap:10px;padding:16px 16px 8px}
+.phase-num{width:28px;height:28px;border-radius:8px;background:var(--blue);color:white;
+  font-family:var(--display);font-size:1.1rem;font-weight:800;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .2s}
+.phase.done .phase-num{background:var(--teal)}
+.phase-name{font-family:var(--display);font-size:1.2rem;font-weight:800;
+  color:var(--text);text-transform:uppercase;letter-spacing:.04em;flex:1}
+.phase-ok{font-size:1.1rem;opacity:0;transition:opacity .2s}
+.phase.done .phase-ok{opacity:1}
+
+/* CHECK ITEMS */
+.ci{display:flex;align-items:flex-start;gap:13px;padding:14px 16px;
+  background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  margin-bottom:8px;cursor:pointer;transition:border-color .15s,background .15s;
+  -webkit-user-select:none;user-select:none}
+.ci:active{transform:scale(.99)}
+.ci.ck{border-color:var(--teal);background:var(--teal-s)}
+.cibox{width:24px;height:24px;border-radius:7px;border:2px solid var(--border);
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  transition:all .15s;margin-top:1px}
+.ci.ck .cibox{background:var(--teal);border-color:var(--teal)}
+.ci-lbl{font-size:.93rem;color:var(--text);font-weight:500;line-height:1.3}
+.ci-sub{font-size:.78rem;color:var(--muted);margin-top:3px;line-height:1.4}
+
+/* MULTI-CHECK */
+.mck-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px}
+.mck{display:flex;align-items:center;gap:7px;padding:9px 12px;border-radius:10px;
+  border:1.5px solid var(--border);background:var(--bg);cursor:pointer;
+  transition:all .15s;font-size:.8rem;color:var(--text);
+  -webkit-user-select:none;user-select:none}
+.mck.ck{border-color:var(--teal);background:var(--teal-s);color:#077d60;font-weight:600}
+.mck-dot{width:16px;height:16px;border-radius:4px;border:2px solid var(--border);
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.mck.ck .mck-dot{background:var(--teal);border-color:var(--teal)}
+
+/* RADIO PILLS */
+.rpill-col{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.rpill{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:10px;
+  border:1.5px solid var(--border);background:var(--bg);cursor:pointer;
+  font-size:.88rem;color:var(--text);transition:all .15s;
+  -webkit-user-select:none;user-select:none}
+.rpill.sel{border-color:var(--blue);background:var(--blue-s);color:var(--blue);font-weight:600}
+.rpill:active{transform:scale(.99)}
+.radio-dot{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.rpill.sel .radio-dot{border-color:var(--blue)}
+.radio-inner{width:8px;height:8px;border-radius:50%;background:var(--blue);opacity:0;transition:opacity .15s}
+.rpill.sel .radio-inner{opacity:1}
+
+/* DRUG CARDS */
+.drug-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}
+.dc{padding:13px 12px;border-radius:12px;border:2px solid var(--border);background:var(--bg);
+  cursor:pointer;transition:all .15s;position:relative;
+  -webkit-user-select:none;user-select:none;min-height:90px}
+.dc:active{transform:scale(.97)}
+.dc.pref{border-color:var(--teal);background:var(--teal-s)}
+.dc.sel{border-color:var(--blue);background:var(--blue-s)}
+.dc.warn{border-color:var(--warn);background:var(--warn-s)}
+.dc.dim{opacity:.38;pointer-events:none}
+.dc-name{font-family:var(--display);font-size:1.05rem;font-weight:800;
+  color:var(--text);text-transform:uppercase;letter-spacing:.02em}
+.dc.pref .dc-name{color:#077d60}.dc.sel .dc-name{color:var(--blue)}
+.dc-range{font-family:var(--mono);font-size:.65rem;color:var(--muted);margin-top:3px}
+.dc-dose{font-family:var(--mono);font-size:.9rem;font-weight:700;color:var(--text);margin-top:8px}
+.dc.sel .dc-dose{color:var(--blue)}
+.dc-badge{position:absolute;top:6px;right:6px;font-size:.5rem;font-weight:700;
+  padding:2px 6px;border-radius:4px;letter-spacing:.04em;text-transform:uppercase}
+.db-elec{background:var(--teal);color:white}
+.db-warn{background:var(--yellow);color:#5a3e00}
+.dc-warn-txt{font-size:.68rem;color:var(--warn);margin-top:4px;font-weight:600}
+
+/* DOSE ITEM (fentanilo pre-tratamiento) */
+.dose-item{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:14px 16px;background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;margin-bottom:8px;cursor:pointer;transition:all .15s;
+  -webkit-user-select:none;user-select:none}
+.dose-item.ck{border-color:var(--teal);background:var(--teal-s)}
+.dose-item.ck .cibox{background:var(--teal);border-color:var(--teal)}
+.dose-item-left{display:flex;align-items:center;gap:13px;flex:1}
+.dose-item-name{font-size:.93rem;font-weight:500;color:var(--text)}
+.dose-item-sub{font-size:.76rem;color:var(--muted);margin-top:2px}
+.dose-item-val{font-family:var(--mono);font-size:1rem;font-weight:700;color:var(--blue);white-space:nowrap}
+.dose-item-val.no-pat{color:var(--muted)}
+
+/* VORTEX */
+.dsi-box{background:var(--surface);border:1.5px solid var(--yellow);border-radius:12px;
+  padding:14px 16px;margin-bottom:12px;cursor:pointer;transition:all .15s;
+  -webkit-user-select:none;user-select:none}
+.dsi-box.ck{background:var(--yellow-s)}
+.dsi-title{font-size:.72rem;font-weight:700;color:#7a5800;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
+.dsi-desc{font-size:.82rem;color:var(--text);line-height:1.4;margin-bottom:8px}
+.dsi-dose{display:inline-block;font-family:var(--mono);font-size:.84rem;font-weight:700;
+  color:var(--text);background:rgba(240,192,64,.2);padding:5px 10px;border-radius:8px;margin-bottom:8px}
+.dsi-row{display:flex;align-items:center;gap:12px}
+.dsi-check{width:22px;height:22px;border-radius:6px;border:2px solid var(--yellow);
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.dsi-box.ck .dsi-check{background:var(--yellow);border-color:var(--yellow)}
+
+.plan-card{background:var(--surface);border:1.5px solid var(--border);
+  border-radius:14px;margin-bottom:10px;overflow:hidden;transition:border-color .2s}
+.plan-hdr{display:flex;align-items:center;gap:12px;padding:13px 16px}
+.plan-letter{width:34px;height:34px;border-radius:10px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--display);font-size:1.3rem;font-weight:800;color:white}
+.pl-a{background:var(--blue)}.pl-b{background:#7b5ea7}.pl-c{background:#e07b00}.pl-d{background:var(--warn)}
+.plan-info{flex:1}
+.plan-name{font-family:var(--display);font-size:1.05rem;font-weight:800;color:var(--text);text-transform:uppercase}
+.plan-desc{font-size:.77rem;color:var(--muted);margin-top:2px;line-height:1.3}
+.plan-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 14px 14px}
+.pbn{padding:10px;border-radius:10px;border:2px solid var(--border);background:var(--bg);
+  cursor:pointer;font-family:var(--display);font-size:1rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.04em;transition:all .15s;color:var(--text)}
+.pbn:active{transform:scale(.97)}
+.pbn.ok{border-color:var(--teal);background:var(--teal);color:white}
+.pbn.fail{border-color:var(--warn);background:var(--warn);color:white}
+.plan-card.exito{border-color:var(--teal)}
+.plan-card.fallido{border-color:var(--warn)}
+
+/* CAPNO highlight */
+.capno-ci{border-color:var(--blue) !important}
+.capno-ci .cibox{border-color:var(--blue)}
+.capno-ci.ck{border-color:var(--teal) !important;background:var(--teal-s) !important}
+
+/* TET */
+.tet-wrap{margin-top:8px;display:flex;align-items:center;gap:12px}
+.tet-in{width:76px;border:2px solid var(--border);border-radius:10px;padding:10px;
+  font-family:var(--mono);font-size:1.1rem;font-weight:700;color:var(--text);
+  text-align:center;background:var(--bg);outline:none;transition:border-color .15s}
+.tet-in:focus{border-color:var(--blue);background:white}
+.tet-ref{font-size:.78rem;color:var(--muted);line-height:1.4}
+
+/* POST-IOT PERFS */
+.perf-card{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:10px}
+.perf-hdr{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border)}
+.perf-name{font-family:var(--display);font-size:1.1rem;font-weight:800;text-transform:uppercase;color:var(--text)}
+.perf-dilution{font-size:.73rem;color:var(--muted);margin-top:2px}
+.perf-body{padding:12px 16px}
+.perf-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+.perf-row:last-child{margin-bottom:0}
+.perf-key{font-size:.72rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.perf-val{font-family:var(--mono);font-size:.95rem;font-weight:700;color:var(--text)}
+.perf-val.hi{color:var(--blue);font-size:1.2rem}
+
+/* Sedacion selector */
+.sed-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.sed-opt{padding:12px;border-radius:12px;border:2px solid var(--border);background:var(--bg);
+  cursor:pointer;transition:all .15s;text-align:center;
+  -webkit-user-select:none;user-select:none}
+.sed-opt.sel{border-color:var(--blue);background:var(--blue-s)}
+.sed-opt:active{transform:scale(.97)}
+.sed-name{font-family:var(--display);font-size:1.05rem;font-weight:800;color:var(--text);text-transform:uppercase}
+.sed-opt.sel .sed-name{color:var(--blue)}
+.sed-dose{font-family:var(--mono);font-size:.7rem;color:var(--muted);margin-top:3px}
+
+/* VMI */
+.vmi-card{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:10px}
+.vmi-strat{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 16px 12px}
+.vs-btn{padding:10px;border-radius:10px;border:2px solid var(--border);background:var(--bg);
+  cursor:pointer;text-align:center;font-family:var(--display);font-size:.95rem;
+  font-weight:700;text-transform:uppercase;color:var(--text);transition:all .15s}
+.vs-btn.sel{border-color:var(--blue);background:var(--blue-s);color:var(--blue)}
+.vmi-tbl{width:100%;border-collapse:collapse}
+.vmi-tbl th{font-family:var(--mono);font-size:.58rem;font-weight:600;text-transform:uppercase;
+  letter-spacing:.08em;color:var(--muted);padding:8px 16px;text-align:left;
+  border-bottom:1px solid var(--border);border-top:1px solid var(--border)}
+.vmi-tbl td{padding:9px 16px;font-size:.87rem;color:var(--text);border-bottom:1px solid var(--border)}
+.vmi-tbl tr:last-child td{border-bottom:none}
+.vmi-tbl td:first-child{font-size:.75rem;font-weight:600;color:var(--muted)}
+.vt-val{font-family:var(--mono) !important;font-weight:700 !important;color:var(--blue) !important;font-size:1rem !important}
+.vmi-ph{padding:20px 16px;text-align:center;color:var(--muted);font-size:.85rem}
+
+/* REGISTRO */
+.ck-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:4px}
+.rck{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:10px;
+  border:1.5px solid var(--border);background:var(--bg);cursor:pointer;
+  font-size:.82rem;color:var(--text);transition:all .15s;
+  -webkit-user-select:none;user-select:none;line-height:1.2}
+.rck.ck{border-color:rgba(232,64,12,.3);background:var(--warn-s);color:var(--warn);font-weight:600}
+.rck.ck-ok{border-color:rgba(9,199,151,.3);background:var(--teal-s);color:#077d60;font-weight:600}
+.rck-dot{width:14px;height:14px;border-radius:4px;border:2px solid var(--border);flex-shrink:0;transition:all .15s}
+.rck.ck .rck-dot{background:var(--warn);border-color:var(--warn)}
+.rck.ck-ok .rck-dot{background:var(--teal);border-color:var(--teal)}
+
+.cormack-g{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.cork{padding:10px 4px;border-radius:10px;border:2px solid var(--border);background:var(--bg);
+  cursor:pointer;text-align:center;font-family:var(--display);font-size:.95rem;
+  font-weight:800;color:var(--text);transition:all .15s}
+.cork.sel{background:var(--blue);border-color:var(--blue);color:white}
+
+.int-g{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.intbtn{padding:12px 4px;border-radius:10px;border:2px solid var(--border);background:var(--bg);
+  cursor:pointer;text-align:center;font-family:var(--display);font-size:1.3rem;
+  font-weight:800;color:var(--text);transition:all .15s}
+.intbtn.sel{background:var(--blue);border-color:var(--blue);color:white}
+
+.plan-ck-g{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.plck{padding:10px 4px;border-radius:10px;border:2px solid var(--border);background:var(--bg);
+  cursor:pointer;text-align:center;font-family:var(--display);font-size:1rem;
+  font-weight:800;color:var(--text);transition:all .15s}
+.plck.sel{background:var(--blue);border-color:var(--blue);color:white}
+
+/* INFORME */
+.informe-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;
+  padding:16px;margin-bottom:12px;font-family:var(--mono);font-size:.76rem;
+  color:var(--text);line-height:1.7;white-space:pre-wrap;word-break:break-word}
+.inf-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+
+/* SIR */
+.sir-clock-wrap{background:var(--surface);border:1px solid var(--border);border-radius:14px;
+  padding:18px 16px;text-align:center;margin-bottom:8px}
+.sir-clock{font-family:var(--mono);font-size:2.8rem;font-weight:700;color:var(--text);
+  letter-spacing:.04em;line-height:1}
+.sir-clock-lbl{font-size:.62rem;color:var(--muted);text-transform:uppercase;
+  letter-spacing:.1em;margin-top:5px}
+.sir-sec-lbl{font-family:var(--mono);font-size:.58rem;font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--muted);padding:8px 4px 4px}
+.tet-size-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}
+.tet-sz{padding:10px 4px;border-radius:10px;border:2px solid var(--border);background:var(--bg);
+  cursor:pointer;text-align:center;font-family:var(--mono);font-size:.9rem;font-weight:700;
+  color:var(--text);transition:all .15s;-webkit-user-select:none;user-select:none}
+.tet-sz.sel{background:var(--blue);border-color:var(--blue);color:white}
+
+/* UTILS */
+.sep{height:1px;background:var(--border);margin:4px 0 12px}
+.spacer{height:24px}
+.ck-svg{pointer-events:none}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <button class="back-btn" onclick="handleBack()" aria-label="Volver">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+         fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+  </button>
+  <div class="hdr-center">
+    <div class="hdr-label">Hospital Universitari Joan XXIII</div>
+    <div class="hdr-title">Intubación Orotraqueal</div>
+    <div class="hdr-sub" id="hdrSub"></div>
+  </div>
+  <div></div>
+</header>
+
+<!-- ═══════════════════════ VALORACIÓN ══════════════════════════════ -->
+<div id="view-val" class="view active">
+<div class="cnt" style="padding-top:16px">
+
+  <!-- Banner: sin datos de paciente -->
+  <div id="noPatBanner" class="banner b-warn" style="display:none">
+    <span class="b-icon">⚠️</span>
+    <div class="b-text">
+      <strong>Sin datos del paciente</strong>
+      Sin peso/talla las dosis no se calculan automáticamente.
+      <a class="b-link" href="../../index.html">Configurar paciente →</a>
+    </div>
+  </div>
+
+  <!-- Banner: sesión anterior guardada -->
+  <div id="sessionBanner" class="banner b-ok" style="display:none">
+    <span class="b-icon">↩</span>
+    <div class="b-text">
+      <strong>Checklist anterior en curso</strong>
+      <button class="b-link" style="border:none;cursor:pointer" onclick="startNew()">Iniciar nuevo checklist →</button>
+    </div>
+  </div>
+
+  <div class="scard">
+    <div class="scard-title">Indicación IOT</div>
+    <div class="form-row">
+      <div class="ind-grid" id="indGrid">
+        <div class="ind-pill" data-val="fracaso_resp"   onclick="selInd(this)">Fracaso<br>respiratorio</div>
+        <div class="ind-pill" data-val="proteccion_va"  onclick="selInd(this)">Protección<br>vía aérea</div>
+        <div class="ind-pill" data-val="obstruccion_va" onclick="selInd(this)">Obstrucción<br>vía aérea</div>
+        <div class="ind-pill" data-val="shock"          onclick="selInd(this)">Shock</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scard">
+    <div class="scard-title">Antecedentes</div>
+    <div class="form-row">
+      <div class="form-label">Alergias</div>
+      <input class="form-input" id="inAlergias" type="text" placeholder="NAMC / Penicilina…" oninput="S.alergias=this.value;save()">
+    </div>
+    <div class="form-row">
+      <div class="form-label">Última comida</div>
+      <input class="form-input" id="inComida" type="text" placeholder="Hace 2 horas / Desconocido…" oninput="S.ultimaComida=this.value;save()">
+    </div>
+  </div>
+
+  <!-- VIRA BLOQUE A — Riesgo anatómico -->
+  <div class="scard">
+    <div class="scard-title">Valoración Integrada de Riesgo — VIRA</div>
+    <div style="font-size:.78rem;color:var(--muted);padding:10px 16px 0;margin-bottom:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em">Bloque A — Riesgo anatómico</div>
+    <div id="viraAList">
+      <div class="mac-item" data-pts="5" data-key="mallampati" onclick="toggleBloqueA(this)">
+        <div class="mac-left"><div class="mac-box"><svg class="ck-svg" width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="mac-name">Mallampati III o IV</div></div>
+        <div class="mac-pts">5 pts</div>
+      </div>
+      <div class="mac-item" data-pts="2" data-key="saos" onclick="toggleBloqueA(this)">
+        <div class="mac-left"><div class="mac-box"><svg class="ck-svg" width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="mac-name">SAOS conocido</div></div>
+        <div class="mac-pts">2 pts</div>
+      </div>
+      <div class="mac-item" data-pts="1" data-key="cervical" onclick="toggleBloqueA(this)">
+        <div class="mac-left"><div class="mac-box"><svg class="ck-svg" width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="mac-name">Movilidad cervical limitada</div></div>
+        <div class="mac-pts">1 pt</div>
+      </div>
+      <div class="mac-item" data-pts="1" data-key="oral" onclick="toggleBloqueA(this)">
+        <div class="mac-left"><div class="mac-box"><svg class="ck-svg" width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="mac-name">Apertura bucal &lt;3 cm</div></div>
+        <div class="mac-pts">1 pt</div>
+      </div>
+    </div>
+    <div class="mac-score">
+      <div>
+        <div style="font-size:.72rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px">Riesgo anatómico</div>
+        <div class="mac-score-num" id="viraAScore">0 / 9</div>
+      </div>
+      <div class="mbadge mb-ok" id="viraABadge">Bajo</div>
+    </div>
+  </div>
+
+  <!-- VIRA BLOQUE B — Riesgo fisiológico -->
+  <div class="scard">
+    <div style="font-size:.78rem;color:var(--muted);padding:10px 16px 0;margin-bottom:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em">Bloque B — Riesgo fisiológico</div>
+    <div id="viraBList">
+      <div class="mac-item" data-key="h" onclick="toggleBloqueB(this)">
+        <div class="mac-left"><div class="mac-box"><svg class="ck-svg" width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div><div class="mac-name">Hipotensión / Shock</div><div style="font-size:.72rem;color:var(--muted);margin-top:1px">TAS &lt;90 mmHg o Shock Index &gt;1</div></div></div>
+      </div>
+      <div class="mac-item" data-key="o" onclick="toggleBloqueB(this)">
+        <div class="mac-left"><div class="mac-box"><svg class="ck-svg" width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div><div class="mac-name">Oxigenación comprometida</div><div style="font-size:.72rem;color:var(--muted);margin-top:1px">SpO₂ &lt;95% tras preoxigenación óptima</div></div></div>
+      </div>
+      <div class="mac-item" data-key="p" onclick="toggleBloqueB(this)">
+        <div class="mac-left"><div class="mac-box"><svg class="ck-svg" width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div><div class="mac-name">Acidosis / Taquipnea</div><div style="font-size:.72rem;color:var(--muted);margin-top:1px">FR &gt;30 o pH &lt;7,20</div></div></div>
+      </div>
+      <div class="mac-item" data-key="vd" onclick="toggleBloqueB(this)">
+        <div class="mac-left"><div class="mac-box"><svg class="ck-svg" width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div><div class="mac-name">Sospecha fallo VD</div><div style="font-size:.72rem;color:var(--muted);margin-top:1px">Clínica o POCUS compatible</div></div></div>
+      </div>
+      <div class="mac-item" data-key="agitacion" onclick="toggleBloqueB(this)" style="border-top:1px dashed var(--border);margin-top:4px;padding-top:4px">
+        <div class="mac-left"><div class="mac-box"><svg class="ck-svg" width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div><div class="mac-name">Agitación / Combatividad</div><div style="font-size:.72rem;color:var(--muted);margin-top:1px">Impide preoxigenación adecuada</div></div></div>
+      </div>
+    </div>
+    <div class="mac-score">
+      <div style="font-size:.72rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em">Riesgo fisiológico</div>
+      <div class="mbadge mb-ok" id="viraBBadge">Sin riesgo</div>
+    </div>
+  </div>
+
+  <!-- VIRA BLOQUE C — Modificador (solo si nivel VIRA = 3) -->
+  <div class="scard" id="viraBlockC" style="display:none">
+    <div style="font-size:.78rem;color:var(--muted);padding:10px 16px 0;margin-bottom:12px;font-weight:600;text-transform:uppercase;letter-spacing:.05em">Bloque C — Modificador</div>
+    <div style="font-size:.9rem;color:var(--text);padding:0 16px;margin-bottom:14px">¿Puede el paciente seguir órdenes simples y tolerar el procedimiento?</div>
+    <div style="display:flex;gap:10px;padding:0 16px 16px">
+      <div class="ind-pill" id="viraCoopSi" onclick="setCooperador(true)" style="flex:1;text-align:center">Sí</div>
+      <div class="ind-pill" id="viraCoopNo" onclick="setCooperador(false)" style="flex:1;text-align:center">No</div>
+    </div>
+  </div>
+
+  <!-- VIRA OUTPUT — tarjeta de resultado -->
+  <div class="scard" id="viraOutput" style="display:none">
+    <div style="font-size:.78rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;padding:10px 16px 0;margin-bottom:10px">Resultado VIRA</div>
+    <div id="viraResultBadge" style="display:inline-block;font-family:var(--display);font-size:1.1rem;font-weight:700;padding:6px 16px;border-radius:8px;margin:0 16px 8px;border:2px solid transparent"></div>
+    <div id="viraReco" style="font-size:.82rem;color:var(--muted);padding:0 16px;margin-bottom:12px;font-style:italic"></div>
+    <div style="font-size:.82rem;color:var(--muted);margin-bottom:8px;padding:0 16px;font-weight:600">Estrategia</div>
+    <div style="display:flex;flex-direction:column;gap:8px;padding:0 16px 16px" id="viraStrategies">
+      <div class="ind-pill" id="vstr-rsi"       onclick="selEstrategia('rsi')"       style="text-align:center;padding:10px">Secuencia de Intubación Rápida</div>
+      <div class="ind-pill" id="vstr-dsi"       onclick="selEstrategia('dsi')"       style="text-align:center;padding:10px">Secuencia de Intubación Demorada</div>
+      <div class="ind-pill" id="vstr-despierto" onclick="selEstrategia('despierto')" style="text-align:center;padding:10px">Intubación con paciente despierto</div>
+    </div>
+  </div>
+
+  <button class="btn-primary" onclick="iniciarChecklist()" style="margin-bottom:16px">Iniciar checklist →</button>
+  <div class="spacer"></div>
+</div>
+</div>
+
+<!-- ═══════════════════════ CHECKLIST ═══════════════════════════════ -->
+<div id="view-checklist" class="view">
+  <div class="prog-wrap">
+    <div class="prog-segs">
+      <div class="pseg" id="ps1"></div><div class="pseg" id="ps2"></div>
+      <div class="pseg" id="ps3"></div><div class="pseg" id="ps4"></div>
+      <div class="pseg" id="ps5"></div><div class="pseg" id="ps6"></div>
+      <div class="pseg" id="ps7"></div>
+    </div>
+    <div class="prog-labels">
+      <span class="plbl">Prep.</span><span class="plbl">Preox.</span>
+      <span class="plbl">Fisiol.</span><span class="plbl">Medic.</span>
+      <span class="plbl">Plan</span><span class="plbl">Confirm.</span><span class="plbl">Post-IOT</span>
+    </div>
+  </div>
+
+<div class="cnt" style="padding-top:12px">
+
+  <!-- FASE 1: PREPARACIÓN -->
+  <div class="phase" id="phase1">
+    <div class="phase-hdr"><div class="phase-num">1</div><div class="phase-name">Preparación</div><div class="phase-ok">✓</div></div>
+
+    <div class="ci" id="ci-monitor" onclick="toggleCI('monitor')">
+      <div class="cibox"><svg class="ck-svg" width="13" height="13" viewBox="0 0 13 13" fill="none"><polyline points="2,6.5 5.5,10 11,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div><div class="ci-lbl">Monitorización</div><div class="ci-sub">SatO₂ · ECG · TA · Capnografía</div></div>
+    </div>
+
+    <div class="ci" id="ci-via2acc" onclick="toggleCI('via2acc')">
+      <div class="cibox"><svg class="ck-svg" width="13" height="13" viewBox="0 0 13 13" fill="none"><polyline points="2,6.5 5.5,10 11,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div><div class="ci-lbl">2 accesos vasculares</div></div>
+    </div>
+
+    <div class="ci" id="ci-succion" onclick="toggleCI('succion')">
+      <div class="cibox"><svg class="ck-svg" width="13" height="13" viewBox="0 0 13 13" fill="none"><polyline points="2,6.5 5.5,10 11,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div><div class="ci-lbl">Succión conectada</div><div class="ci-sub">Cánula de aspiración de gran calibre</div></div>
+    </div>
+
+    <div class="scard">
+      <div style="padding:13px 16px 12px">
+        <div class="ci-lbl" style="font-weight:600;margin-bottom:8px">Material de vía aérea</div>
+        <div class="mck-grid" id="matGrid">
+          <div class="mck" data-val="bvm"           onclick="toggleMat(this)"><div class="mck-dot"></div>BVM</div>
+          <div class="mck" data-val="dsg"           onclick="toggleMat(this)"><div class="mck-dot"></div>DSG</div>
+          <div class="mck" data-val="videoLaringo"  onclick="toggleMat(this)"><div class="mck-dot"></div>Videolaringoscopio</div>
+          <div class="mck" data-val="laringDirecta" onclick="toggleMat(this)"><div class="mck-dot"></div>Laringoscopio</div>
+          <div class="mck" data-val="frova"         onclick="toggleMat(this)"><div class="mck-dot"></div>Frova</div>
+          <div class="mck" data-val="guia"          onclick="toggleMat(this)"><div class="mck-dot"></div>Guía</div>
+          <div class="mck" data-val="bisturi"       onclick="toggleMat(this)"><div class="mck-dot"></div>Bisturí</div>
+          <div class="mck" data-val="tet"           onclick="toggleMat(this)"><div class="mck-dot"></div>Tubo endotraqueal</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="scard">
+      <div style="padding:13px 16px 12px">
+        <div class="ci-lbl" style="font-weight:600;margin-bottom:8px">Posicionamiento</div>
+        <div class="rpill-col" id="posGrid">
+          <div class="rpill" data-val="buhe"   onclick="selPos(this)"><div class="radio-dot"><div class="radio-inner"></div></div>BUHE / Rampa</div>
+          <div class="rpill" data-val="neutra" onclick="selPos(this)"><div class="radio-dot"><div class="radio-inner"></div></div>Neutra (Trauma)</div>
+        </div>
+      </div>
+    </div>
+
+  </div><div class="sep"></div>
+
+  <!-- FASE 2: PREOXIGENACIÓN -->
+  <div class="phase" id="phase2">
+    <div class="phase-hdr"><div class="phase-num">2</div><div class="phase-name">Preoxigenación</div><div class="phase-ok">✓</div></div>
+
+    <div class="scard">
+      <div style="padding:13px 16px 12px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div class="ci-lbl" style="font-weight:600">Técnica de preoxigenación</div>
+          <div style="font-size:.72rem;font-weight:700;color:var(--blue);background:var(--blue-s);padding:3px 9px;border-radius:6px">≥ 3 min</div>
+        </div>
+        <div class="rpill-col" id="preoxGrid">
+          <div class="rpill" data-val="reservorio" onclick="selPreox(this)"><div class="radio-dot"><div class="radio-inner"></div></div>Mascarilla con reservorio</div>
+          <div class="rpill" data-val="vmni"       onclick="selPreox(this)"><div class="radio-dot"><div class="radio-inner"></div></div>Ventilación mecánica no invasiva</div>
+          <div class="rpill" data-val="bvm"        onclick="selPreox(this)"><div class="radio-dot"><div class="radio-inner"></div></div>BVM sincronizada</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ci" id="ci-preoxTiempo" onclick="toggleCI('preoxTiempo')">
+      <div class="cibox"><svg class="ck-svg" width="13" height="13" viewBox="0 0 13 13" fill="none"><polyline points="2,6.5 5.5,10 11,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div><div class="ci-lbl">Oxigenación apnéica</div><div class="ci-sub">GN 15 L/min o ONAF</div></div>
+    </div>
+  </div><div class="sep"></div>
+
+  <!-- FASE 3: OPTIMIZACIÓN FISIOLÓGICA -->
+  <div class="phase" id="phase3">
+    <div class="phase-hdr"><div class="phase-num">3</div><div class="phase-name">Optimización Fisiológica</div><div class="phase-ok">✓</div></div>
+
+    <div class="ci" id="ci-cristaloides" onclick="toggleCI('cristaloides')">
+      <div class="cibox"><svg class="ck-svg" width="13" height="13" viewBox="0 0 13 13" fill="none"><polyline points="2,6.5 5.5,10 11,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div><div class="ci-lbl">Cristaloides</div></div>
+    </div>
+
+    <div class="ci" id="ci-hemoderivados" onclick="toggleCI('hemoderivados')">
+      <div class="cibox"><svg class="ck-svg" width="13" height="13" viewBox="0 0 13 13" fill="none"><polyline points="2,6.5 5.5,10 11,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div><div class="ci-lbl">Hemoderivados</div></div>
+    </div>
+
+    <div class="perf-card" id="neCard">
+      <div class="perf-hdr" onclick="toggleCI('noradrenalina')" style="cursor:pointer">
+        <div class="cibox" id="nePerfBox"><svg class="ck-svg" width="13" height="13" viewBox="0 0 13 13" fill="none"><polyline points="2,6.5 5.5,10 11,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div><div class="ci-lbl" style="font-weight:600">Noradrenalina</div><div class="perf-dilution">20 mg en 250 ml SG 5% · 80 mcg/ml · Peso real</div></div>
+      </div>
+      <div class="perf-body">
+        <div class="perf-row"><span class="perf-key">Dosis inicio</span><span class="perf-val">0,1 mcg/kg/min</span></div>
+        <div class="perf-row"><span class="perf-key">Velocidad inicio</span><span class="perf-val hi" id="neMlh">— ml/hr</span></div>
+        <div class="perf-row"><span class="perf-key">Rango</span><span class="perf-val">0,05 – 1 mcg/kg/min</span></div>
+      </div>
+    </div>
+
+    <div class="ci" id="ci-vasoBolus" onclick="toggleCI('vasoBolus')">
+      <div class="cibox"><svg class="ck-svg" width="13" height="13" viewBox="0 0 13 13" fill="none"><polyline points="2,6.5 5.5,10 11,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div><div class="ci-lbl">Vasopresores de rescate en bolus</div><div class="ci-sub">Adrenalina: 1 amp (1 mg/ml) + 9 ml SSF → 100 mcg/ml</div></div>
+    </div>
+  </div><div class="sep"></div>
+
+  <!-- FASE 4: MEDICACIÓN -->
+  <div class="phase" id="phase4">
+    <div class="phase-hdr"><div class="phase-num">4</div><div class="phase-name">Medicación</div><div class="phase-ok">✓</div></div>
+
+    <!-- Fentanilo pre-tratamiento -->
+    <div class="dose-item" id="di-fentPre" onclick="toggleDI('fentPre')">
+      <div class="dose-item-left">
+        <div class="cibox"><svg class="ck-svg" width="13" height="13" viewBox="0 0 13 13" fill="none"><polyline points="2,6.5 5.5,10 11,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div><div class="dose-item-name">Fentanilo pre-tratamiento</div><div class="dose-item-sub">1–3 mcg/kg IV en 30 seg · 3 min antes</div></div>
+      </div>
+      <div class="dose-item-val" id="dv-fentPre">— mcg</div>
+    </div>
+
+    <!-- Inductor -->
+    <div class="scard">
+      <div style="padding:13px 16px 12px">
+        <div class="ci-lbl" style="font-weight:600">Agente de inducción</div>
+        <div class="ci-sub" id="indHint" style="margin-top:2px;margin-bottom:2px">Selecciona indicación en valoración para ver elección recomendada</div>
+        <div class="drug-grid" id="inductorGrid"></div>
+      </div>
+    </div>
+
+    <!-- BNM -->
+    <div class="scard">
+      <div style="padding:13px 16px 12px">
+        <div class="ci-lbl" style="font-weight:600;margin-bottom:6px">Bloqueo neuromuscular</div>
+        <div class="drug-grid" id="bnmGrid"></div>
+      </div>
+    </div>
+
+  </div><div class="sep"></div>
+
+  <!-- FASE 5: PLAN VORTEX -->
+  <div class="phase" id="phase5">
+    <div class="phase-hdr"><div class="phase-num">5</div><div class="phase-name">Plan de intubación</div><div class="phase-ok">✓</div></div>
+
+    <div style="background:#fff0ee;border:1.5px solid var(--warn);border-radius:10px;
+      padding:10px 14px;text-align:center;font-size:.8rem;font-weight:700;
+      color:var(--warn);margin-bottom:8px">
+      ⚠ SI HAY DIFICULTAD → PEDIR AYUDA
+    </div>
+
+    <div style="display:flex;gap:8px;align-items:stretch">
+
+      <div style="writing-mode:vertical-rl;transform:rotate(180deg);
+        background:var(--blue);color:white;border-radius:10px;
+        padding:12px 7px;font-family:var(--display);font-size:.72rem;
+        font-weight:800;letter-spacing:.18em;text-transform:uppercase;
+        display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        OXIGENACIÓN
+      </div>
+
+      <div style="flex:1;display:flex;flex-direction:column;gap:5px">
+
+        <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;
+          border-radius:12px;border:2px solid rgba(26,127,200,0.3);background:var(--surface)">
+          <div class="plan-letter pl-a" style="flex-shrink:0">A</div>
+          <div>
+            <div style="font-family:var(--display);font-size:1rem;font-weight:800;color:var(--text);text-transform:uppercase">Intubación traqueal</div>
+            <div style="font-size:.74rem;color:var(--muted);margin-top:3px;line-height:1.4">(Video)Laringoscopio · máx. 3+1<br>Optimizar: CCMRL · Frova · guía</div>
+          </div>
+        </div>
+
+        <div style="text-align:center;color:var(--muted);font-size:1rem;line-height:1">↓</div>
+        <div style="text-align:center;font-size:.78rem;font-weight:700;color:var(--warn);padding:7px 12px;background:var(--warn-s);border-radius:8px">
+          Declarar intubación fallida
+        </div>
+
+        <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;
+          border-radius:12px;border:2px solid rgba(123,94,167,0.3);background:var(--surface)">
+          <div class="plan-letter pl-b" style="flex-shrink:0">B</div>
+          <div>
+            <div style="font-family:var(--display);font-size:1rem;font-weight:800;color:var(--text);text-transform:uppercase">Dispositivo supraglótico</div>
+            <div style="font-size:.74rem;color:var(--muted);margin-top:3px;line-height:1.4">iGel / LMA Fastrach · máx. 3 intentos</div>
+          </div>
+        </div>
+
+        <div style="text-align:center;color:var(--muted);font-size:1rem;line-height:1">↓</div>
+        <div style="text-align:center;font-size:.78rem;font-weight:700;color:var(--warn);padding:7px 12px;background:var(--warn-s);border-radius:8px">
+          Declarar fallo de ventilación con DSG
+        </div>
+
+        <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;
+          border-radius:12px;border:2px solid rgba(224,123,0,0.3);background:var(--surface)">
+          <div class="plan-letter pl-c" style="flex-shrink:0">C</div>
+          <div>
+            <div style="font-family:var(--display);font-size:1rem;font-weight:800;color:var(--text);text-transform:uppercase">Ventilación con BVM</div>
+            <div style="font-size:.74rem;color:var(--muted);margin-top:3px;line-height:1.4">Último intento · 2 personas<br>Guedel · cánula nasal</div>
+          </div>
+        </div>
+
+        <div style="text-align:center;color:var(--muted);font-size:1rem;line-height:1">↓</div>
+        <div style="text-align:center;font-size:.82rem;font-weight:700;color:var(--warn);padding:7px 12px;background:var(--warn-s);border-radius:8px">
+          No intubable · No oxigenable
+        </div>
+
+        <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;
+          border-radius:12px;border:2px solid rgba(232,64,12,0.3);background:var(--surface)">
+          <div class="plan-letter pl-d" style="flex-shrink:0">D</div>
+          <div>
+            <div style="font-family:var(--display);font-size:1rem;font-weight:800;color:var(--text);text-transform:uppercase">Cricotiroidotomía de emergencia</div>
+            <div style="font-size:.74rem;color:var(--muted);margin-top:3px;line-height:1.4">Bisturí nº10 · Frova · TET #6</div>
+          </div>
+        </div>
+
+        <div style="background:var(--teal-s);border:1.5px solid var(--teal);border-radius:10px;
+          padding:10px 14px;font-size:.8rem;font-weight:700;color:#077d60;text-align:center;margin-top:2px">
+          ✓ Confirmar SIEMPRE con capnografía
+        </div>
+
+      </div>
+    </div>
+  </div><div class="sep"></div>
+
+  <!-- FASE 6: INICIAR SIR -->
+  <div class="phase" id="phase6">
+    <div class="phase-hdr"><div class="phase-num">6</div><div class="phase-name">Iniciar SIR</div><div class="phase-ok">✓</div></div>
+    <div id="sirContent"></div>
+  </div><div class="sep"></div>
+
+  <!-- FASE 7: POST-IOT -->
+  <div class="phase" id="phase7">
+    <div class="phase-hdr"><div class="phase-num">7</div><div class="phase-name">Post-IOT</div><div class="phase-ok">✓</div></div>
+
+    <!-- Analgesia: Fentanilo -->
+    <div class="perf-card" id="perfFentCard">
+      <div class="perf-hdr" onclick="toggleCI('perfFentanilo')" style="cursor:pointer">
+        <div class="cibox" id="fentPerfBox"><svg class="ck-svg" width="13" height="13" viewBox="0 0 13 13" fill="none"><polyline points="2,6.5 5.5,10 11,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div>
+          <div style="font-size:.6rem;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:.08em;margin-bottom:1px">Analgesia</div>
+          <div class="perf-name">Fentanilo</div>
+          <div class="perf-dilution">900 mcg en 100 ml SF 0,9% · 9 mcg/ml · Peso ideal</div>
+        </div>
+      </div>
+      <div class="perf-body">
+        <div class="perf-row"><span class="perf-key">Dosis inicio</span><span class="perf-val">0,5 mcg/kg/h (IBW)</span></div>
+        <div class="perf-row"><span class="perf-key">Velocidad inicio</span><span class="perf-val hi" id="fentMlh">— ml/hr</span></div>
+        <div class="perf-row"><span class="perf-key">Rango</span><span class="perf-val">0,5 – 2 mcg/kg/h</span></div>
+      </div>
+    </div>
+
+    <!-- Sedacion -->
+    <div class="scard">
+      <div style="padding:13px 16px 12px">
+        <div style="font-size:.6rem;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Sedación</div>
+        <div class="sed-grid">
+          <div class="sed-opt" data-val="propofol"  onclick="selSed(this)"><div class="sed-name">Propofol</div><div class="sed-dose">En perfusión · Sin diluir · 20 mg/ml</div></div>
+          <div class="sed-opt" data-val="midazolam" onclick="selSed(this)"><div class="sed-name">Midazolam</div><div class="sed-dose">En perfusión · 100 mg/100 ml SF</div></div>
+        </div>
+        <div id="sedDetails" style="display:none">
+          <div style="background:var(--bg);border-radius:12px;padding:12px 14px">
+            <div class="perf-row"><span class="perf-key">Dosis inicio</span><span class="perf-val" id="sedDoseLbl">—</span></div>
+            <div class="perf-row"><span class="perf-key">Velocidad inicio</span><span class="perf-val hi" id="sedMlh">— ml/hr</span></div>
+            <div class="perf-row"><span class="perf-key">Rango</span><span class="perf-val" id="sedRange">—</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VMI -->
+    <div class="vmi-card">
+      <div style="padding:12px 16px 8px">
+        <div class="ci-lbl" style="font-weight:600;margin-bottom:8px">Parámetros VMI</div>
+        <div class="vmi-strat">
+          <div class="vs-btn" id="vsP" onclick="selVMI('protectora')">Protectora</div>
+          <div class="vs-btn" id="vsO" onclick="selVMI('obstructiva')">Obstructiva</div>
+        </div>
+      </div>
+      <div id="vmiTable"><div class="vmi-ph">Selecciona estrategia ventilatoria</div></div>
+    </div>
+  </div>
+
+  <div class="sep"></div>
+  <button class="btn-teal" onclick="goTo('registro')" style="margin-bottom:8px">Registrar procedimiento →</button>
+  <div class="spacer"></div>
+</div>
+</div>
+
+<!-- ═══════════════════════ REGISTRO ════════════════════════════════ -->
+<div id="view-registro" class="view">
+<div class="cnt" style="padding-top:16px">
+
+  <div class="scard" id="dosisRealesCard" style="display:none">
+    <div class="scard-title">Medicación administrada — Dosis reales</div>
+    <div style="padding:12px 16px 14px" id="dosisRealesBody"></div>
+  </div>
+
+  <div class="scard">
+    <div class="scard-title">Grado Cormack-Lehane</div>
+    <div style="padding:12px 16px 14px">
+      <div class="cormack-g">
+        <div class="cork" onclick="selCork(this,'I')">I</div>
+        <div class="cork" onclick="selCork(this,'IIa')">IIa</div>
+        <div class="cork" onclick="selCork(this,'IIb')">IIb</div>
+        <div class="cork" onclick="selCork(this,'III')">III</div>
+        <div class="cork" onclick="selCork(this,'IV')">IV</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scard">
+    <div class="scard-title">Intentos de laringoscopia</div>
+    <div style="padding:12px 16px 14px">
+      <div class="int-g">
+        <div class="intbtn" onclick="selIntentos(this,'1')">1</div>
+        <div class="intbtn" onclick="selIntentos(this,'2')">2</div>
+        <div class="intbtn" onclick="selIntentos(this,'3')">3</div>
+        <div class="intbtn" onclick="selIntentos(this,'+3')">+3</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scard">
+    <div class="scard-title">Planes ejecutados</div>
+    <div style="padding:12px 16px 14px">
+      <div class="plan-ck-g" id="planesGrid">
+        <div class="plck" data-val="A" onclick="togglePlanReg(this)">Plan A</div>
+        <div class="plck" data-val="B" onclick="togglePlanReg(this)">Plan B</div>
+        <div class="plck" data-val="C" onclick="togglePlanReg(this)">Plan C</div>
+        <div class="plck" data-val="D" onclick="togglePlanReg(this)">Plan D</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scard">
+    <div class="scard-title">Complicaciones peri-intubación</div>
+    <div style="padding:10px 16px 14px">
+      <div class="ck-grid" id="compDuranteGrid">
+        <div class="rck" data-val="hipoxemia_severa"   onclick="toggleComp(this,'durante')"><div class="rck-dot"></div>Hipoxemia severa (SpO₂ &lt;90%)</div>
+        <div class="rck" data-val="hipotension_peri"   onclick="toggleComp(this,'durante')"><div class="rck-dot"></div>Hipotensión (PAS &lt;90 mmHg o ↓&gt;20% basal)</div>
+        <div class="rck" data-val="pcr_peri"           onclick="toggleComp(this,'durante')"><div class="rck-dot"></div>PCR periintubación</div>
+        <div class="rck" data-val="esofagica"          onclick="toggleComp(this,'durante')"><div class="rck-dot"></div>Intubación esofágica</div>
+        <div class="rck" data-val="broncoaspiracion"   onclick="toggleComp(this,'durante')"><div class="rck-dot"></div>Broncoaspiración</div>
+        <div class="rck" data-val="traumatismo_dental" onclick="toggleComp(this,'durante')"><div class="rck-dot"></div>Traumatismo dental</div>
+        <div class="rck" data-val="traumatismo_oral"   onclick="toggleComp(this,'durante')"><div class="rck-dot"></div>Traumatismo oral</div>
+        <div class="rck" data-val="traumatismo_faring" onclick="toggleComp(this,'durante')"><div class="rck-dot"></div>Traumatismo faríngeo</div>
+        <div class="rck" data-val="bradicardia"        onclick="toggleComp(this,'durante')"><div class="rck-dot"></div>Bradicardia</div>
+        <div class="rck" data-val="taquicardia_v"      onclick="toggleComp(this,'durante')"><div class="rck-dot"></div>Taquicardia ventricular</div>
+        <div class="rck" data-val="laringoespasmo"     onclick="toggleComp(this,'durante')"><div class="rck-dot"></div>Laringoespasmo</div>
+        <div class="rck" data-val="broncoespasmo"      onclick="toggleComp(this,'durante')"><div class="rck-dot"></div>Broncoespasmo severo</div>
+      </div>
+      <div class="rck" id="ningunaD" style="margin-top:8px" onclick="selNinguna('durante')"><div class="rck-dot"></div>Sin complicaciones</div>
+    </div>
+  </div>
+
+  <div class="scard">
+    <div class="scard-title">Complicaciones post-intubación</div>
+    <div style="padding:10px 16px 14px">
+      <div class="ck-grid" id="compPostGrid">
+        <div class="rck" data-val="pcr_post"        onclick="toggleComp(this,'post')"><div class="rck-dot"></div>PCR post-IOT</div>
+        <div class="rck" data-val="hipoxemia_post"  onclick="toggleComp(this,'post')"><div class="rck-dot"></div>Hipoxemia post-IOT</div>
+        <div class="rck" data-val="hipotencion_post" onclick="toggleComp(this,'post')"><div class="rck-dot"></div>Hipotensión post-IOT</div>
+        <div class="rck" data-val="extubacion_acc"  onclick="toggleComp(this,'post')"><div class="rck-dot"></div>Extubación accidental</div>
+        <div class="rck" data-val="intubacion_sel"  onclick="toggleComp(this,'post')"><div class="rck-dot"></div>Intubación selectiva</div>
+        <div class="rck" data-val="obstruccion_tet" onclick="toggleComp(this,'post')"><div class="rck-dot"></div>Obstrucción del TET</div>
+        <div class="rck" data-val="neumo_baro"      onclick="toggleComp(this,'post')"><div class="rck-dot"></div>Neumotórax / barotrauma</div>
+        <div class="rck" data-val="fallo_neumo"     onclick="toggleComp(this,'post')"><div class="rck-dot"></div>Fallo del neumotaponamiento</div>
+        <div class="rck" data-val="desplazamiento"  onclick="toggleComp(this,'post')"><div class="rck-dot"></div>Desplazamiento del tubo</div>
+      </div>
+      <div class="rck" id="ningunaP" style="margin-top:8px" onclick="selNinguna('post')"><div class="rck-dot"></div>Sin complicaciones</div>
+    </div>
+  </div>
+
+  <div class="scard">
+    <div class="scard-title">Observaciones</div>
+    <div style="padding:12px 16px">
+      <textarea class="form-input" id="obsInput" rows="3" style="resize:none"
+                placeholder="Notas libres del procedimiento…" oninput="S.obs=this.value;save()"></textarea>
+    </div>
+  </div>
+
+  <button class="btn-primary" onclick="generateReport()" style="margin-bottom:8px">Generar informe →</button>
+  <div class="spacer"></div>
+</div>
+</div>
+
+<!-- ═══════════════════════ INFORME ═════════════════════════════════ -->
+<div id="view-informe" class="view">
+<div class="cnt" style="padding-top:16px">
+  <div class="informe-box" id="informeBox"></div>
+  <div class="inf-actions">
+    <button class="btn-teal"    onclick="copyReport()">Copiar</button>
+    <button class="btn-outline" onclick="downloadReport()">Descargar .txt</button>
+  </div>
+  <button class="btn-primary" onclick="startNew()" style="margin-bottom:8px">Nuevo procedimiento</button>
+  <div class="spacer"></div>
+</div>
+</div>
+
+<!-- ═══════════════════════ DESPIERTO ════════════════════════════════ -->
+<div id="view-despierto" class="view">
+<div class="cnt" style="padding-top:48px;text-align:center">
+  <div style="font-size:2.4rem;margin-bottom:16px">🚧</div>
+  <div style="font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:8px">En desarrollo</div>
+  <div style="font-size:.88rem;color:var(--muted);line-height:1.5;max-width:280px;margin:0 auto 32px">
+    El checklist de intubación con paciente despierto estará disponible próximamente.
+  </div>
+  <button class="btn-outline" onclick="goTo('val')">← Volver a valoración</button>
+</div>
+</div>
+
+<!-- ═══════════════════════ JAVASCRIPT ══════════════════════════════ -->
+<script>
+// ── DATOS CLÍNICOS ──────────────────────────────────────────────────
+const INDUCTORS = {
+  ketamina:  {name:'Ketamina',  range:[0.5,2],   unit:'mg/kg', warns:['HTA severa','Shock cardiogénico']},
+  etomidato: {name:'Etomidato', range:[0.2,0.3], unit:'mg/kg', warns:[]},
+  propofol:  {name:'Propofol',  range:[1,2],     unit:'mg/kg', warns:['Hipotensión']},
+  midazolam: {name:'Midazolam', range:[0.1,0.2], unit:'mg/kg', warns:[]},
+};
+const BNMS = {
+  rocuronio:      {name:'Rocuronio',      dose:1.2, warns:[]},
+  succinilcolina: {name:'Succinilcolina', dose:1.2, warns:['HiperK+']},
+};
+// Elección por indicación
+const PREFS = {
+  fracaso_resp:   ['ketamina','propofol'],
+  proteccion_va:  ['etomidato','ketamina'],
+  obstruccion_va: ['ketamina'],
+  shock:          ['etomidato','ketamina'],
+};
+const IND_LABELS = {
+  fracaso_resp:'Fracaso respiratorio', proteccion_va:'Protección de vía aérea',
+  obstruccion_va:'Obstrucción de vía aérea', shock:'Shock',
+};
+// Post-IOT — mismas diluciones que hospital/farmacos
+// Fentanilo: 900mcg/100ml SF → 9 mcg/ml | mcg/kg/h | IBW | inicio 0.5
+// Propofol:  1000mg/50ml sin diluir → 20 mg/ml | mg/kg/h | IBW | inicio 0.3
+// Midazolam: 100mg/100ml SF → 1 mg/ml  | mg/kg/h | IBW | inicio 0.05
+const VMI = {
+  protectora:  {vt:6, fr:'14–16 rpm', peep:'5 cmH₂O',   fio2:'100% → 40%', ie:'1:2'},
+  obstructiva: {vt:7, fr:'8–10 rpm',  peep:'0–5 cmH₂O', fio2:'40%',         ie:'≥1:3'},
+};
+const PREOX_LBL = {reservorio:'Mascarilla con reservorio', vmni:'Ventilación mecánica no invasiva', bvm:'BVM sincronizada'};
+const POS_LBL   = {buhe:'BUHE / Rampa', neutra:'Neutra + inmovilización'};
+const MAT_LBL   = {bvm:'BVM', dsg:'DSG', videoLaringo:'Videolaringoscopio', laringDirecta:'Laringoscopio', frova:'Frova', guia:'Guía', bisturi:'Bisturí', tet:'Tubo endotraqueal'};
+const COMP_LBL  = {
+  hipoxemia_severa:  'Hipoxemia severa (SpO₂ <90% o descenso >10% basal)',
+  hipotension_peri:  'Hipotensión periintubación (PAS <90 mmHg o descenso >20% basal)',
+  pcr_peri:          'PCR periintubación',
+  esofagica:         'Intubación esofágica',
+  broncoaspiracion:  'Broncoaspiración',
+  traumatismo_dental:'Traumatismo dental',
+  traumatismo_oral:  'Traumatismo oral',
+  traumatismo_faring:'Traumatismo faríngeo',
+  bradicardia:       'Bradicardia',
+  taquicardia_v:     'Taquicardia ventricular',
+  laringoespasmo:    'Laringoespasmo',
+  broncoespasmo:     'Broncoespasmo severo',
+  pcr_post:        'PCR post-IOT',
+  hipoxemia_post:  'Hipoxemia post-IOT',
+  hipotencion_post:'Hipotensión post-IOT',
+  extubacion_acc: 'Extubación accidental',
+  intubacion_sel: 'Intubación selectiva',
+  obstruccion_tet:'Obstrucción del tubo endotraqueal',
+  neumo_baro:     'Neumotórax / barotrauma',
+  fallo_neumo:    'Fallo del neumotaponamiento',
+  desplazamiento: 'Desplazamiento del tubo',
+};
+const LSKEY = 'hj23_iot_state';
+
+// ── ESTADO ──────────────────────────────────────────────────────────
+let patient = null;
+let currentView = 'home';
+let S = mkState();
+
+function mkState() {
+  return {
+    horaInicio:null, indicacion:null, alergias:'', ultimaComida:'',
+    bloqueA:[], bloqueB:[], cooperador:null, estrategiaVIRA:null,
+    succion:false, material:[], posicion:null, monitor:false, via2acc:false,
+    preoxTecnica:null, preoxTiempo:false,
+    cristaloides:false, hemoderivados:false, noradrenalina:false, vasoBolus:false,
+    fentPre:false, inductores:[], bnm:null,
+    dsi:false, planA:null, planB:null, planC:null, planD:null,
+    sirIniciado:false, tsInicio:null,
+    tsFentPre:null, tsInductor:null, tsBNM:null,
+    tsInicioIOT:null, tsCapno:null, tsFinalizacion:null,
+    profTET:'', tamanoTET:null,
+    perfFentanilo:false, sedacion:null, vmiEstrategia:null,
+    dosisReales:{},
+    cormack:null, intentos:null, planesReg:[], compDurante:[], compPost:[], obs:'',
+  };
+}
+
+// ── INIT ────────────────────────────────────────────────────────────
+(function init(){
+  try{ const r=localStorage.getItem('hj23_patient'); if(r) patient=JSON.parse(r); }catch(e){}
+  const saved=localStorage.getItem(LSKEY);
+  if(saved){
+    try{ S=JSON.parse(saved); }catch(e){ S=mkState(); }
+    // Normalizar campos VIRA (compatibilidad con sesiones antiguas)
+    if(!Array.isArray(S.bloqueA)) S.bloqueA=[];
+    if(!Array.isArray(S.bloqueB)) S.bloqueB=[];
+    if(S.cooperador===undefined) S.cooperador=null;
+    S.estrategiaVIRA=null;
+    if(!Array.isArray(S.inductores)) S.inductores=S.inductor?[S.inductor]:[];
+    save();
+  } else {
+    S.horaInicio=new Date().toLocaleString('es-ES',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit',year:'numeric'});
+    save();
+  }
+  currentView='val';
+})();
+// Banners — el script está al final del body, DOM disponible
+(function initBanners(){
+  try{
+    const p=JSON.parse(localStorage.getItem('hj23_patient')||'null');
+    if(!p||!p.weight) document.getElementById('noPatBanner').style.display='flex';
+  }catch(e){ document.getElementById('noPatBanner').style.display='flex'; }
+  try{
+    const raw=localStorage.getItem(LSKEY);
+    if(raw){
+      const sv=JSON.parse(raw);
+      const hasData=!!(sv.indicacion||sv.inductor||sv.bnm||sv.planA||sv.cormack||sv.perfFentanilo||sv.sedacion);
+      if(hasData) document.getElementById('sessionBanner').style.display='flex';
+    }
+  }catch(e){}
+})();
+
+function renderHomePatient(){
+  const w=document.getElementById('patWarn'), ok=document.getElementById('patOk');
+  if(!patient||!patient.weight){ w.style.display='flex'; ok.style.display='none'; return; }
+  w.style.display='none'; ok.style.display='flex';
+  const ibwTxt = patient.ibw ? ' · IBW: '+patient.ibw+' kg' : '';
+  document.getElementById('patOkTxt').innerHTML='<strong>Paciente cargado</strong>Peso real: '+patient.weight+' kg'+ibwTxt;
+}
+
+// ── NAVEGACIÓN ──────────────────────────────────────────────────────
+const VIEWS=['val','checklist','registro','informe','despierto'];
+function goTo(v){
+  currentView=v;
+  VIEWS.forEach(id=>document.getElementById('view-'+id).classList.toggle('active',id===v));
+  window.scrollTo(0,0);
+  const sub=document.getElementById('hdrSub');
+  const labels={val:'Valoración',checklist:'Checklist RSI',registro:'Registro',informe:'Informe',despierto:'Intubación despierto'};
+  if(labels[v]){sub.textContent=labels[v];sub.style.display='block';}
+  else{sub.style.display='none';}
+  if(v==='checklist') renderAll();
+  if(v==='registro')  restoreRegistro();
+}
+function handleBack(){
+  const idx=VIEWS.indexOf(currentView);
+  if(idx<=0){location.href='../index.html';return;}
+  goTo(VIEWS[idx-1]);
+}
+
+// ── SESSION ─────────────────────────────────────────────────────────
+function startNew(){
+  if(sirTimer){clearInterval(sirTimer);sirTimer=null;}
+  S=mkState();
+  S.horaInicio=new Date().toLocaleString('es-ES',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit',year:'numeric'});
+  save();
+  // Limpiar DOM de la vista valoración
+  document.querySelectorAll('#indGrid .ind-pill').forEach(p=>p.classList.remove('sel'));
+  document.querySelectorAll('#viraAList .mac-item').forEach(el=>el.classList.remove('ck'));
+  document.querySelectorAll('#viraBList .mac-item').forEach(el=>el.classList.remove('ck'));
+  const as=document.getElementById('viraAScore'); if(as) as.textContent='0 / 9';
+  const ab=document.getElementById('viraABadge'); if(ab){ab.textContent='Bajo';ab.className='mbadge mb-ok';}
+  const bb=document.getElementById('viraBBadge'); if(bb){bb.textContent='Sin riesgo';bb.className='mbadge mb-ok';}
+  const bc=document.getElementById('viraBlockC'); if(bc) bc.style.display='none';
+  const vo=document.getElementById('viraOutput'); if(vo) vo.style.display='none';
+  document.getElementById('viraCoopSi').classList.remove('sel');
+  document.getElementById('viraCoopNo').classList.remove('sel');
+  ['dsi','rsi','despierto'].forEach(v=>document.getElementById('vstr-'+v).classList.remove('sel'));
+  const al=document.getElementById('inAlergias'); if(al) al.value='';
+  const co=document.getElementById('inComida'); if(co) co.value='';
+  // Ocultar banner de sesión anterior
+  const sb=document.getElementById('sessionBanner'); if(sb) sb.style.display='none';
+  goTo('val');
+}
+function recoverSession(){
+  try{S=JSON.parse(localStorage.getItem(LSKEY))||mkState();}catch(e){S=mkState();}
+  goTo('checklist');
+}
+function clearSession(){
+  localStorage.removeItem(LSKEY);
+}
+function save(){localStorage.setItem(LSKEY,JSON.stringify(S));}
+
+// ── HELPERS peso ────────────────────────────────────────────────────
+function getW()  {return patient&&patient.weight?+patient.weight:null;}
+function getIBW(){return patient&&patient.ibw?+patient.ibw:(getW());}
+
+// ── VALORACIÓN ──────────────────────────────────────────────────────
+function selInd(el){
+  document.querySelectorAll('#indGrid .ind-pill').forEach(p=>p.classList.remove('sel'));
+  el.classList.add('sel'); S.indicacion=el.dataset.val; save();
+}
+function iniciarChecklist(){
+  if(S.estrategiaVIRA==='despierto'){ goTo('despierto'); return; }
+  if(S.estrategiaVIRA==='dsi') S.dsi=true;
+  save();
+  goTo('checklist');
+}
+// ── VIRA ────────────────────────────────────────────────────────────
+const VIRA_A_PTS = {mallampati:5, saos:2, cervical:1, oral:1};
+const VIRA_A_LBL = {mallampati:'Mallampati III o IV', saos:'SAOS conocido', cervical:'Movilidad cervical limitada', oral:'Apertura bucal <3 cm'};
+const VIRA_B_LBL = {h:'Hipotensión/Shock', o:'Oxigenación comprometida', p:'Acidosis/Taquipnea', vd:'Fallo VD', agitacion:'Agitación/Combatividad'};
+
+function toggleBloqueA(el){
+  el.classList.toggle('ck');
+  const k=el.dataset.key;
+  if(el.classList.contains('ck')){if(!S.bloqueA.includes(k))S.bloqueA.push(k);}
+  else{S.bloqueA=S.bloqueA.filter(x=>x!==k);}
+  save(); renderVIRA();
+}
+function toggleBloqueB(el){
+  el.classList.toggle('ck');
+  const k=el.dataset.key;
+  if(el.classList.contains('ck')){if(!S.bloqueB.includes(k))S.bloqueB.push(k);}
+  else{S.bloqueB=S.bloqueB.filter(x=>x!==k);}
+  save(); renderVIRA();
+}
+function setCooperador(val){
+  S.cooperador=val;
+  document.getElementById('viraCoopSi').classList.toggle('sel', val===true);
+  document.getElementById('viraCoopNo').classList.toggle('sel', val===false);
+  save(); renderVIRA();
+}
+function selEstrategia(val){
+  S.estrategiaVIRA=val;
+  ['dsi','rsi','despierto'].forEach(v=>document.getElementById('vstr-'+v).classList.toggle('sel',v===val));
+  save();
+}
+function calcVIRA(){
+  const bA=Array.isArray(S.bloqueA)?S.bloqueA:[];
+  const bB=Array.isArray(S.bloqueB)?S.bloqueB:[];
+  const scoreA=bA.reduce((t,k)=>t+(VIRA_A_PTS[k]||0),0);
+  const anatom=scoreA<=2?'bajo':scoreA<=5?'moderado':'alto';
+  const killers=bB.filter(k=>['h','o','p','vd'].includes(k)).length;
+  const vd=bB.includes('vd');
+  const agitacion=bB.includes('agitacion');
+  let nivel;
+  if((anatom==='alto'&&killers>=1)||(killers>=3)||(vd&&(anatom==='moderado'||anatom==='alto'))){nivel=3;}
+  else if(anatom==='moderado'||anatom==='alto'||killers>=1){nivel=2;}
+  else{nivel=1;}
+  return {nivel, anatom, killers, vd, agitacion, scoreA};
+}
+function renderVIRA(){
+  const {nivel, anatom, killers, vd, agitacion, scoreA}=calcVIRA();
+  // Bloque A badge
+  const aScore=document.getElementById('viraAScore');
+  const aBadge=document.getElementById('viraABadge');
+  if(aScore) aScore.textContent=scoreA+' / 9';
+  if(aBadge){
+    if(anatom==='bajo'){aBadge.textContent='Bajo';aBadge.className='mbadge mb-ok';}
+    else if(anatom==='moderado'){aBadge.textContent='Moderado';aBadge.className='mbadge mb-mod';}
+    else{aBadge.textContent='Alto';aBadge.className='mbadge mb-high';}
+  }
+  // Bloque B badge
+  const bBadge=document.getElementById('viraBBadge');
+  if(bBadge){
+    if(killers===0){bBadge.textContent='Sin riesgo';bBadge.className='mbadge mb-ok';}
+    else if(killers===1){bBadge.textContent='Moderado (1 factor)';bBadge.className='mbadge mb-mod';}
+    else{bBadge.textContent='Alto ('+killers+' factores)';bBadge.className='mbadge mb-high';}
+  }
+  // Bloque C — solo si nivel 3
+  const blockC=document.getElementById('viraBlockC');
+  if(blockC) blockC.style.display=nivel===3?'block':'none';
+  if(nivel!==3){S.cooperador=null; document.getElementById('viraCoopSi').classList.remove('sel'); document.getElementById('viraCoopNo').classList.remove('sel');}
+  // Output
+  const output=document.getElementById('viraOutput');
+  const anyMark=scoreA>0||S.bloqueB.length>0;
+  if(output) output.style.display=anyMark?'block':'none';
+  if(!anyMark) return;
+  // Badge nivel
+  const resBadge=document.getElementById('viraResultBadge');
+  if(resBadge){
+    const cfg={
+      1:{txt:'VIRA 1 — Riesgo bajo',       bg:'var(--teal-s)',   border:'var(--teal)',   color:'var(--teal)'},
+      2:{txt:'VIRA 2 — Riesgo moderado-alto',bg:'var(--yellow-s)',border:'var(--yellow)', color:'#9a7700'},
+      3:{txt:'VIRA 3 — Riesgo muy alto',    bg:'var(--warn-s)',   border:'var(--warn)',   color:'var(--warn)'},
+    }[nivel];
+    resBadge.textContent=cfg.txt;
+    resBadge.style.background=cfg.bg;
+    resBadge.style.borderColor=cfg.border;
+    resBadge.style.color=cfg.color;
+  }
+  // Recomendación simple
+  const recoEl=document.getElementById('viraReco');
+  if(recoEl){
+    let txt='';
+    if(agitacion) txt='Valorar Secuencia de Intubación Demorada.';
+    else if(nivel===1) txt='Valorar Secuencia de Intubación Rápida.';
+    else if(nivel===2) txt='Valorar Secuencia de Intubación Rápida o Demorada.';
+    else if(nivel===3&&S.cooperador===true)  txt='Valorar Intubación con paciente despierto.';
+    else if(nivel===3&&S.cooperador===false) txt='Valorar Secuencia de Intubación Rápida asumiendo dificultad.';
+    else if(nivel===3&&S.cooperador===null)  txt='Completar Bloque C para orientar la estrategia.';
+    recoEl.textContent=txt;
+  }
+  // Sincronizar pills visuales con S.estrategiaVIRA
+  ['dsi','rsi','despierto'].forEach(v=>document.getElementById('vstr-'+v).classList.toggle('sel',v===S.estrategiaVIRA));
+}
+
+// ── CHECKLIST: CHECK ITEMS ──────────────────────────────────────────
+function toggleCI(key){
+  S[key]=!S[key]; save();
+  const el=document.getElementById('ci-'+key);
+  if(el) el.classList.toggle('ck',S[key]);
+  if(key==='perfFentanilo') syncFentBox();
+  if(key==='noradrenalina') syncNEBox();
+  updateProgress();
+}
+function syncFentBox(){
+  const box=document.getElementById('fentPerfBox');
+  if(!box) return;
+  box.style.background=S.perfFentanilo?'var(--teal)':'';
+  box.style.borderColor=S.perfFentanilo?'var(--teal)':'';
+}
+function syncNEBox(){
+  const box=document.getElementById('nePerfBox');
+  if(!box) return;
+  box.style.background=S.noradrenalina?'var(--teal)':'';
+  box.style.borderColor=S.noradrenalina?'var(--teal)':'';
+}
+function mlhNE(wt){ return ((0.1*wt*60)/80).toFixed(1); }
+function renderNE(){
+  const el=document.getElementById('neMlh'); if(!el) return;
+  const wt=getW();
+  el.textContent=wt?mlhNE(wt)+' ml/hr':'— ml/hr';
+  syncNEBox();
+}
+function toggleDI(key){
+  S[key]=!S[key]; save();
+  document.getElementById('di-'+key).classList.toggle('ck',S[key]);
+  updateProgress();
+}
+
+// ── POSICIÓN ────────────────────────────────────────────────────────
+function selPos(el){
+  document.querySelectorAll('#posGrid .rpill').forEach(p=>p.classList.remove('sel'));
+  el.classList.add('sel'); S.posicion=el.dataset.val; save(); updateProgress();
+}
+
+// ── PREOX ────────────────────────────────────────────────────────────
+function selPreox(el){
+  document.querySelectorAll('#preoxGrid .rpill').forEach(p=>p.classList.remove('sel'));
+  el.classList.add('sel'); S.preoxTecnica=el.dataset.val; save(); updateProgress();
+}
+
+// ── MATERIAL ────────────────────────────────────────────────────────
+function toggleMat(el){
+  el.classList.toggle('ck');
+  const v=el.dataset.val;
+  if(el.classList.contains('ck')){if(!S.material.includes(v))S.material.push(v);}
+  else{S.material=S.material.filter(x=>x!==v);}
+  save(); updateProgress();
+}
+
+// ── DRUG CARDS ──────────────────────────────────────────────────────
+function fmtInductor(key){
+  const d=INDUCTORS[key]; const wt=getW();
+  if(!wt) return '— mg';
+  const lo=(d.range[0]*wt).toFixed(0), hi=(d.range[1]*wt).toFixed(0);
+  return lo===hi?lo+' mg':lo+'–'+hi+' mg';
+}
+function fmtBNM(key){
+  const wt=getW(); if(!wt) return '— mg';
+  return (BNMS[key].dose*wt).toFixed(0)+' mg';
+}
+function renderInductors(){
+  const isShock=S.indicacion==='shock';
+  const hint=document.getElementById('indHint');
+  hint.style.display='none';
+  const grid=document.getElementById('inductorGrid');
+  grid.innerHTML='';
+  ['ketamina','etomidato','propofol','midazolam'].forEach(key=>{
+    const d=INDUCTORS[key];
+    const isSel=S.inductores.includes(key);
+    const isShockWarn=isShock&&(key==='propofol'||key==='midazolam');
+    let cls='dc';
+    if(isSel) cls+=' sel';
+    else if(isShockWarn) cls+=' warn';
+    const nameHtml=isShockWarn&&!isSel?`${d.name} <span style="color:var(--warn);font-size:1.2em;line-height:1">⚠</span>`:d.name;
+    const warnTxt=(key==='ketamina'&&!isSel)?`<div class="dc-warn-txt">⚠ ${d.warns.join(' · ')}</div>`:'';
+    const limitado=!isSel&&S.inductores.length>=2;
+    grid.innerHTML+=`<div class="${cls}${limitado?' dim':''}" onclick="selInductor('${key}')"><div class="dc-name">${nameHtml}</div><div class="dc-range">${d.range[0]}–${d.range[1]} ${d.unit}</div><div class="dc-dose">${fmtInductor(key)}</div>${warnTxt}</div>`;
+  });
+}
+function selInductor(key){
+  if(S.inductores.includes(key)){S.inductores=S.inductores.filter(x=>x!==key);}
+  else if(S.inductores.length<2){S.inductores.push(key);}
+  save();renderInductors();updateProgress();
+}
+
+function renderBNM(){
+  const grid=document.getElementById('bnmGrid'); grid.innerHTML='';
+  ['rocuronio','succinilcolina'].forEach(key=>{
+    const d=BNMS[key], isPrim=key==='rocuronio', isSel=S.bnm===key;
+    let cls='dc';
+    if(isSel) cls+=' sel';
+    const badge='';
+    const wt=!isPrim&&!isSel?'<div class="dc-warn-txt">⚠ Contraindicada en hiperpotasemia</div>':'';
+    grid.innerHTML+=`<div class="${cls}" onclick="selBNM('${key}')">${badge}<div class="dc-name">${d.name}</div><div class="dc-range">1,2 mg/kg</div><div class="dc-dose">${fmtBNM(key)}</div>${wt}</div>`;
+  });
+}
+function selBNM(key){S.bnm=S.bnm===key?null:key;save();renderBNM();updateProgress();}
+
+function renderFentPreDose(){
+  const wt=getW(); const el=document.getElementById('dv-fentPre');
+  if(!wt){el.textContent='— mcg';el.className='dose-item-val no-pat';return;}
+  el.textContent=(1*wt).toFixed(0)+'–'+(3*wt).toFixed(0)+' mcg';
+  el.className='dose-item-val';
+}
+
+// ── DSI + VORTEX ────────────────────────────────────────────────────
+
+// ── INICIAR SIR ─────────────────────────────────────────────────────
+let sirTimer=null;
+
+function fmtTs(n){return new Date(n).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit',second:'2-digit'});}
+function fmtElapsed(e){const h=Math.floor(e/3600).toString().padStart(2,'0');const m=Math.floor((e%3600)/60).toString().padStart(2,'0');const s=(e%60).toString().padStart(2,'0');return h+':'+m+':'+s;}
+
+function initSIR(){
+  S.sirIniciado=true; S.tsInicio=Date.now(); save(); renderSIR();
+}
+
+function markSirEvent(key){
+  if(S[key]) return;
+  S[key]=Date.now(); save(); renderSIR(); updateProgress();
+}
+
+function selTamanoTET(v){
+  S.tamanoTET=v; save(); renderSIR(); updateProgress();
+}
+
+function startSirTimer(){
+  if(sirTimer) clearInterval(sirTimer);
+  if(!S.sirIniciado||!S.tsInicio) return;
+  function tick(){
+    const now=S.tsFinalizacion||Date.now();
+    const el=document.getElementById('sirClock');
+    if(!el){clearInterval(sirTimer);sirTimer=null;return;}
+    el.textContent=fmtElapsed(Math.floor((now-S.tsInicio)/1000));
+    ['tsFentPre','tsInductor','tsBNM','tsInicioIOT'].forEach(function(key){
+      if(!S[key]) return;
+      const counter=document.getElementById('drElapsed_'+key);
+      if(counter) counter.textContent=fmtElapsed(Math.floor((now-S[key])/1000));
+    });
+  }
+  tick(); sirTimer=setInterval(tick,1000);
+}
+
+function sirRow(key,icon,label,sub,disabled,showElapsed){
+  const marked=!!S[key];
+  let btn;
+  if(marked){
+    if(showElapsed){
+      btn=`<div style="text-align:right;flex-shrink:0"><div id="drElapsed_${key}" style="font-family:var(--mono);font-size:1.15rem;font-weight:700;color:#077d60;white-space:nowrap;line-height:1">—</div><div style="font-family:var(--mono);font-size:.65rem;color:var(--muted);margin-top:3px">${fmtTs(S[key])}</div></div>`;
+    } else {
+      btn=`<span style="font-family:var(--mono);font-size:.78rem;font-weight:700;color:#077d60;background:var(--teal-s);border:1.5px solid var(--teal);padding:6px 10px;border-radius:9px;white-space:nowrap">${fmtTs(S[key])}</span>`;
+    }
+  } else if(disabled){
+    btn=`<button style="padding:7px 12px;border-radius:9px;border:1.5px solid var(--border);background:var(--bg);color:var(--muted);font-family:var(--display);font-size:.82rem;font-weight:700;text-transform:uppercase;cursor:not-allowed" disabled>Marcar</button>`;
+  } else {
+    btn=`<button style="padding:7px 12px;border-radius:9px;border:none;background:var(--blue);color:white;font-family:var(--display);font-size:.82rem;font-weight:700;text-transform:uppercase;cursor:pointer" onclick="markSirEvent('${key}')">Marcar</button>`;
+  }
+  const border=marked?'var(--teal)':'var(--border)';
+  const bg=marked?'var(--teal-s)':'var(--surface)';
+  return `<div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:${bg};border:1px solid ${border};border-radius:12px;margin-bottom:6px">
+    <span style="font-size:1.1rem;flex-shrink:0">${icon}</span>
+    <div style="flex:1"><div style="font-size:.87rem;color:var(--text);font-weight:500">${label}</div>${sub?`<div style="font-size:.74rem;color:var(--muted);margin-top:2px">${sub}</div>`:''}</div>
+    ${btn}
+  </div>`;
+}
+
+function renderSIR(){
+  const c=document.getElementById('sirContent'); if(!c) return;
+  if(!S.sirIniciado){
+    c.innerHTML=`<button class="btn-primary" onclick="initSIR()" style="margin-bottom:8px">⏱ Iniciar SIR</button>`;
+    return;
+  }
+  const w=getW();
+  let html=`<div class="sir-clock-wrap"><div class="sir-clock" id="sirClock">00:00:00</div><div class="sir-clock-lbl">Tiempo desde inicio SIR</div></div>`;
+  html+=`<div class="sir-sec-lbl">Medicación administrada</div>`;
+  const hasDrugs=S.fentPre||S.inductores.length>0||S.bnm;
+  if(!hasDrugs){
+    html+=`<div style="text-align:center;padding:14px;color:var(--muted);font-size:.82rem;background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:6px">Selecciona medicación en la Fase 4</div>`;
+  } else {
+    if(S.fentPre){
+      const dose=w?`${(1*w).toFixed(0)}–${(3*w).toFixed(0)} mcg`:'— mcg';
+      html+=sirRow('tsFentPre','💉','Fentanilo pre-tratamiento',`1–3 mcg/kg · ${dose}`,false,true);
+    }
+    if(S.inductores.length>0){
+      const names=S.inductores.map(k=>INDUCTORS[k].name).join(' + ');
+      const ranges=S.inductores.map(k=>{const d=INDUCTORS[k];return `${d.range[0]}–${d.range[1]} mg/kg`;}).join(' · ');
+      const doses=S.inductores.map(k=>{const d=INDUCTORS[k];return w?`${(d.range[0]*w).toFixed(0)}–${(d.range[1]*w).toFixed(0)} mg`:'— mg';}).join(' / ');
+      html+=sirRow('tsInductor','💉',names,`${ranges} · ${doses}`,false,true);
+    }
+    if(S.bnm){
+      const d=BNMS[S.bnm];
+      const dose=w?`${(d.dose*w).toFixed(0)} mg`:'— mg';
+      html+=sirRow('tsBNM','💉',d.name,`1,2 mg/kg · ${dose}`,false,true);
+    }
+  }
+  const inductorOk=S.inductores.length===0||!!S.tsInductor;
+  const bnmOk=!S.bnm||!!S.tsBNM;
+  const canIOT=hasDrugs?(inductorOk&&bnmOk):true;
+  html+=`<div class="sir-sec-lbl">Procedimiento</div>`;
+  html+=sirRow('tsInicioIOT','🔵','Inicio IOT',null,!canIOT,true);
+  html+=sirRow('tsCapno','🟢','Confirmación capnográfica',null,!S.tsInicioIOT);
+  html+=sirRow('tsFinalizacion','✅','Finalización IOT',null,!S.tsCapno);
+  if(S.tsFinalizacion){
+    html+=`<div class="scard" style="margin-top:8px"><div style="padding:13px 16px 14px">
+      <div class="ci-lbl" style="font-weight:600;margin-bottom:10px">Datos del TET</div>
+      <div class="tet-wrap" style="margin-bottom:14px">
+        <input class="tet-in" type="number" id="tetDepth" min="15" max="30" inputmode="decimal"
+               placeholder="22" value="${S.profTET||''}" oninput="S.profTET=this.value;save();updateProgress()">
+        <div class="tet-ref">cm en dientes<br><span style="color:var(--teal);font-weight:600">Ref: 21–23 cm</span></div>
+      </div>
+      <div class="form-label" style="margin-bottom:6px">Tamaño TET (mm)</div>
+      <div class="tet-size-grid">${['6.0','7.0','7.5','8.0'].map(v=>`<div class="tet-sz${S.tamanoTET===v?' sel':''}" onclick="selTamanoTET('${v}')">${v}</div>`).join('')}</div>
+    </div></div>`;
+  }
+  c.innerHTML=html;
+  startSirTimer();
+}
+
+function setPlan(l,res){
+  S['plan'+l]=res; save();
+  const card=document.getElementById('pc'+l);
+  if(!card) return;
+  card.classList.remove('exito','fallido');
+  card.classList.add(res==='exito'?'exito':'fallido');
+  document.getElementById('p'+l+'-ok').classList.toggle('ok',  res==='exito');
+  document.getElementById('p'+l+'-fail').classList.toggle('fail',res==='fallido');
+  // auto-add to planesReg
+  if(res==='exito'&&!S.planesReg.includes(l)) S.planesReg.push(l);
+  save(); updateProgress();
+}
+function restorePlans(){
+  ['A','B','C','D'].forEach(l=>{if(S['plan'+l]) setPlan(l,S['plan'+l]);});
+}
+
+// ── POST-IOT ────────────────────────────────────────────────────────
+// ml/hr usando misma lógica que farmacos app:
+// fentanilo: conc=9mcg/ml, dose=0.5mcg/kg/h → mlh=(0.5*IBW)/9
+// propofol:  conc=20mg/ml, dose=0.3mg/kg/h  → mlh=(0.3*IBW)/20
+// midazolam: conc=1mg/ml,  dose=0.05mg/kg/h → mlh=0.05*IBW
+function mlhFent(ibw){ return ((0.5*ibw)/9).toFixed(1); }
+function mlhProp(ibw){ return ((0.3*ibw)/20).toFixed(1); }
+function mlhMida(ibw){ return (0.05*ibw).toFixed(1); }
+
+function renderPerfFent(){
+  const ibw=getIBW(); const el=document.getElementById('fentMlh');
+  el.textContent=ibw?mlhFent(ibw)+' ml/hr':'— ml/hr';
+  syncFentBox();
+}
+function selSed(el){
+  document.querySelectorAll('.sed-opt').forEach(o=>o.classList.remove('sel'));
+  el.classList.add('sel'); S.sedacion=el.dataset.val; save();
+  renderSedDetails(); updateProgress();
+}
+function renderSedDetails(){
+  const det=document.getElementById('sedDetails');
+  if(!S.sedacion){det.style.display='none';return;}
+  det.style.display='block';
+  const ibw=getIBW(), noP=!ibw;
+  if(S.sedacion==='propofol'){
+    document.getElementById('sedDoseLbl').textContent='0,3 mg/kg/h (IBW)';
+    document.getElementById('sedMlh').textContent=noP?'— ml/hr':mlhProp(ibw)+' ml/hr';
+    document.getElementById('sedRange').textContent='0,3 – 4 mg/kg/h';
+  } else {
+    document.getElementById('sedDoseLbl').textContent='0,05 mg/kg/h (IBW)';
+    document.getElementById('sedMlh').textContent=noP?'— ml/hr':mlhMida(ibw)+' ml/hr';
+    document.getElementById('sedRange').textContent='0,05 – 0,4 mg/kg/h';
+  }
+  document.querySelectorAll('.sed-opt').forEach(o=>o.classList.toggle('sel',o.dataset.val===S.sedacion));
+}
+function selVMI(strat){
+  S.vmiEstrategia=strat; save();
+  document.getElementById('vsP').classList.toggle('sel',strat==='protectora');
+  document.getElementById('vsO').classList.toggle('sel',strat==='obstructiva');
+  renderVMI(); updateProgress();
+}
+function renderVMI(){
+  const tbl=document.getElementById('vmiTable');
+  if(!S.vmiEstrategia){tbl.innerHTML='<div class="vmi-ph">Selecciona estrategia ventilatoria</div>';return;}
+  const p=VMI[S.vmiEstrategia]; const ibw=getIBW();
+  let vtTxt;
+  if(S.vmiEstrategia==='obstructiva'){
+    vtTxt=ibw?`${(6*ibw).toFixed(0)}–${(8*ibw).toFixed(0)} ml`:`${p.vt} ml/kg IBW`;
+  } else {
+    vtTxt=ibw?`${(p.vt*ibw).toFixed(0)} ml`:`${p.vt} ml/kg IBW`;
+  }
+  const range=S.vmiEstrategia==='obstructiva'?'6–8 ml/kg IBW':'6 ml/kg IBW';
+  tbl.innerHTML=`<table class="vmi-tbl">
+    <tr><th>Parámetro</th><th>Valor</th></tr>
+    <tr><td>Modo</td><td>AC/VC</td></tr>
+    <tr><td>VT (${range})</td><td class="vt-val">${vtTxt}</td></tr>
+    <tr><td>FR</td><td>${p.fr}</td></tr>
+    <tr><td>PEEP</td><td>${p.peep}</td></tr>
+    <tr><td>FiO₂</td><td>${p.fio2}</td></tr>
+    <tr><td>I:E</td><td>${p.ie}</td></tr>
+  </table>`;
+}
+
+// ── PROGRESO ────────────────────────────────────────────────────────
+function phaseOk(n){
+  switch(n){
+    case 1: return S.succion&&S.material.length>0&&S.posicion&&S.monitor&&S.via2acc;
+    case 2: return !!S.preoxTecnica&&S.preoxTiempo;
+    case 3: return !!(S.cristaloides||S.hemoderivados||S.noradrenalina||S.vasoBolus);
+    case 4: return S.inductores.length>0&&!!S.bnm;
+    case 5: return true;
+    case 6: return !!S.tsCapno&&S.profTET!==''&&!!S.tamanoTET;
+    case 7: return S.perfFentanilo&&!!S.sedacion&&!!S.vmiEstrategia;
+  }
+}
+function updateProgress(){
+  for(let i=1;i<=7;i++){
+    const done=phaseOk(i);
+    const seg=document.getElementById('ps'+i); if(seg) seg.className='pseg'+(done?' done':'');
+    const ph=document.getElementById('phase'+i); if(ph) ph.classList.toggle('done',done);
+  }
+}
+
+// ── RENDER ALL ──────────────────────────────────────────────────────
+function renderAll(){
+  // CI básicos
+  ['succion','monitor','via2acc','preoxTiempo','cristaloides','hemoderivados','vasoBolus'].forEach(k=>{
+    const el=document.getElementById('ci-'+k); if(el) el.classList.toggle('ck',!!S[k]);
+  });
+  renderNE(); syncNEBox();
+  // Dose items
+  const dfp=document.getElementById('di-fentPre'); if(dfp) dfp.classList.toggle('ck',!!S.fentPre);
+  // Material
+  document.querySelectorAll('#matGrid .mck').forEach(el=>el.classList.toggle('ck',S.material.includes(el.dataset.val)));
+  // Posición
+  document.querySelectorAll('#posGrid .rpill').forEach(el=>el.classList.toggle('sel',el.dataset.val===S.posicion));
+  // Preox
+  document.querySelectorAll('#preoxGrid .rpill').forEach(el=>el.classList.toggle('sel',el.dataset.val===S.preoxTecnica));
+  // Drugs
+  renderInductors(); renderBNM(); renderFentPreDose(); renderDosisReales();
+  // SIR
+  renderSIR();
+  // Post-IOT
+  renderPerfFent(); syncFentBox();
+  renderSedDetails();
+  if(S.vmiEstrategia){
+    document.getElementById('vsP').classList.toggle('sel',S.vmiEstrategia==='protectora');
+    document.getElementById('vsO').classList.toggle('sel',S.vmiEstrategia==='obstructiva');
+    renderVMI();
+  }
+  updateProgress();
+}
+
+// ── DOSIS REALES ────────────────────────────────────────────────────
+function renderDosisReales(){
+  const card=document.getElementById('dosisRealesCard');
+  const body=document.getElementById('dosisRealesBody');
+  if(!card||!body) return;
+  const drugs=[];
+  S.inductores.forEach(k=>{ const d=INDUCTORS[k]; drugs.push({key:k, name:d.name, ref:d.range[0]+'–'+d.range[1]+' mg/kg', unit:'mg'}); });
+  if(S.bnm){ const d=BNMS[S.bnm]; drugs.push({key:S.bnm, name:d.name, ref:'1,2 mg/kg', unit:'mg'}); }
+  card.style.display=drugs.length>0?'block':'none';
+  if(!S.dosisReales) S.dosisReales={};
+  body.innerHTML=drugs.map(dr=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+      <div>
+        <div style="font-size:.9rem;font-weight:600;color:var(--text)">${dr.name}</div>
+        <div style="font-size:.72rem;color:var(--muted);margin-top:1px">Ref: ${dr.ref}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <input type="number" min="0" step="0.1" placeholder="—"
+          style="width:72px;text-align:right;border:1.5px solid var(--border);border-radius:8px;padding:6px 8px;font-family:var(--mono);font-size:.9rem;font-weight:700;color:var(--text);background:var(--bg);outline:none"
+          value="${S.dosisReales[dr.key]||''}"
+          oninput="S.dosisReales['${dr.key}']=this.value;save()">
+        <span style="font-size:.78rem;color:var(--muted);font-family:var(--mono)">${dr.unit}</span>
+      </div>
+    </div>`).join('');
+  // quitar border-bottom del último
+  const rows=body.querySelectorAll('div[style*="border-bottom"]');
+  if(rows.length) rows[rows.length-1].style.borderBottom='none';
+}
+
+// ── REGISTRO ────────────────────────────────────────────────────────
+function selCork(el,v){
+  document.querySelectorAll('.cork').forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel'); S.cormack=v; save();
+}
+function selIntentos(el,v){
+  document.querySelectorAll('.intbtn').forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel'); S.intentos=v; save();
+}
+function togglePlanReg(el){
+  el.classList.toggle('sel');
+  const v=el.dataset.val;
+  if(el.classList.contains('sel')){if(!S.planesReg.includes(v))S.planesReg.push(v);}
+  else{S.planesReg=S.planesReg.filter(x=>x!==v);}
+  save();
+}
+function toggleComp(el,tipo){
+  el.classList.toggle('ck');
+  const v=el.dataset.val; const arr=tipo==='durante'?S.compDurante:S.compPost;
+  if(el.classList.contains('ck')){if(!arr.includes(v))arr.push(v);}
+  else{const i=arr.indexOf(v);if(i>-1)arr.splice(i,1);}
+  document.getElementById(tipo==='durante'?'ningunaD':'ningunaP').classList.remove('ck-ok');
+  save();
+}
+function selNinguna(tipo){
+  const nEl=document.getElementById(tipo==='durante'?'ningunaD':'ningunaP');
+  nEl.classList.toggle('ck-ok');
+  const grid=document.getElementById(tipo==='durante'?'compDuranteGrid':'compPostGrid');
+  grid.querySelectorAll('.rck').forEach(r=>r.classList.remove('ck'));
+  if(tipo==='durante') S.compDurante=[]; else S.compPost=[];
+  save();
+}
+function restoreRegistro(){
+  // Indicación hint en valoración ya está; restaurar registro
+  if(S.cormack) document.querySelectorAll('.cork').forEach(b=>{if(b.textContent===S.cormack)b.classList.add('sel');});
+  if(S.intentos) document.querySelectorAll('.intbtn').forEach(b=>{if(b.textContent===S.intentos)b.classList.add('sel');});
+  // Planes ejecutados (auto desde vortex)
+  document.querySelectorAll('#planesGrid .plck').forEach(b=>{
+    b.classList.toggle('sel',S.planesReg.includes(b.dataset.val));
+  });
+  const obs=document.getElementById('obsInput'); if(obs) obs.value=S.obs||'';
+}
+
+// ── INFORME ─────────────────────────────────────────────────────────
+function generateReport(){
+  const wt=getW(), ibw=getIBW(); const L=[];
+  L.push('══════════════════════════════════════════════');
+  L.push('  IOT — Hospital Universitari Joan XXIII');
+  L.push('══════════════════════════════════════════════');
+  L.push('Fecha/hora: '+(S.horaInicio||'—'));
+  if(wt){let pl='Peso real: '+wt+' kg';if(patient&&patient.height)pl+=' · Talla: '+patient.height+' cm';if(ibw&&ibw!==wt)pl+=' · IBW: '+ibw+' kg';L.push(pl);}
+  L.push('');
+  L.push('── INDICACIÓN ────────────────────────────────');
+  L.push(S.indicacion?IND_LABELS[S.indicacion]:'No especificada');
+  L.push('');
+  L.push('── DATOS RÁPIDOS ─────────────────────────────');
+  L.push('Alergias: '+(S.alergias||'NAMC'));
+  L.push('Última comida: '+(S.ultimaComida||'—'));
+  L.push('');
+  L.push('── VALORACIÓN VIRA ───────────────────────────');
+  {
+    const {nivel,anatom,killers,vd,agitacion,scoreA}=calcVIRA();
+    const anatomLbl={bajo:'Bajo',moderado:'Moderado',alto:'Alto'}[anatom];
+    const fisiLbl=killers===0?'Sin riesgo fisiológico añadido':killers===1?'Moderado':'Alto';
+    L.push('  Bloque A (anatómico): '+scoreA+' / 9 — '+anatomLbl);
+    if(S.bloqueA.length) L.push('    Ítems: '+S.bloqueA.map(k=>VIRA_A_LBL[k]||k).join(', '));
+    L.push('  Bloque B (fisiológico): '+killers+' factor'+(killers!==1?'es':'')+' crítico'+(killers!==1?'s':'')+' — '+fisiLbl);
+    const killersMarcados=S.bloqueB.filter(k=>['h','o','p','vd'].includes(k));
+    if(killersMarcados.length) L.push('    Factores: '+killersMarcados.map(k=>VIRA_B_LBL[k]).join(', '));
+    L.push('    Agitación: '+(agitacion?'Sí':'No'));
+    L.push('  Nivel VIRA: '+nivel);
+    const estratLbl={dsi:'Secuencia de Intubación Demorada',rsi:'Secuencia de Intubación Rápida',despierto:'Intubación con paciente despierto'};
+    L.push('  Estrategia elegida: '+(S.estrategiaVIRA?estratLbl[S.estrategiaVIRA]:'No seleccionada'));
+    if(nivel===3) L.push('  Cooperador: '+(S.cooperador===true?'Sí':S.cooperador===false?'No':'No evaluado'));
+  }
+  L.push('');
+  L.push('── PREPARACIÓN ───────────────────────────────');
+  if(S.monitor)         L.push('  ✓ Monitorización: SatO₂ · ECG · TA · Capnografía');
+  if(S.via2acc)         L.push('  ✓ 2 accesos vasculares');
+  if(S.succion)         L.push('  ✓ Succión conectada (cánula gran calibre)');
+  if(S.material.length) L.push('  ✓ Material: '+S.material.map(x=>MAT_LBL[x]).join(', '));
+  if(S.posicion)        L.push('  ✓ Posición: '+(POS_LBL[S.posicion]||S.posicion));
+  if(S.dsi)             L.push('  ✓ DSI realizada antes de RSI');
+  L.push('');
+  L.push('── PREOXIGENACIÓN ────────────────────────────');
+  if(S.preoxTecnica) L.push('  '+PREOX_LBL[S.preoxTecnica]);
+  if(S.preoxTiempo)  L.push('  ✓ ≥3 min + oxigenación apnéica activa');
+  L.push('');
+  L.push('── OPTIMIZACIÓN FISIOLÓGICA ──────────────────');
+  if(S.cristaloides)   L.push('  ✓ Cristaloides administrados');
+  if(S.hemoderivados)  L.push('  ✓ Hemoderivados administrados');
+  if(S.noradrenalina&&wt) L.push('  ✓ Noradrenalina: inicio '+mlhNE(wt)+' ml/hr (0,1 mcg/kg/min · '+wt+'kg · 20mg/250ml SG5% · 80mcg/ml)');
+  else if(S.noradrenalina) L.push('  ✓ Noradrenalina iniciada (0,1 mcg/kg/min · 20mg/250ml SG5% · 80mcg/ml)');
+  if(S.vasoBolus)      L.push('  ✓ Vasopresores bolus administrados (Adrenalina 100 mcg/ml)');
+  L.push('');
+  L.push('── MEDICACIÓN ────────────────────────────────');
+  if(S.fentPre&&wt)  L.push('  Fentanilo pre-tto: '+(1*wt).toFixed(0)+'–'+(3*wt).toFixed(0)+' mcg IV (1–3 mcg/kg)');
+  if(S.inductores.length>0){
+    S.inductores.forEach(k=>{
+      const d=INDUCTORS[k];
+      L.push('  Inducción: '+d.name+' '+fmtInductor(k)+' ('+d.range[0]+'–'+d.range[1]+' mg/kg)');
+    });
+  }
+  if(S.bnm){
+    L.push('  BNM: '+BNMS[S.bnm].name+' '+fmtBNM(S.bnm)+' (1,2 mg/kg)');
+  }
+  L.push('');
+  L.push('── PLAN DAS 2025 ─────────────────────────────');
+  L.push('  Planes verbalizados: A · B · C · D');
+  L.push('');
+  L.push('── SECUENCIA SIR ─────────────────────────────');
+  if(S.tsInicio)      L.push('  Inicio SIR: '+fmtTs(S.tsInicio));
+  const _drugEvs=[];
+  if(S.tsFentPre) _drugEvs.push({lbl:'Fentanilo pre-tto',ts:S.tsFentPre});
+  if(S.tsInductor&&S.inductores.length>0){const names=S.inductores.map(k=>INDUCTORS[k].name).join(' + ');const doses=wt?' ('+S.inductores.map(k=>{const d=INDUCTORS[k];return (d.range[0]*wt).toFixed(0)+'–'+(d.range[1]*wt).toFixed(0)+' mg';}).join(' / ')+')':'';_drugEvs.push({lbl:names+doses,ts:S.tsInductor});}
+  if(S.tsBNM&&S.bnm){const d=BNMS[S.bnm];const dose=wt?' ('+(d.dose*wt).toFixed(0)+' mg)':'';_drugEvs.push({lbl:d.name+dose,ts:S.tsBNM});}
+  _drugEvs.sort((a,b)=>a.ts-b.ts).forEach(ev=>L.push('  '+ev.lbl+': '+fmtTs(ev.ts)));
+  if(S.tsInicioIOT)   L.push('  Inicio IOT: '+fmtTs(S.tsInicioIOT));
+  if(S.tsCapno)       L.push('  ✓ Confirmación capnográfica: '+fmtTs(S.tsCapno));
+  if(S.tsFinalizacion)L.push('  Finalización IOT: '+fmtTs(S.tsFinalizacion));
+  if(S.tsInicio&&S.tsFinalizacion){const dur=Math.floor((S.tsFinalizacion-S.tsInicio)/1000);L.push('  Duración total: '+Math.floor(dur/60).toString().padStart(2,'0')+':'+(dur%60).toString().padStart(2,'0')+' min');}
+  if(S.profTET)       L.push('  Profundidad TET: '+S.profTET+' cm');
+  if(S.tamanoTET)     L.push('  Tamaño TET: '+S.tamanoTET+' mm');
+  L.push('');
+  L.push('── POST-IOT ──────────────────────────────────');
+  if(S.perfFentanilo&&ibw)
+    L.push('  Perfusión Fentanilo: inicio '+mlhFent(ibw)+' ml/hr (0,5 mcg/kg/h · IBW '+ibw+'kg · 900mcg/100ml SF)');
+  if(S.sedacion){
+    if(S.sedacion==='propofol'&&ibw)
+      L.push('  Perfusión Propofol: inicio '+mlhProp(ibw)+' ml/hr (0,3 mg/kg/h · IBW '+ibw+'kg · Vial 2% sin diluir)');
+    if(S.sedacion==='midazolam'&&ibw)
+      L.push('  Perfusión Midazolam: inicio '+mlhMida(ibw)+' ml/hr (0,05 mg/kg/h · IBW '+ibw+'kg · 100mg/100ml SF)');
+  }
+  if(S.vmiEstrategia){
+    const p=VMI[S.vmiEstrategia]; const lbl=S.vmiEstrategia==='protectora'?'Protectora':'Obstructiva';
+    let vtStr=ibw?(S.vmiEstrategia==='obstructiva'?`${(6*ibw).toFixed(0)}–${(8*ibw).toFixed(0)} ml`:`${(p.vt*ibw).toFixed(0)} ml`):`${p.vt} ml/kg IBW`;
+    L.push('  Ventilación '+lbl+': AC/VC · VT '+vtStr+' · FR '+p.fr+' · PEEP '+p.peep+' · FiO₂ '+p.fio2+' · I:E '+p.ie);
+  }
+  L.push('');
+  L.push('── DOSIS REALES ADMINISTRADAS ────────────────');
+  {
+    const dr=S.dosisReales||{};
+    S.inductores.forEach(k=>{const d=INDUCTORS[k];L.push('  '+d.name+': '+(dr[k]?dr[k]+' mg':'no registrado')+' (ref: '+d.range[0]+'–'+d.range[1]+' mg/kg)');});
+    if(S.bnm){const d=BNMS[S.bnm];L.push('  '+d.name+': '+(dr[S.bnm]?dr[S.bnm]+' mg':'no registrado')+' (ref: 1,2 mg/kg)');}
+  }
+  L.push('');
+  L.push('── REGISTRO ──────────────────────────────────');
+  if(S.cormack)  L.push('  Cormack-Lehane: Grado '+S.cormack);
+  if(S.intentos) L.push('  Intentos laringoscopia: '+S.intentos);
+  if(S.planesReg.length) L.push('  Planes ejecutados: Plan '+S.planesReg.join(', Plan '));
+  const cd=S.compDurante.map(x=>COMP_LBL[x]||x);
+  const cp=S.compPost.map(x=>COMP_LBL[x]||x);
+  L.push('  Complicaciones peri-intubación: '+(cd.length?cd.join(', '):'Ninguna'));
+  L.push('  Complicaciones post-intubación: '+(cp.length?cp.join(', '):'Ninguna'));
+  if(S.obs) L.push('  Obs: '+S.obs);
+  L.push('');
+  L.push('──────────────────────────────────────────────');
+  L.push('  URGlab');
+  L.push('══════════════════════════════════════════════');
+  document.getElementById('informeBox').textContent=L.join('\n');
+
+  // Seguridad RGPD: borrar los campos de texto libre sensibles del localStorage
+  // tras generar el informe. Los datos estructurados (fármacos, checkboxes) se mantienen.
+  S.alergias = '';
+  S.ultimaComida = '';
+  S.obs = '';
+  save();
+  // Limpiar también los campos del DOM para que no sean visibles al volver atrás
+  const inAl = document.getElementById('inAlergias'); if(inAl) inAl.value = '';
+  const inCo = document.getElementById('inComida');   if(inCo) inCo.value = '';
+  const inOb = document.getElementById('obsInput');   if(inOb) inOb.value = '';
+
+  goTo('informe');
+}
+
+function copyReport(){
+  const txt=document.getElementById('informeBox').textContent;
+  navigator.clipboard.writeText(txt).catch(()=>{
+    const ta=document.createElement('textarea');
+    ta.value=txt; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+  });
+  const btn=event.currentTarget||event.target; const orig=btn.textContent;
+  btn.textContent='¡Copiado!'; setTimeout(()=>btn.textContent=orig,2000);
+}
+function downloadReport(){
+  const txt=document.getElementById('informeBox').textContent;
+  const blob=new Blob([txt],{type:'text/plain;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download='IOT_'+(S.horaInicio||'informe').replace(/[/:, ]/g,'_')+'.txt';
+  a.click(); URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>

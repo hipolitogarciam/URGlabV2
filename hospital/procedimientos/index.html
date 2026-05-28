@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Procedimientos — URGlab</title>
+<link rel="stylesheet" href="../../fonts.css">
+<style>
+:root{
+  --blue:#1a6fad;--blue-dark:#145a8f;--blue-light:#e8f3fb;
+  --teal:#09c797;--teal-light:#e6faf5;
+  --bg:#f4f6f9;--surface:#ffffff;
+  --border:rgba(0,0,0,0.09);--border-mid:rgba(0,0,0,0.18);
+  --text:#1a2636;--muted:#8898aa;
+  --display:'Barlow Condensed',sans-serif;
+  --body:'IBM Plex Sans',sans-serif;
+  --mono:'IBM Plex Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--text);font-family:var(--body);min-height:100vh;padding-bottom:60px}
+
+header{
+  background:linear-gradient(135deg,#1a7fc8 0%,#1a6fad 100%);
+  border-bottom:3px solid var(--teal);
+  padding:12px 18px;position:sticky;top:0;z-index:100;
+  display:grid;grid-template-columns:48px 1fr 48px;
+  align-items:center;gap:8px;min-height:68px
+}
+.back-btn{
+  display:flex;align-items:center;justify-content:center;
+  width:38px;height:38px;border-radius:10px;
+  background:rgba(255,255,255,0.15);border:none;
+  cursor:pointer;color:white;text-decoration:none;transition:background .15s
+}
+.back-btn:active{background:rgba(255,255,255,0.28)}
+.hdr-center{text-align:center}
+.hdr-label{font-family:var(--body);font-size:.58rem;font-weight:600;
+  color:#09c797;letter-spacing:.12em;text-transform:uppercase;margin-bottom:2px}
+.hdr-title{font-family:var(--display);font-size:1.4rem;font-weight:800;
+  color:#fff;letter-spacing:.04em;text-transform:uppercase;line-height:1}
+
+.container{max-width:480px;margin:auto;padding:20px 16px}
+
+.section-title{
+  font-family:var(--display);font-size:2rem;font-weight:800;
+  color:#111;margin-bottom:4px;line-height:1;
+  text-transform:uppercase;letter-spacing:.02em
+}
+.section-sub{color:var(--muted);font-size:.85rem;margin-bottom:22px}
+
+.cat-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:14px;padding:20px 18px;
+  display:flex;align-items:center;gap:16px;
+  cursor:pointer;box-shadow:0 1px 6px rgba(0,0,0,.06);
+  transition:transform .13s,box-shadow .13s;
+  text-decoration:none;color:var(--text);
+  -webkit-user-select:none;user-select:none;margin-bottom:12px
+}
+.cat-card:active{transform:scale(.982);box-shadow:0 1px 3px rgba(0,0,0,.07)}
+
+.cat-icon{
+  width:52px;height:52px;border-radius:13px;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;font-size:1.6rem;background:var(--blue-light)
+}
+.cat-text{flex:1}
+.cat-name{
+  font-family:var(--display);font-size:1.2rem;font-weight:700;
+  color:#111;letter-spacing:.02em;text-transform:uppercase;
+  line-height:1.1;margin-bottom:3px
+}
+.cat-desc{font-family:var(--body);font-size:.76rem;color:var(--muted);line-height:1.35}
+.cat-arrow{color:var(--muted);flex-shrink:0}
+</style>
+</head>
+<body>
+
+<header>
+  <a class="back-btn" href="../index.html#menu" aria-label="Volver">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+         fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+  </a>
+  <div class="hdr-center">
+    <div class="hdr-label">Hospital Universitari Joan XXIII</div>
+    <div class="hdr-title">Procedimientos</div>
+  </div>
+  <div></div>
+</header>
+
+<div class="container">
+  <a class="cat-card" href="paracentesis/index.html" style="margin-top:16px">
+    <div class="cat-icon">💧</div>
+    <div class="cat-text">
+      <div class="cat-name">Paracentesis Evacuadora</div>
+    </div>
+    <div class="cat-arrow">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+           fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="9 18 15 12 9 6"/>
+      </svg>
+    </div>
+  </a>
+  <a class="cat-card" href="iot/index.html">
+    <div class="cat-icon">🫁</div>
+    <div class="cat-text">
+      <div class="cat-name">Intubación Orotraqueal</div>
+    </div>
+    <div class="cat-arrow">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+           fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="9 18 15 12 9 6"/>
+      </svg>
+    </div>
+  </a>
+</div>
+
+</body>
+</html>

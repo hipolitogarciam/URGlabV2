@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Recursos — Hospital HJ23</title>
+<meta name="theme-color" content="#1a6fad">
+
+<style>
+    :root {
+        --blue:       #1a6fad;
+        --blue-dark:  #145a8f;
+        --blue-light: #e8f3fb;
+        --teal:       #09c797;
+        --teal-dark:  #07a87e;
+        --teal-light: #e6faf5;
+        --red:        #ef4444;
+        --red-light:  rgba(239,68,68,0.08);
+        --amber:      #f59e0b;
+        --purple:     #7c3aed;
+        --purple-light: rgba(139,92,246,0.1);
+        --black:      #111111;
+        --bg:         #f4f6f9;
+        --surface:    #ffffff;
+        --border:     rgba(0,0,0,0.09);
+        --border-mid: rgba(0,0,0,0.18);
+        --text:       #1a2636;
+        --text-muted: #8898aa;
+        --display: 'Barlow Condensed', sans-serif;
+        --body:    'IBM Plex Sans', sans-serif;
+        --mono:    'IBM Plex Mono', monospace;
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+
+    body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: var(--body);
+        min-height: 100svh;
+        padding-bottom: 60px;
+    }
+
+    /* ─── HEADER ─────────────────────────────────────────────── */
+    header {
+        background: linear-gradient(135deg, #1a7fc8 0%, #1a6fad 100%);
+        border-bottom: 3px solid var(--teal);
+        padding: 12px 18px;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        display: grid;
+        grid-template-columns: 48px 1fr 48px;
+        align-items: center;
+        gap: 8px;
+        min-height: 68px;
+    }
+
+    .back-btn {
+        display: flex; align-items: center; justify-content: center;
+        width: 38px; height: 38px; border-radius: 10px;
+        background: rgba(255,255,255,0.15); border: none;
+        cursor: pointer; color: white; transition: background 0.15s;
+        text-decoration: none;
+    }
+    .back-btn:active { background: rgba(255,255,255,0.28); }
+
+    .header-center { text-align: center; }
+    .header-label {
+        font-family: var(--body); font-size: 0.58rem; font-weight: 600;
+        color: #09c797; letter-spacing: 0.12em;
+        text-transform: uppercase; margin-bottom: 2px;
+    }
+    .header-title {
+        font-family: var(--display); font-size: 1.4rem; font-weight: 800;
+        color: #ffffff; letter-spacing: 0.04em;
+        text-transform: uppercase; line-height: 1;
+    }
+    .header-right {
+        display: flex; align-items: center; justify-content: flex-end; opacity: 0.7;
+    }
+
+    /* ─── CONTENIDO ───────────────────────────────────────────── */
+    .container {
+        max-width: 480px;
+        margin: auto;
+        padding: 20px;
+    }
+
+    .section-title {
+        font-size: 1.5rem; font-weight: 800;
+        color: var(--black); margin-bottom: 4px;
+        line-height: 1; text-transform: uppercase;
+        letter-spacing: 0.02em;
+    }
+    .section-sub {
+        color: var(--text-muted); font-size: 0.85rem;
+        margin-bottom: 22px;
+    }
+
+    /* ─── TARJETAS ────────────────────────────────────────────── */
+    .menu-grid {
+        display: flex; flex-direction: column; gap: 12px;
+    }
+
+    .cat-card {
+        background: var(--surface); border: 1px solid var(--border);
+        border-radius: 14px; padding: 20px 18px;
+        display: flex; align-items: center; gap: 16px;
+        cursor: pointer; box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+        transition: transform 0.13s, box-shadow 0.13s;
+        -webkit-user-select: none; user-select: none;
+        text-decoration: none; color: var(--text);
+    }
+    .cat-card:active { transform: scale(0.982); box-shadow: 0 1px 3px rgba(0,0,0,0.07); }
+
+    .cat-icon {
+        width: 52px; height: 52px; border-radius: 13px;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+    }
+    .cat-icon.purple { background: var(--purple-light); }
+    .cat-icon.blue   { background: var(--blue-light); }
+    .cat-icon.teal   { background: var(--teal-light); }
+    .cat-icon.red    { background: var(--red-light); }
+    .cat-icon.amber  { background: rgba(245,158,11,0.1); }
+
+    .cat-text { flex: 1; }
+    .cat-name {
+        font-family: var(--body); font-size: 1rem; font-weight: 600;
+        color: var(--text); line-height: 1.2;
+    }
+
+    .cat-arrow { color: var(--text-muted); flex-shrink: 0; }
+</style>
+    <link rel="stylesheet" href="../../fonts.css">
+</head>
+<body>
+
+<header>
+    <a class="back-btn" href="../index.html#menu" aria-label="Volver">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+             fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"/>
+        </svg>
+    </a>
+    <div class="header-center">
+        <div class="header-label">Hospital Universitari Joan XXIII</div>
+        <div class="header-title">Recursos</div>
+    </div>
+    <div class="header-right">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
+             fill="none" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 21V7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v14"/>
+            <path d="M3 21h18"/>
+            <path d="M9 21V13h6v8"/>
+            <path d="M10 8h4"/><path d="M12 6v4"/>
+        </svg>
+    </div>
+</header>
+
+<div class="container">
+    <div class="menu-grid">
+
+        <!-- Agenda Telefónica -->
+        <a class="cat-card" href="agenda/index.html">
+            <div class="cat-icon purple">
+                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24"
+                     fill="none" stroke="#7c3aed" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 11.5 19.79 19.79 0 0 1 1.61 2.84 2 2 0 0 1 3.58 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.56a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16z"/>
+                </svg>
+            </div>
+            <div class="cat-text">
+                <div class="cat-name">Agenda Telefónica</div>
+            </div>
+            <div class="cat-arrow">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"/>
+                </svg>
+            </div>
+        </a>
+
+    </div>
+</div>
+
+</body>
+</html>

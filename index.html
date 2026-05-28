@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>URGLab · Ecosistema Digital ICS</title>
+    <meta name="theme-color" content="#1a6fad">
+    <script>
+    (function(){
+      var svg = '<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="512" height="512" rx="88" fill="#0e1a27"/><polyline points="52,256 132,256 162,194 202,318 242,156 282,256 318,256 340,216 362,256 400,256" stroke="#ffffff" stroke-width="38" stroke-linecap="round" stroke-linejoin="round" fill="none"/><rect x="396" y="196" width="34" height="34" rx="5" fill="white" opacity="0.25"/><rect x="434" y="196" width="34" height="34" rx="5" fill="white" opacity="0.55"/><rect x="396" y="234" width="34" height="34" rx="5" fill="white" opacity="0.55"/><rect x="434" y="234" width="34" height="34" rx="5" fill="white"/><rect x="396" y="272" width="34" height="34" rx="5" fill="white" opacity="0.35"/><rect x="434" y="272" width="34" height="34" rx="5" fill="white" opacity="0.2"/></svg>';
+      var img = new Image();
+      var blob = new Blob([svg], {type:'image/svg+xml'});
+      var url = URL.createObjectURL(blob);
+      img.onload = function(){
+        var c = document.createElement('canvas');
+        c.width = 512; c.height = 512;
+        c.getContext('2d').drawImage(img, 0, 0);
+        var png = c.toDataURL('image/png');
+        URL.revokeObjectURL(url);
+        var l = document.createElement('link');
+        l.rel = 'apple-touch-icon'; l.href = png;
+        document.head.appendChild(l);
+        var m = document.createElement('link');
+        m.rel = 'manifest';
+        var mdata = JSON.stringify({name:'URGlab',short_name:'URGlab',start_url:window.location.pathname,display:'standalone',background_color:'#0e1a27',theme_color:'#1a6fad',icons:[{src:png,sizes:'512x512',type:'image/png',purpose:'any maskable'}]});
+        m.href = URL.createObjectURL(new Blob([mdata],{type:'application/manifest+json'}));
+        document.head.appendChild(m);
+      };
+      img.src = url;
+    })();
+    </script>
+
+    <style>
+        :root {
+            --blue:       #1a6fad;
+            --blue-mid:   #1a7fc8;
+            --blue-dark:  #145a8f;
+            --blue-deep:  #0e1a27;
+            --blue-light: #e8f3fb;
+            --teal:       #09c797;
+            --teal-dark:  #07a87e;
+            --teal-light: #e6faf5;
+            --bg:         #f4f6f9;
+            --surface:    #ffffff;
+            --border:     rgba(0,0,0,0.09);
+            --text:       #1a2636;
+            --text-muted: #8898aa;
+            --display: 'Barlow Condensed', sans-serif;
+            --body:    'IBM Plex Sans', sans-serif;
+            --mono:    'IBM Plex Mono', monospace;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+        html, body { height: 100%; overflow: hidden; }
+        body { font-family: var(--body); background: var(--bg); }
+
+        /* ── Screens ── */
+        .screen { position: fixed; inset: 0; display: none; flex-direction: column; }
+        .screen.active { display: flex; }
+
+        /* ════════════════════════
+           HEADER HERO
+        ════════════════════════ */
+        .hero {
+            flex-shrink: 0;
+            background: #0e1a27;
+            border-bottom: 3px solid var(--teal);
+            padding: 26px 24px 22px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .hero-inner {
+            max-width: 480px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .hero-logo-svg {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hero-label {
+            font-family: var(--mono);
+            font-size: 0.62rem;
+            font-weight: 600;
+            color: var(--teal);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            line-height: 1;
+        }
+
+        .hero-name {
+            font-family: var(--display);
+            font-size: 3.8rem;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            line-height: 0.9;
+            text-shadow: 0 2px 20px rgba(9,199,151,0.15);
+            margin-top: -4px;
+        }
+
+        /* ════════════════════════
+           LISTA HOSPITALES
+        ════════════════════════ */
+        .hosp-list {
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .hosp-list-inner {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 20px 16px 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .section-title {
+            font-family: var(--mono);
+            font-size: 0.58rem;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            padding: 4px 4px 10px;
+        }
+
+        /* ── Tarjeta destacada (Joan XXIII activo) ── */
+        .featured-card {
+            background: linear-gradient(135deg, #1a7fc8 0%, #145a8f 100%);
+            border-radius: 16px;
+            padding: 20px 18px;
+            cursor: pointer;
+            -webkit-user-select: none;
+            user-select: none;
+            box-shadow: 0 4px 18px rgba(26,111,173,0.35);
+            transition: transform 0.13s, box-shadow 0.13s;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+        .featured-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: var(--teal);
+        }
+        .featured-card:active {
+            transform: scale(0.984);
+            box-shadow: 0 2px 10px rgba(26,111,173,0.25);
+        }
+        .featured-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+        }
+        .featured-label {
+            font-family: var(--mono);
+            font-size: 0.55rem;
+            font-weight: 600;
+            letter-spacing: 0.14em;
+            color: rgba(255,255,255,0.6);
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+        .featured-name {
+            font-family: var(--display);
+            font-size: 1.7rem;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            line-height: 1;
+        }
+        .featured-city {
+            font-family: var(--body);
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.65);
+            margin-top: 5px;
+        }
+        .featured-arrow {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            color: white;
+        }
+        .featured-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-family: var(--mono);
+            font-size: 0.58rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            color: var(--teal);
+            background: rgba(9,199,151,0.15);
+            border: 1px solid rgba(9,199,151,0.3);
+            border-radius: 20px;
+            padding: 4px 10px;
+            align-self: flex-start;
+        }
+
+        /* ── Grid próximamente ── */
+        .soon-section-title {
+            font-family: var(--mono);
+            font-size: 0.58rem;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            padding: 14px 4px 10px;
+        }
+        .hosp-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .grid-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 13px;
+            padding: 14px 13px;
+            cursor: pointer;
+            -webkit-user-select: none;
+            user-select: none;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            transition: transform 0.13s;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        }
+        .grid-card:active { transform: scale(0.96); }
+        .grid-name {
+            font-family: var(--display);
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            line-height: 1.15;
+        }
+        .grid-city {
+            font-family: var(--body);
+            font-size: 0.68rem;
+            color: #b0b8c8;
+        }
+        .grid-pill {
+            display: inline-flex;
+            align-items: center;
+            font-family: var(--mono);
+            font-size: 0.5rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            color: #b0b8c8;
+            background: #f0f2f5;
+            border: 1px solid rgba(0,0,0,0.08);
+            border-radius: 20px;
+            padding: 2px 7px;
+            margin-top: 4px;
+            align-self: flex-start;
+        }
+
+        /* ════════════════════════
+           PANTALLA PRÓXIMAMENTE
+        ════════════════════════ */
+        .soon-header {
+            flex-shrink: 0;
+            background: linear-gradient(135deg, #1a7fc8 0%, #1a6fad 100%);
+            border-bottom: 3px solid var(--teal);
+            padding: 12px 18px;
+            display: grid;
+            grid-template-columns: 48px 1fr 48px;
+            align-items: center;
+            gap: 8px;
+            min-height: 68px;
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.15);
+            border: none;
+            cursor: pointer;
+            color: white;
+            transition: background 0.15s;
+        }
+        .back-btn:active { background: rgba(255,255,255,0.28); }
+
+        .soon-header-center { text-align: center; }
+        .soon-header-label {
+            font-family: var(--body);
+            font-size: 0.58rem;
+            font-weight: 600;
+            color: rgba(255,255,255,0.65);
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
+        .soon-header-name {
+            font-family: var(--display);
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            line-height: 1.1;
+        }
+
+        .soon-body {
+            flex: 1;
+            background: var(--bg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 32px;
+            gap: 20px;
+            text-align: center;
+        }
+
+        .soon-icon-wrap {
+            width: 80px;
+            height: 80px;
+            border-radius: 22px;
+            background: var(--blue-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .soon-title {
+            font-family: var(--display);
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--blue);
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            line-height: 1;
+        }
+
+        .soon-desc {
+            font-family: var(--body);
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            max-width: 280px;
+        }
+
+        .soon-hosp-name {
+            font-family: var(--mono);
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            color: rgba(255,255,255,0.75);
+        }
+    </style>
+    <link rel="stylesheet" href="fonts.css">
+</head>
+<body>
+
+<!-- ════════════ PANTALLA PRINCIPAL ════════════ -->
+<div id="screen-home" class="screen active">
+
+    <!-- Hero header -->
+    <div class="hero">
+        <div class="hero-inner">
+            <div class="hero-logo-svg">
+                <svg width="80" height="80" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <polyline points="52,256 132,256 162,194 202,318 242,156 282,256 318,256 340,216 362,256 400,256"
+                              stroke="#ffffff" stroke-width="38" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                    <rect x="396" y="196" width="34" height="34" rx="5" fill="white" opacity="0.25"/>
+                    <rect x="434" y="196" width="34" height="34" rx="5" fill="white" opacity="0.55"/>
+                    <rect x="396" y="234" width="34" height="34" rx="5" fill="white" opacity="0.55"/>
+                    <rect x="434" y="234" width="34" height="34" rx="5" fill="white"/>
+                    <rect x="396" y="272" width="34" height="34" rx="5" fill="white" opacity="0.35"/>
+                    <rect x="434" y="272" width="34" height="34" rx="5" fill="white" opacity="0.2"/>
+                </svg>
+            </div>
+            <div class="hero-label">Ecosistema Digital</div>
+            <div class="hero-name">URGLab</div>
+        </div>
+    </div>
+
+    <!-- Lista hospitales -->
+    <div class="hosp-list">
+      <div class="hosp-list-inner">
+
+        <div class="section-title">Hospital activo</div>
+
+        <!-- Joan XXIII — tarjeta destacada -->
+        <div class="featured-card" onclick="window.location.href='hospital/index.html'">
+            <div class="featured-top">
+                <div>
+                    <div class="featured-label">Hospital Universitari</div>
+                    <div class="featured-name">Joan XXIII</div>
+                    <div class="featured-city">Tarragona</div>
+                </div>
+                <div class="featured-arrow">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                         fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"/>
+                    </svg>
+                </div>
+            </div>
+            <div class="featured-badge">
+                <svg width="6" height="6" viewBox="0 0 8 8"><circle cx="4" cy="4" r="4" fill="#09c797"/></svg>
+                ACTIVO
+            </div>
+        </div>
+
+        <div class="soon-section-title">Próximamente</div>
+
+        <!-- Grid 2 columnas -->
+        <div class="hosp-grid">
+            <div class="grid-card" onclick="showSoon('H. U. Vall d\'Hebron', 'Barcelona')">
+                <div class="grid-name">Vall d'Hebron</div>
+                <div class="grid-city">Barcelona</div>
+                <div class="grid-pill">PRÓXIMAMENTE</div>
+            </div>
+            <div class="grid-card" onclick="showSoon('H. U. de Bellvitge', 'L\'Hospitalet de Llobregat')">
+                <div class="grid-name">Bellvitge</div>
+                <div class="grid-city">L'Hospitalet</div>
+                <div class="grid-pill">PRÓXIMAMENTE</div>
+            </div>
+            <div class="grid-card" onclick="showSoon('H. U. Germans Trias i Pujol', 'Badalona')">
+                <div class="grid-name">Germans Trias</div>
+                <div class="grid-city">Badalona</div>
+                <div class="grid-pill">PRÓXIMAMENTE</div>
+            </div>
+            <div class="grid-card" onclick="showSoon('H. U. Doctor Josep Trueta', 'Girona')">
+                <div class="grid-name">Trueta</div>
+                <div class="grid-city">Girona</div>
+                <div class="grid-pill">PRÓXIMAMENTE</div>
+            </div>
+            <div class="grid-card" onclick="showSoon('H. U. Arnau de Vilanova', 'Lleida')">
+                <div class="grid-name">Arnau de Vilanova</div>
+                <div class="grid-city">Lleida</div>
+                <div class="grid-pill">PRÓXIMAMENTE</div>
+            </div>
+            <div class="grid-card" onclick="showSoon('H. Tortosa Verge de la Cinta', 'Tortosa')">
+                <div class="grid-name">Verge de la Cinta</div>
+                <div class="grid-city">Tortosa</div>
+                <div class="grid-pill">PRÓXIMAMENTE</div>
+            </div>
+            <div class="grid-card" onclick="showSoon('Hospital de Viladecans', 'Viladecans')">
+                <div class="grid-name">Viladecans</div>
+                <div class="grid-city">Viladecans</div>
+                <div class="grid-pill">PRÓXIMAMENTE</div>
+            </div>
+        </div>
+
+      </div><!-- /hosp-list-inner -->
+    </div><!-- /hosp-list -->
+</div>
+
+<!-- ════════════ PANTALLA PRÓXIMAMENTE ════════════ -->
+<div id="screen-soon" class="screen">
+
+    <div class="soon-header">
+        <button class="back-btn" onclick="goHome()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 18 9 12 15 6"/>
+            </svg>
+        </button>
+        <div class="soon-header-center">
+            <div class="soon-header-label">URGLab · ICS</div>
+            <div class="soon-header-name" id="soon-header-name">Hospital</div>
+            <div class="soon-hosp-name" id="soon-hosp-loc"></div>
+        </div>
+        <div></div>
+    </div>
+
+    <div class="soon-body">
+        <div class="soon-icon-wrap">
+            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24"
+                 fill="none" stroke="#1a6fad" stroke-width="1.4"
+                 stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+            </svg>
+        </div>
+        <div class="soon-title">Próximamente</div>
+        <div class="soon-desc">
+            El módulo URGLab para este hospital está en desarrollo.<br>
+            Pronto estará disponible como parte del ecosistema digital del ICS.
+        </div>
+    </div>
+
+</div>
+
+<script>
+    function showSoon(name, location) {
+        document.getElementById('soon-header-name').textContent = name;
+        document.getElementById('soon-hosp-loc').textContent = location;
+        document.getElementById('screen-home').classList.remove('active');
+        document.getElementById('screen-soon').classList.add('active');
+    }
+
+    function goHome() {
+        document.getElementById('screen-soon').classList.remove('active');
+        document.getElementById('screen-home').classList.add('active');
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Agenda HJ23</title>
+        <meta name="theme-color" content="#1a6fad">
+    <script>
+    (function(){
+      var svg = '<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="512" height="512" rx="88" fill="#0e1a27"/><polyline points="52,256 132,256 162,194 202,318 242,156 282,256 318,256 340,216 362,256 400,256" stroke="#ffffff" stroke-width="38" stroke-linecap="round" stroke-linejoin="round" fill="none"/><rect x="396" y="196" width="34" height="34" rx="5" fill="white" opacity="0.25"/><rect x="434" y="196" width="34" height="34" rx="5" fill="white" opacity="0.55"/><rect x="396" y="234" width="34" height="34" rx="5" fill="white" opacity="0.55"/><rect x="434" y="234" width="34" height="34" rx="5" fill="white"/><rect x="396" y="272" width="34" height="34" rx="5" fill="white" opacity="0.35"/><rect x="434" y="272" width="34" height="34" rx="5" fill="white" opacity="0.2"/></svg>';
+      var img = new Image();
+      var blob = new Blob([svg], {type:'image/svg+xml'});
+      var url = URL.createObjectURL(blob);
+      img.onload = function(){
+        var c = document.createElement('canvas');
+        c.width = 512; c.height = 512;
+        c.getContext('2d').drawImage(img, 0, 0);
+        var png = c.toDataURL('image/png');
+        URL.revokeObjectURL(url);
+        var l = document.createElement('link');
+        l.rel = 'apple-touch-icon'; l.href = png;
+        document.head.appendChild(l);
+        var m = document.createElement('link');
+        m.rel = 'manifest';
+        var mdata = JSON.stringify({name:'URGlab',short_name:'URGlab',start_url:'./index.html',display:'standalone',background_color:'#0e1a27',theme_color:'#1a6fad',icons:[{src:png,sizes:'512x512',type:'image/png',purpose:'any maskable'}]});
+        m.href = URL.createObjectURL(new Blob([mdata],{type:'application/manifest+json'}));
+        document.head.appendChild(m);
+      };
+      img.src = url;
+    })();
+    </script> 
+
+    <style>
+        :root {
+            --blue:       #1a6fad;
+            --blue-dark:  #145a8f;
+            --blue-light: #e8f3fb;
+            --teal:       #09c797;
+            --teal-dark:  #07a87e;
+            --teal-light: #e6faf5;
+            --red:        #c0392b;
+            --red-light:  #fee2e2;
+            --black:      #111111;
+            --bg:         #f4f6f9;
+            --surface:    #ffffff;
+            --surface2:   #f4f6f9;
+            --border:     rgba(0,0,0,0.09);
+            --border-mid: rgba(0,0,0,0.15);
+            --text:       #1a2636;
+            --text-muted: #8898aa;
+            --display: 'Barlow Condensed', sans-serif;
+            --body:    'IBM Plex Sans', sans-serif;
+            --mono:    'IBM Plex Mono', monospace;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--body);
+            min-height: 100vh;
+            padding-bottom: 40px;
+        }
+
+        /* ─── HEADER ─────────────────────────────────────────────────── */
+        header {
+            background: linear-gradient(135deg, #1a7fc8 0%, #1a6fad 100%);
+            border-bottom: 3px solid var(--teal);
+            padding: 12px 18px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: grid;
+            grid-template-columns: 48px 1fr 48px;
+            align-items: center;
+            gap: 8px;
+            min-height: 68px;
+        }
+
+        .back-btn {
+            display: flex; align-items: center; justify-content: center;
+            width: 38px; height: 38px; border-radius: 10px;
+            background: rgba(255,255,255,0.15); border: none;
+            cursor: pointer; color: white; transition: background 0.15s;
+            text-decoration: none;
+        }
+        .back-btn:active { background: rgba(255,255,255,0.28); }
+
+        .header-center { text-align: center; }
+
+        .header-supertitle {
+            font-family: var(--body);
+            font-size: 0.58rem;
+            font-weight: 600;
+            color: #09c797;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            line-height: 1;
+            margin-bottom: 2px;
+        }
+
+        .header-title {
+            font-family: var(--display);
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: 0.04em;
+            line-height: 1;
+            text-transform: uppercase;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        /* ─── SEARCH ─────────────────────────────────────────────────── */
+        .search-wrap {
+            background: var(--surface);
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .search-inner {
+            position: relative;
+            max-width: 480px;
+            margin: auto;
+        }
+
+        .search-inner input {
+            width: 100%;
+            padding: 12px 42px 12px 42px;
+            background: var(--surface2);
+            border: 1.5px solid var(--border-mid);
+            border-radius: 12px;
+            color: var(--text);
+            font-family: var(--body);
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .search-inner input:focus {
+            border-color: var(--teal);
+            background: var(--surface);
+            box-shadow: 0 0 0 3px rgba(9,199,151,0.12);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 13px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 1rem;
+            pointer-events: none;
+        }
+
+        .clear-btn {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--text-muted);
+            color: white;
+            border: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            font-size: 0.6rem;
+            font-weight: 700;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        /* ─── CONTENT ────────────────────────────────────────────────── */
+        .container {
+            max-width: 480px;
+            margin: auto;
+            padding: 16px;
+        }
+
+        /* ─── SECTION HEADER ─────────────────────────────────────────── */
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .section-header:first-child { margin-top: 4px; }
+
+        .section-icon { font-size: 1rem; line-height: 1; }
+
+        .section-title {
+            font-family: var(--display);
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--blue);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            line-height: 1;
+        }
+
+        .section-count {
+            font-family: var(--mono);
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            margin-left: auto;
+            letter-spacing: 0.04em;
+        }
+
+        /* ─── CONTACT CARD ───────────────────────────────────────────── */
+        .contact-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+            transition: all 0.15s;
+        }
+
+        .contact-card:active {
+            transform: scale(0.99);
+            background: var(--blue-light);
+        }
+
+        .contact-card.t-crit  { border-left: 4px solid var(--red); }
+        .contact-card.t-guard { border-left: 4px solid var(--teal); }
+        .contact-card.t-log   { border-left: 4px solid var(--blue); }
+
+        .contact-info { flex: 1; }
+
+        .contact-name {
+            font-family: var(--body);
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 4px;
+            line-height: 1.2;
+        }
+
+        .contact-tag {
+            font-family: var(--mono);
+            font-size: 0.55rem;
+            font-weight: 500;
+            padding: 2px 7px;
+            border-radius: 4px;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .tag-crit  { background: var(--red-light);  color: var(--red); }
+        .tag-guard { background: var(--teal-light); color: var(--teal-dark); }
+        .tag-log   { background: var(--blue-light); color: var(--blue-dark); }
+
+        .contact-number {
+            font-family: var(--mono);
+            font-size: 1.3rem;
+            font-weight: 500;
+            color: var(--blue-dark);
+            white-space: nowrap;
+            text-align: right;
+        }
+
+        .t-crit .contact-number { color: var(--red); }
+
+        /* ─── NO RESULTS ─────────────────────────────────────────────── */
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+            font-family: var(--body);
+            font-size: 0.9rem;
+        }
+
+        .no-results-icon { font-size: 2.5rem; margin-bottom: 12px; }
+    </style>
+    <link rel="stylesheet" href="../../../fonts.css">
+</head>
+<body>
+
+<header>
+    <a class="back-btn" href="../index.html" aria-label="Volver">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+             fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"/>
+        </svg>
+    </a>
+    <div class="header-center">
+        <div class="header-supertitle">Hospital Universitari Joan XXIII</div>
+        <div class="header-title">Agenda Telefónica</div>
+    </div>
+    <div class="header-right">
+        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none"
+             stroke="rgba(255,255,255,0.7)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+        </svg>
+    </div>
+</header>
+
+<div class="search-wrap">
+    <div class="search-inner">
+        <span class="search-icon">⌕</span>
+        <input type="text" id="search" placeholder="Buscar servicio o extensión...">
+        <button class="clear-btn" id="clear-btn" onclick="clearSearch()">✕</button>
+    </div>
+</div>
+
+<div class="container">
+    <div id="directory"></div>
+</div>
+
+<script>
+    const directoryData = [
+        {
+            category: "Código Politrauma",
+            icon: "🔴",
+            contacts: [
+                { s: "Busca Críticos",        n: "79568",          t: "crit" },
+                { s: "Politrauma",            n: "1019",           t: "crit" },
+                { s: "Anestesia",             n: "79546",          t: "crit" },
+                { s: "Cirugía General",       n: "79549",          t: "crit" },
+                { s: "UCI",                   n: "79570 · 79571",  t: "crit" },
+                { s: "Traumatología",         n: "79563 · 79564",  t: "crit" },
+                { s: "Banco de Sangre",       n: "79529",          t: "crit" },
+                { s: "Técnicos de RX",        n: "79530",          t: "crit" },
+                { s: "Laboratorio Urgencias", n: "1245",           t: "crit" },
+                { s: "Radiología",            n: "79562",          t: "crit" },
+                { s: "Cirugía Torácica",      n: "79593",          t: "crit" },
+                { s: "Neurocirugía",          n: "74421",          t: "crit" }
+            ]
+        },
+        {
+            category: "Código ICTUS",
+            icon: "🟡",
+            contacts: [
+                { s: "Neurología", n: "79557",       t: "crit" },
+                { s: "Radiología", n: "79562",       t: "crit" },
+                { s: "TAC",        n: "4508 · 4509", t: "crit" }
+            ]
+        },
+        {
+            category: "Código IAM",
+            icon: "🟠",
+            contacts: [
+                { s: "Cardiología – Adjunto",   n: "79526", t: "crit" },
+                { s: "Cardiología – Residente", n: "79548", t: "crit" }
+            ]
+        },
+        {
+            category: "Guardias especializadas",
+            icon: "🩺",
+            contacts: [
+                { s: "Urología",                         n: "79543",         t: "guard" },
+                { s: "Anestesia",                        n: "79546",         t: "guard" },
+                { s: "Cirugía Torácica",                 n: "79593",         t: "guard" },
+                { s: "Cirugía General",                  n: "79549",         t: "guard" },
+                { s: "Cirugía Pediátrica",               n: "79550",         t: "guard" },
+                { s: "Vascular – Adjunto",               n: "79551",         t: "guard" },
+                { s: "Vascular – Residente",             n: "79578",         t: "guard" },
+                { s: "Hematología",                      n: "79552",         t: "guard" },
+                { s: "Maxilofacial",                     n: "79553",         t: "guard" },
+                { s: "Medicina Interna – Residente",     n: "79698 · 79619", t: "guard" },
+                { s: "Medicina Interna – Adjunto",       n: "79622",         t: "guard" },
+                { s: "Nefrología",                       n: "79556 · 79557", t: "guard" },
+                { s: "Neurología",                       n: "79557",         t: "guard" },
+                { s: "Neurología no ICTUS",              n: "79765",         t: "guard" },
+                { s: "Oftalmología",                     n: "79558",         t: "guard" },
+                { s: "Otorrinolaringología",             n: "79559",         t: "guard" },
+                { s: "Pediatría",                        n: "79560 · 79561", t: "guard" },
+                { s: "Radiología",                       n: "79562",         t: "guard" },
+                { s: "Traumatología – Residente",        n: "79563",         t: "guard" },
+                { s: "Traumatología – Adjunto",          n: "79564",         t: "guard" },
+                { s: "Toco-Ginecología",                 n: "79566",         t: "guard" },
+                { s: "UCI",                              n: "79570 · 79571", t: "guard" },
+                { s: "Neurocirugía",                     n: "74421",         t: "guard" },
+                { s: "Endoscopias",                      n: "79523",         t: "guard" },
+                { s: "Digestivo",                        n: "79581",         t: "guard" }
+            ]
+        },
+        {
+            category: "Urgencias",
+            icon: "🚨",
+            contacts: [
+                { s: "Jefa de Servicio",            n: "74402",       t: "log" },
+                { s: "Supervisor Urgencias",        n: "79569",       t: "log" },
+                { s: "MAUH Urgencias adultos",      n: "79568",       t: "log" },
+                { s: "Habitación MAUH",             n: "1960",        t: "log" },
+                { s: "Habitación Residentes",       n: "1961",        t: "log" },
+                { s: "Farmacéutica",                n: "79690",       t: "log" },
+                { s: "Secretaría Urgencias",        n: "1019 · 5811", t: "log" },
+                { s: "Triaje 1",                    n: "1037",        t: "log" },
+                { s: "Triaje 2",                    n: "1091",        t: "log" },
+                { s: "Central Puerta A",            n: "5881 · 1010", t: "log" },
+                { s: "Observación Puerta A",        n: "1073",        t: "log" },
+                { s: "Central Puerta B",            n: "1083 · 1093", t: "log" },
+                { s: "Trauma Urgencias",            n: "1085 · 1095", t: "log" },
+                { s: "Pediatría Urgencias",         n: "1063",        t: "log" },
+                { s: "Sala de trabajo médicos",     n: "1990 · 1991", t: "log" },
+                { s: "Sala Planta -1",              n: "1014",        t: "log" }
+            ]
+        },
+        {
+            category: "Coordinación y Logística",
+            icon: "⚙️",
+            contacts: [
+                { s: "Laboratorio Urgencias",   n: "1245",            t: "log" },
+                { s: "Inter hospitalarios SEM", n: "40036",           t: "log" },
+                { s: "Seguridad",               n: "79501 · 79502",   t: "log" },
+                { s: "Mantenimiento",           n: "79503",           t: "log" },
+                { s: "Atención al usuario",     n: "79507",           t: "log" },
+                { s: "Limpieza",                n: "79511",           t: "log" },
+                { s: "Limpieza Urgencias",      n: "79533",           t: "log" },
+                { s: "Supervisor de Guardia",   n: "79512",           t: "log" },
+                { s: "Oficina SAP",             n: "1270",            t: "log" },
+                { s: "Informática",             n: "40201 (Cód. 58)", t: "log" },
+                { s: "Traslados",               n: "40125",           t: "log" },
+                { s: "Técnicos de RX",          n: "79530",           t: "log" },
+                { s: "Politrauma 0",            n: "1019",            t: "log" }
+            ]
+        },
+        {
+            category: "Unidades Hospitalarias",
+            icon: "🏥",
+            contacts: [
+                { s: "Psiquiatría",              n: "79532",              t: "log" },
+                { s: "IPM",                      n: "40066",              t: "log" },
+                { s: "UFFIS",                    n: "79534",              t: "log" },
+                { s: "PADES UFFIS",              n: "79535",              t: "log" },
+                { s: "HAD – Médico",             n: "74430",              t: "log" },
+                { s: "HAD – Enfermera",          n: "74415",              t: "log" },
+                { s: "Diálisis",                 n: "5895",               t: "log" },
+                { s: "UCI",                      n: "1182·83 / 79570·71", t: "log" },
+                { s: "Semicríticos",             n: "1149 · 1150",        t: "log" },
+                { s: "Banco de Sangre",          n: "79530 · 3104",       t: "log" },
+                { s: "Despacho Neumología",      n: "1175 · 1619",        t: "log" },
+                { s: "Alergias",                 n: "2215 · 2216",        t: "log" },
+                { s: "URPA",                     n: "1264",               t: "log" },
+                { s: "REA",                      n: "1272",               t: "log" },
+                { s: "URPA Ocupación Urgencias", n: "1028",               t: "log" },
+                { s: "Subagudos Francolí",       n: "671 610 881",        t: "log" },
+                { s: "Hospital Francolí",        n: "40144",              t: "log" }
+            ]
+        },
+        {
+            category: "Celadores",
+            icon: "🚑",
+            contacts: [
+                { s: "Celador Puerta A", n: "79719", t: "log" },
+                { s: "Celador Puerta B", n: "79710", t: "log" },
+                { s: "Refuerzo",         n: "79723", t: "log" },
+                { s: "Triaje",           n: "79706", t: "log" }
+            ]
+        },
+        {
+            category: "Oncología",
+            icon: "🎗️",
+            contacts: [
+                { s: "Onco HJ23",       n: "608 980 181", t: "crit" },
+                { s: "Busca Onco HJ23", n: "74460",       t: "crit" },
+                { s: "Onco Hosp. Reus", n: "629 096 217", t: "crit" }
+            ]
+        },
+        {
+            category: "Diagnóstico por Imagen",
+            icon: "📸",
+            contacts: [
+                { s: "Radiología",           n: "79562",       t: "log" },
+                { s: "Técnicos de RX",       n: "79530",       t: "log" },
+                { s: "Resonancia Magnética", n: "4518 · 4519", t: "log" },
+                { s: "TAC",                  n: "4508 · 4509", t: "log" },
+                { s: "Ecografía",            n: "4511 · 4512", t: "log" }
+            ]
+        }
+    ];
+
+    const directoryDiv = document.getElementById('directory');
+    const searchInput  = document.getElementById('search');
+    const clearBtn     = document.getElementById('clear-btn');
+
+    // Seguridad: escapa caracteres HTML especiales antes de insertar en innerHTML
+    function escHTML(s) {
+        return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function render(query = "") {
+        directoryDiv.innerHTML = "";
+        const q = query.toLowerCase().trim();
+        clearBtn.style.display = q ? "flex" : "none";
+        let totalResults = 0;
+
+        directoryData.forEach(cat => {
+            const filtered = cat.contacts.filter(c =>
+                c.s.toLowerCase().includes(q) || c.n.includes(q)
+            );
+            if (filtered.length === 0) return;
+            totalResults += filtered.length;
+
+            const section = document.createElement('div');
+
+            const hdr = document.createElement('div');
+            hdr.className = 'section-header';
+            hdr.innerHTML = `
+                <span class="section-icon">${cat.icon}</span>
+                <span class="section-title">${cat.category}</span>
+                <span class="section-count">${filtered.length} ext.</span>`;
+            section.appendChild(hdr);
+
+            filtered.forEach(c => {
+                const card = document.createElement('div');
+                card.className = `contact-card t-${c.t}`;
+                const tagLabel = c.t === 'crit' ? 'Crítico' : c.t === 'guard' ? 'Guardia' : 'Logística';
+                card.innerHTML = `
+                    <div class="contact-info">
+                        <div class="contact-name">${c.s}</div>
+                        <span class="contact-tag tag-${c.t}">${tagLabel}</span>
+                    </div>
+                    <div class="contact-number">${c.n}</div>`;
+                section.appendChild(card);
+            });
+
+            directoryDiv.appendChild(section);
+        });
+
+        if (totalResults === 0) {
+            directoryDiv.innerHTML = `
+                <div class="no-results">
+                    <div class="no-results-icon">🔍</div>
+                    Sin resultados para "<strong>${escHTML(query)}</strong>"
+                </div>`;
+        }
+    }
+
+    function clearSearch() {
+        searchInput.value = "";
+        render();
+        searchInput.focus();
+    }
+
+    searchInput.addEventListener('input', e => render(e.target.value));
+    render();
+</script>
+</body>
+</html>

@@ -1,0 +1,1971 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Paracentesis — URGlab</title>
+<link rel="stylesheet" href="../../../fonts.css">
+<style>
+:root{
+  --bg:#f4f6f9;--surface:#fff;--border:rgba(0,0,0,0.09);--border-mid:rgba(0,0,0,0.18);
+  --text:#1a2636;--muted:#8898aa;
+  --blue:#1a7fc8;--blue-dark:#1a6fad;--blue-s:#e8f3fb;
+  --teal:#09c797;--teal-s:#e6faf5;
+  --warn:#c41520;--warn-s:#fdf0f1;
+  --yellow:#d4820a;--yellow-s:#fff8e6;
+  --display:'Barlow Condensed',sans-serif;
+  --body:'IBM Plex Sans',sans-serif;
+  --mono:'IBM Plex Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--text);font-family:var(--body);min-height:100vh;padding-bottom:80px}
+
+/* HEADER */
+header{
+  background:linear-gradient(135deg,#1a7fc8 0%,#1a6fad 100%);
+  border-bottom:3px solid var(--teal);
+  padding:12px 18px;position:sticky;top:0;z-index:100;
+  display:grid;grid-template-columns:48px 1fr 48px;
+  align-items:center;gap:8px;min-height:68px
+}
+.back-btn{
+  display:flex;align-items:center;justify-content:center;
+  width:38px;height:38px;border-radius:10px;
+  background:rgba(255,255,255,0.15);border:none;cursor:pointer;
+  color:white;text-decoration:none;transition:background .15s
+}
+.back-btn:active{background:rgba(255,255,255,0.28)}
+.hdr-center{text-align:center}
+.hdr-label{font-family:var(--body);font-size:.58rem;font-weight:600;
+  color:#09c797;letter-spacing:.12em;text-transform:uppercase;margin-bottom:2px}
+.hdr-title{font-family:var(--display);font-size:1.4rem;font-weight:800;
+  color:#fff;letter-spacing:.04em;text-transform:uppercase;line-height:1}
+.hdr-sub{font-family:var(--body);font-size:.68rem;color:rgba(255,255,255,0.7);
+  margin-top:2px;letter-spacing:.04em}
+
+/* LAYOUT */
+.view{display:none}.view.active{display:block}
+.cnt{max-width:480px;margin:0 auto;padding:20px 16px}
+
+/* PROGRESS BAR */
+.prog-wrap{position:sticky;top:71px;z-index:90;background:var(--bg);
+  padding:8px 16px;border-bottom:1px solid var(--border)}
+.prog-inner{max-width:480px;margin:0 auto;display:flex;gap:5px}
+.pseg{flex:1;height:5px;border-radius:3px;background:var(--border-mid);transition:background .3s}
+.pseg.done{background:var(--teal)}
+.pseg.act{background:var(--blue)}
+
+/* CARDS */
+.scard{background:var(--surface);border:1px solid var(--border);
+  border-radius:14px;overflow:hidden;margin-bottom:12px}
+.scard-hdr{padding:12px 16px 8px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:8px}
+.scard-title{font-family:var(--display);font-size:1rem;font-weight:700;
+  letter-spacing:.04em;text-transform:uppercase;color:var(--text)}
+.scard-icon{font-size:1.1rem}
+
+/* CHECK ITEMS */
+.ci{display:flex;align-items:flex-start;gap:12px;padding:13px 16px;
+  cursor:pointer;border-bottom:1px solid var(--border);
+  transition:background .12s;-webkit-user-select:none;user-select:none}
+.ci:last-child{border-bottom:none}
+.ci:active{background:rgba(0,0,0,0.03)}
+.ci.ck{background:var(--teal-s)}
+.cibox{width:24px;height:24px;min-width:24px;border-radius:7px;
+  border:2px solid var(--border-mid);display:flex;align-items:center;
+  justify-content:center;transition:all .15s;margin-top:1px}
+.ci.ck .cibox{background:var(--teal);border-color:var(--teal)}
+.ci-label{font-size:.875rem;line-height:1.4;color:var(--text);flex:1}
+.ci-sub{font-size:.75rem;color:var(--muted);margin-top:2px}
+
+/* MULTI-CHECKBOX GRID */
+.mck-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:12px 16px}
+.mck{border:1.5px solid var(--border-mid);border-radius:10px;padding:10px 12px;
+  cursor:pointer;display:flex;align-items:center;gap:8px;
+  font-size:.8rem;line-height:1.3;transition:all .15s;
+  -webkit-user-select:none;user-select:none}
+.mck.ck{border-color:var(--teal);background:var(--teal-s);color:var(--text)}
+.mck-dot{width:16px;height:16px;min-width:16px;border-radius:4px;
+  border:2px solid var(--border-mid);transition:all .15s}
+.mck.ck .mck-dot{background:var(--teal);border-color:var(--teal)}
+
+/* RADIO PILLS */
+.rpill-col{display:flex;flex-direction:column;gap:6px;padding:12px 16px}
+.rpill-row{display:flex;gap:6px;padding:12px 16px;flex-wrap:wrap}
+.rpill{display:flex;align-items:center;gap:10px;padding:11px 14px;
+  border:1.5px solid var(--border-mid);border-radius:10px;cursor:pointer;
+  font-size:.84rem;transition:all .15s;-webkit-user-select:none;user-select:none}
+.rpill.sel{border-color:var(--blue);background:var(--blue-s)}
+.rdot{width:18px;height:18px;min-width:18px;border-radius:50%;
+  border:2px solid var(--border-mid);transition:all .15s;
+  display:flex;align-items:center;justify-content:center}
+.rpill.sel .rdot{border-color:var(--blue)}
+.rpill.sel .rdot::after{content:'';width:8px;height:8px;
+  border-radius:50%;background:var(--blue)}
+.rpill-label{flex:1;font-size:.84rem;line-height:1.3}
+.rpill-sub{font-size:.72rem;color:var(--muted);display:block;margin-top:1px}
+
+/* MAC ITEMS (subchecks within a section) */
+.mac-item{display:flex;align-items:flex-start;gap:12px;padding:11px 16px;
+  border-bottom:1px solid var(--border);cursor:pointer;transition:background .12s;
+  -webkit-user-select:none;user-select:none}
+.mac-item:last-child{border-bottom:none}
+.mac-item.ck{background:var(--teal-s)}
+.mac-box{width:22px;height:22px;min-width:22px;border-radius:6px;
+  border:2px solid var(--border-mid);display:flex;align-items:center;
+  justify-content:center;transition:all .15s;margin-top:1px}
+.mac-item.ck .mac-box{background:var(--teal);border-color:var(--teal)}
+.mac-text{flex:1;font-size:.84rem;line-height:1.4}
+.mac-sub{font-size:.72rem;color:var(--muted);margin-top:2px}
+
+/* PHASES */
+.phase{margin-bottom:10px}
+.phase-hdr{display:flex;align-items:center;gap:10px;padding:16px 16px 10px}
+.phase-num{width:28px;height:28px;background:var(--blue);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--display);font-size:1rem;font-weight:800;
+  color:white;flex-shrink:0;transition:background .3s}
+.phase.done .phase-num{background:var(--teal)}
+.phase-title{font-family:var(--display);font-size:1.05rem;font-weight:700;
+  letter-spacing:.04em;text-transform:uppercase;flex:1}
+.phase-ok{opacity:0;transition:opacity .3s;margin-left:auto}
+.phase.done .phase-ok{opacity:1}
+
+/* BANNERS */
+.banner{border-radius:12px;padding:12px 16px;display:flex;
+  align-items:flex-start;gap:10px;margin-bottom:12px;font-size:.82rem;line-height:1.4}
+.b-warn{background:var(--warn-s);border:1.5px solid #e0a0a5}
+.b-info{background:var(--blue-s);border:1.5px solid #a8cceb}
+.b-ok{background:var(--teal-s);border:1.5px solid #7ddfc5}
+.b-yellow{background:var(--yellow-s);border:1.5px solid #f0c040}
+.banner-icon{font-size:1.1rem;flex-shrink:0;margin-top:1px}
+.banner-body{flex:1}
+.banner-title{font-weight:700;margin-bottom:2px}
+
+/* BUTTONS */
+.btn-primary{width:100%;padding:16px;border-radius:14px;
+  background:var(--blue);color:white;border:none;cursor:pointer;
+  font-family:var(--display);font-size:1.3rem;font-weight:800;
+  letter-spacing:.06em;text-transform:uppercase;transition:opacity .15s;
+  margin-top:8px;display:block;text-align:center}
+.btn-primary:active{opacity:.85}
+.btn-outline{background:white;color:var(--blue);border:2px solid var(--blue)}
+.btn-teal{background:var(--teal);color:white;border:none}
+.btn-ghost{background:transparent;border:1.5px solid var(--border-mid);
+  color:var(--muted);font-family:var(--display);font-size:1rem;font-weight:700;
+  letter-spacing:.06em;text-transform:uppercase;width:100%;padding:13px;
+  border-radius:12px;cursor:pointer;margin-top:8px;display:block;text-align:center}
+.btn-row{display:flex;gap:8px;margin-top:8px}
+.btn-row .btn-primary{margin-top:0}
+
+/* INDICACIÓN PILLS */
+.ind-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px 16px}
+.ind-pill{border:2px solid var(--border-mid);border-radius:12px;padding:14px 10px;
+  text-align:center;cursor:pointer;transition:all .15s;
+  -webkit-user-select:none;user-select:none}
+.ind-pill.sel{border-color:var(--blue);background:var(--blue-s)}
+.ind-icon{font-size:1.4rem;margin-bottom:4px}
+.ind-name{font-family:var(--display);font-size:.9rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.03em;line-height:1.1}
+.ind-desc{font-size:.7rem;color:var(--muted);margin-top:2px;line-height:1.3}
+
+/* WARN ITEM (contraindicaciones) */
+.warn-item{display:flex;align-items:flex-start;gap:12px;padding:11px 16px;
+  border-bottom:1px solid var(--border);cursor:pointer;transition:background .12s;
+  -webkit-user-select:none;user-select:none}
+.warn-item:last-child{border-bottom:none}
+.warn-item.ck{background:#fff0f0}
+.warn-box{width:22px;height:22px;min-width:22px;border-radius:6px;
+  border:2px solid var(--border-mid);display:flex;align-items:center;
+  justify-content:center;transition:all .15s;margin-top:1px}
+.warn-item.ck .warn-box{background:var(--warn);border-color:var(--warn)}
+.warn-text{flex:1;font-size:.84rem;line-height:1.4}
+
+/* ALBÚMINA CALCULATOR */
+.calc-card{background:var(--blue-s);border:1.5px solid #a8cceb;
+  border-radius:12px;padding:14px 16px;margin:10px 16px}
+.calc-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.calc-label{font-size:.82rem;color:var(--text);flex:1}
+.calc-input{width:80px;padding:8px 10px;border:1.5px solid #a8cceb;
+  border-radius:8px;font-family:var(--mono);font-size:1rem;font-weight:700;
+  text-align:center;background:white;color:var(--text)}
+.calc-input:focus{outline:none;border-color:var(--blue)}
+.calc-result{background:white;border-radius:10px;padding:12px 14px;
+  display:flex;align-items:center;justify-content:space-between}
+.calc-result-label{font-size:.78rem;color:var(--muted)}
+.calc-result-val{font-family:var(--mono);font-size:1.3rem;font-weight:700;color:var(--blue)}
+
+/* ANÁLISIS ALGORITHM */
+.alg-step{margin-bottom:12px}
+.alg-question{font-family:var(--display);font-size:1.05rem;font-weight:700;
+  letter-spacing:.03em;padding:0 0 8px;color:var(--text)}
+.alg-pills{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:4px}
+.alg-pill{border:2px solid var(--border-mid);border-radius:10px;padding:9px 14px;
+  cursor:pointer;font-size:.82rem;font-weight:600;transition:all .15s;
+  -webkit-user-select:none;user-select:none}
+.alg-pill.sel{border-color:var(--blue);background:var(--blue-s);color:var(--blue-dark)}
+.alg-pill.sel-teal{border-color:var(--teal);background:var(--teal-s);color:#0a8c6a}
+.alg-num-row{display:flex;align-items:center;gap:10px;margin:8px 0}
+.alg-num-input{width:100px;padding:9px 12px;border:1.5px solid var(--border-mid);
+  border-radius:8px;font-family:var(--mono);font-size:1.1rem;font-weight:700;
+  text-align:center;background:white;color:var(--text)}
+.alg-num-input:focus{outline:none;border-color:var(--blue)}
+.alg-divider{height:1px;background:var(--border);margin:14px 0}
+
+/* DIAGNOSIS BOX */
+.dx-box{border-radius:12px;padding:14px 16px;margin-top:10px}
+.dx-box.dx-ok{background:var(--teal-s);border:2px solid var(--teal)}
+.dx-box.dx-warn{background:var(--warn-s);border:2px solid #e0a0a5}
+.dx-box.dx-yellow{background:var(--yellow-s);border:2px solid #f0c040}
+.dx-box.dx-blue{background:var(--blue-s);border:2px solid #a8cceb}
+.dx-title{font-family:var(--display);font-size:1.1rem;font-weight:800;
+  text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
+.dx-items{list-style:none;padding:0}
+.dx-items li{font-size:.82rem;padding:3px 0;padding-left:14px;position:relative;line-height:1.4}
+.dx-items li::before{content:'→';position:absolute;left:0;color:var(--muted)}
+
+/* REGISTRO */
+.reg-input{width:100%;padding:10px 14px;border:1.5px solid var(--border-mid);
+  border-radius:10px;font-family:var(--body);font-size:.9rem;
+  background:white;color:var(--text);margin-top:6px}
+.reg-input:focus{outline:none;border-color:var(--blue)}
+textarea.reg-input{min-height:80px;resize:vertical;line-height:1.5}
+.reg-label{font-size:.8rem;font-weight:600;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.06em;padding:12px 16px 4px;display:block}
+
+/* COMPL GRID */
+.compl-grid{display:grid;grid-template-columns:1fr;gap:6px;padding:10px 16px}
+.compl-item{border:1.5px solid var(--border-mid);border-radius:10px;
+  padding:10px 14px;cursor:pointer;display:flex;align-items:center;gap:10px;
+  font-size:.84rem;transition:all .15s;-webkit-user-select:none;user-select:none}
+.compl-item.ck{border-color:var(--teal);background:var(--teal-s)}
+.compl-item.ck-warn{border-color:var(--warn);background:var(--warn-s)}
+.compl-dot{width:16px;height:16px;min-width:16px;border-radius:4px;
+  border:2px solid var(--border-mid);transition:all .15s}
+.compl-item.ck .compl-dot{background:var(--teal);border-color:var(--teal)}
+.compl-item.ck-warn .compl-dot{background:var(--warn);border-color:var(--warn)}
+
+/* INFORME */
+.informe-box{background:var(--surface);border:1px solid var(--border);
+  border-radius:14px;padding:18px;font-family:var(--mono);font-size:.78rem;
+  line-height:1.6;white-space:pre-wrap;word-break:break-word;color:var(--text);
+  margin-bottom:12px}
+.inf-actions{display:flex;gap:8px;margin-top:8px}
+.inf-actions .btn-primary{margin-top:0}
+
+/* BADGE */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;
+  border-radius:20px;font-family:var(--mono);font-size:.72rem;font-weight:700}
+.badge-ok{background:var(--teal-s);color:#0a8c6a}
+.badge-warn{background:var(--warn-s);color:var(--warn)}
+.badge-blue{background:var(--blue-s);color:var(--blue-dark)}
+
+/* SECTION LABEL */
+.slabel{font-family:var(--display);font-size:.85rem;font-weight:700;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--muted);
+  padding:16px 16px 6px;display:block}
+
+/* TÉCNICA INFO BOX */
+.tec-box{background:#f8f9fa;border-radius:10px;margin:0 16px 12px;padding:12px 14px;
+  border-left:3px solid var(--blue)}
+.tec-box-title{font-weight:700;font-size:.82rem;color:var(--blue);margin-bottom:4px;
+  text-transform:uppercase;letter-spacing:.04em}
+.tec-box-text{font-size:.78rem;color:var(--muted);line-height:1.5}
+
+/* HIDDEN */
+.hidden{display:none!important}
+
+/* CHECKMARK SVG */
+.ck-svg{width:14px;height:14px;stroke:white;stroke-width:3;fill:none;
+  stroke-linecap:round;stroke-linejoin:round;display:none}
+.ci.ck .ck-svg,.mac-item.ck .ck-svg,.mck.ck .ck-svg{display:block}
+.warn-item.ck .warn-ck-svg{display:block}
+.warn-ck-svg{width:14px;height:14px;stroke:white;stroke-width:3;fill:none;
+  stroke-linecap:round;stroke-linejoin:round;display:none}
+</style>
+</head>
+<body>
+
+<header>
+  <button class="back-btn" onclick="handleBack()" aria-label="Volver">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+         fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+  </button>
+  <div class="hdr-center">
+    <div class="hdr-label">Hospital Universitari Joan XXIII</div>
+    <div class="hdr-title">Paracentesis</div>
+    <div class="hdr-sub" id="hdrSub">Evacuadora / Diagnóstica</div>
+  </div>
+  <div></div>
+</header>
+
+<!-- ═══════════════════════════════════════════
+     VIEW 1 — PRE-PROCEDIMIENTO
+════════════════════════════════════════════ -->
+<div class="view active" id="view-preproc">
+<div class="cnt">
+
+  <div id="sessionBanner" class="banner b-info hidden">
+    <span class="banner-icon">💾</span>
+    <div class="banner-body">
+      <div class="banner-title">Sesión anterior guardada</div>
+      Hay datos de una paracentesis previa. Puedes continuar o reiniciar.
+    </div>
+    <button onclick="resetState()" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:.78rem;font-weight:600;white-space:nowrap;padding:4px 0 0 8px">Reiniciar</button>
+  </div>
+
+  <!-- INDICACIÓN -->
+  <div class="scard">
+    <div class="scard-hdr">
+      <span class="scard-icon">🎯</span>
+      <span class="scard-title">Indicación</span>
+    </div>
+    <div class="ind-grid">
+      <div class="ind-pill" id="ind-novo" onclick="selInd('novo')">
+        <div class="ind-icon">💧</div>
+        <div class="ind-name">Ascitis de novo</div>
+        <div class="ind-desc">Primera vez, diagnóstica</div>
+      </div>
+      <div class="ind-pill" id="ind-tension" onclick="selInd('tension')">
+        <div class="ind-icon">⬆️</div>
+        <div class="ind-name">A tensión</div>
+        <div class="ind-desc">Evacuadora terapéutica</div>
+      </div>
+      <div class="ind-pill" id="ind-pbe" onclick="selInd('pbe')">
+        <div class="ind-icon">🦠</div>
+        <div class="ind-name">Sospecha PBE</div>
+        <div class="ind-desc">Diagnóstica + cultivos</div>
+      </div>
+      <div class="ind-pill" id="ind-control" onclick="selInd('control')">
+        <div class="ind-icon">🔬</div>
+        <div class="ind-name">Control</div>
+        <div class="ind-desc">Seguimiento conocido</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTRAINDICACIONES -->
+  <div class="scard">
+    <div class="scard-hdr">
+      <span class="scard-icon">⚠️</span>
+      <span class="scard-title">Contraindicaciones relativas</span>
+    </div>
+    <div class="warn-item" id="wi-cid" onclick="toggleWarn('cid')">
+      <div class="warn-box" id="wb-cid">
+        <svg class="warn-ck-svg" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg>
+      </div>
+      <span class="warn-text">CID activa</span>
+    </div>
+    <div class="warn-item" id="wi-ileo" onclick="toggleWarn('ileo')">
+      <div class="warn-box" id="wb-ileo">
+        <svg class="warn-ck-svg" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg>
+      </div>
+      <span class="warn-text">Íleo masivo</span>
+    </div>
+    <div class="warn-item" id="wi-cicatrices" onclick="toggleWarn('cicatrices')">
+      <div class="warn-box" id="wb-cicatrices">
+        <svg class="warn-ck-svg" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg>
+      </div>
+      <span class="warn-text">Cicatrices quirúrgicas en zona de punción</span>
+    </div>
+    <div class="warn-item" id="wi-inr" onclick="toggleWarn('inr')">
+      <div class="warn-box" id="wb-inr">
+        <svg class="warn-ck-svg" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg>
+      </div>
+      <span class="warn-text">INR elevado (coagulopatía)</span>
+    </div>
+    <div class="warn-item" id="wi-trombopenia" onclick="toggleWarn('trombopenia')">
+      <div class="warn-box" id="wb-trombopenia">
+        <svg class="warn-ck-svg" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg>
+      </div>
+      <span class="warn-text">Trombopenia severa</span>
+    </div>
+  </div>
+
+  <div id="warnBanner" class="banner b-warn hidden">
+    <span class="banner-icon">⚠️</span>
+    <div class="banner-body">
+      <div class="banner-title">Contraindicación relativa presente</div>
+      Valorar riesgo/beneficio antes de proceder. Anota la justificación en el registro.
+    </div>
+  </div>
+
+  <!-- CONSENTIMIENTO -->
+  <div class="scard">
+    <div class="ci" id="ci-consentimiento" onclick="toggleCI('consentimiento')">
+      <div class="cibox">
+        <svg class="ck-svg" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg>
+      </div>
+      <div>
+        <div class="ci-label">Consentimiento del paciente obtenido</div>
+        <div class="ci-sub">Verbal o escrito según protocolo</div>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-primary" onclick="goTo('checklist')">Iniciar Checklist →</button>
+
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     VIEW 2 — CHECKLIST (5 FASES)
+════════════════════════════════════════════ -->
+<div class="view" id="view-checklist">
+
+<div class="prog-wrap">
+  <div class="prog-inner">
+    <div class="pseg act" id="ps1"></div>
+    <div class="pseg" id="ps2"></div>
+    <div class="pseg" id="ps3"></div>
+    <div class="pseg" id="ps4"></div>
+    <div class="pseg" id="ps5"></div>
+  </div>
+</div>
+
+<div class="cnt">
+
+<!-- FASE 1: MATERIAL -->
+<div class="phase" id="phase1">
+  <div class="phase-hdr">
+    <div class="phase-num" id="pn1">1</div>
+    <div class="phase-title">Preparación de material</div>
+    <svg class="phase-ok" width="20" height="20" viewBox="0 0 24 24" fill="none"
+         stroke="#09c797" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+  </div>
+  <div class="scard">
+    <div class="ci" id="ci-epp" onclick="toggleCI('epp')">
+      <div class="cibox"><svg class="ck-svg" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
+      <div>
+        <div class="ci-label">EPP completo</div>
+        <div class="ci-sub">Guantes no estériles y estériles, bata, gafas</div>
+      </div>
+    </div>
+    <div class="ci" id="ci-materialEsteril" onclick="toggleCI('materialEsteril')">
+      <div class="cibox"><svg class="ck-svg" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
+      <div>
+        <div class="ci-label">Material estéril paciente</div>
+        <div class="ci-sub">Tallas estériles, gasas</div>
+      </div>
+    </div>
+    <div class="ci" id="ci-ecografo" onclick="toggleCI('ecografo')">
+      <div class="cibox"><svg class="ck-svg" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
+      <div>
+        <div class="ci-label">Ecógrafo portátil</div>
+        <div class="ci-sub">Con talla y gel estéril</div>
+      </div>
+    </div>
+    <div class="ci" id="ci-tubos" onclick="toggleCI('tubos')">
+      <div class="cibox"><svg class="ck-svg" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
+      <div>
+        <div class="ci-label">Tubos de análisis</div>
+        <div class="ci-sub">Tapa roja · Tapa morada · 3× tapa verde · 2× botellas cultivo</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scard">
+    <div class="scard-hdr">
+      <span class="scard-icon">💉</span>
+      <span class="scard-title">Antiséptico</span>
+    </div>
+    <div class="rpill-col">
+      <div class="rpill" id="rp-antiseptico-betadine" onclick="selRpill('antiseptico','betadine')">
+        <div class="rdot"></div>
+        <span class="rpill-label">Betadine (Povidona yodada)</span>
+      </div>
+      <div class="rpill" id="rp-antiseptico-clorhexidina" onclick="selRpill('antiseptico','clorhexidina')">
+        <div class="rdot"></div>
+        <span class="rpill-label">Clorhexidina alcohólica</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="scard">
+    <div class="scard-hdr">
+      <span class="scard-icon">🪢</span>
+      <span class="scard-title">Anestésico local + jeringas</span>
+    </div>
+    <div class="rpill-col">
+      <div class="rpill" id="rp-anestesico-mepivacaina" onclick="selRpill('anestesico','mepivacaina')">
+        <div class="rdot"></div>
+        <span class="rpill-label">Mepivacaína</span>
+      </div>
+      <div class="rpill" id="rp-anestesico-lidocaina" onclick="selRpill('anestesico','lidocaina')">
+        <div class="rdot"></div>
+        <span class="rpill-label">Lidocaína</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="scard">
+    <div class="scard-hdr">
+      <span class="scard-icon">🔩</span>
+      <span class="scard-title">Kit evacuadora</span>
+    </div>
+    <div class="mck-grid">
+      <div class="mck" id="mk-agujaPiel" onclick="toggleMck('agujaPiel',this)">
+        <div class="mck-dot"></div>Aguja 25/22G piel
+      </div>
+      <div class="mck" id="mk-jeringas" onclick="toggleMck('jeringas',this)">
+        <div class="mck-dot"></div>Jeringas 20cc ×2
+      </div>
+      <div class="mck" id="mk-linea" onclick="toggleMck('linea',this)">
+        <div class="mck-dot"></div>Línea de infusión
+      </div>
+      <div class="mck" id="mk-botellas" onclick="toggleMck('botellas',this)">
+        <div class="mck-dot"></div>Botellas vacío ≥8L
+      </div>
+      <div class="mck" id="mk-esparadrapo" onclick="toggleMck('esparadrapo',this)">
+        <div class="mck-dot"></div>Esparadrapo fijación
+      </div>
+    </div>
+    <div class="scard-hdr" style="border-top:1px solid var(--border);border-bottom:none">
+      <span class="scard-title" style="font-size:.85rem">Aguja de paracentesis</span>
+    </div>
+    <div class="rpill-col" style="padding-top:8px">
+      <div class="rpill" id="rp-aguja-im22g" onclick="selRpill('aguja','im22g')">
+        <div class="rdot"></div>
+        <div class="rpill-label">Aguja IM 22G
+          <span class="rpill-sub">Poco panículo adiposo</span>
+        </div>
+      </div>
+      <div class="rpill" id="rp-aguja-espinal" onclick="selRpill('aguja','espinal')">
+        <div class="rdot"></div>
+        <div class="rpill-label">Aguja espinal / de paracentesis
+          <span class="rpill-sub">Mucho panículo adiposo</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FASE 2: PREPARACIÓN PACIENTE -->
+<div class="phase" id="phase2">
+  <div class="phase-hdr">
+    <div class="phase-num" id="pn2">2</div>
+    <div class="phase-title">Preparación del paciente</div>
+    <svg class="phase-ok" width="20" height="20" viewBox="0 0 24 24" fill="none"
+         stroke="#09c797" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+  </div>
+  <div class="scard">
+    <div class="ci" id="ci-explicarProc" onclick="toggleCI('explicarProc')">
+      <div class="cibox"><svg class="ck-svg" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
+      <div class="ci-label">Procedimiento explicado al paciente</div>
+    </div>
+    <div class="ci" id="ci-coagulacion" onclick="toggleCI('coagulacion')">
+      <div class="cibox"><svg class="ck-svg" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
+      <div>
+        <div class="ci-label">Coagulación verificada</div>
+        <div class="ci-sub">INR, plaquetas revisados</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scard">
+    <div class="scard-hdr">
+      <span class="scard-icon">📡</span>
+      <span class="scard-title">Sondeo ecográfico previo</span>
+    </div>
+    <div class="mac-item" id="mi-ecoUbicacion" onclick="toggleMac('ecoUbicacion')">
+      <div class="mac-box"><svg class="ck-svg" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
+      <div class="mac-text">Verificar ubicación ideal para drenaje
+        <div class="mac-sub">Zona con mayor contenido de líquido</div>
+      </div>
+    </div>
+    <div class="mac-item" id="mi-ecoDistancia" onclick="toggleMac('ecoDistancia')">
+      <div class="mac-box"><svg class="ck-svg" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
+      <div class="mac-text">Medir distancia piel–peritoneo y peritoneo–órganos</div>
+    </div>
+    <div class="mac-item" id="mi-ecoVascular" onclick="toggleMac('ecoVascular')">
+      <div class="mac-box"><svg class="ck-svg" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
+      <div class="mac-text">Valorar estructuras vasculares en pared abdominal</div>
+    </div>
+  </div>
+
+  <div class="scard">
+    <div class="scard-hdr">
+      <span class="scard-icon">🛏️</span>
+      <span class="scard-title">Posición</span>
+    </div>
+    <div class="rpill-col">
+      <div class="rpill" id="rp-posicion-supino" onclick="selRpill('posicion','supino')">
+        <div class="rdot"></div>
+        <span class="rpill-label">Decúbito supino</span>
+      </div>
+      <div class="rpill" id="rp-posicion-elevado" onclick="selRpill('posicion','elevado')">
+        <div class="rdot"></div>
+        <span class="rpill-label">Cabecera ligeramente elevada
+          <span class="rpill-sub">Si no tolera el decúbito supino</span>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="scard">
+    <div class="ci" id="ci-lateralizacion" onclick="toggleCI('lateralizacion')">
+      <div class="cibox"><svg class="ck-svg" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
+      <div>
+        <div class="ci-label">Girar hacia el lado con mayor contenido de líquido</div>
+      </div>
+    </div>
+    <div class="ci" id="ci-asepsia" onclick="toggleCI('asepsia')">
+      <div class="cibox"><svg class="ck-svg" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
+      <div class="ci-label">Asepsia y antisepsia de la región</div>
+    </div>
+    <div class="ci" id="ci-camposEsteriles" onclick="toggleCI('camposEsteriles')">
+      <div class="cibox"><svg class="ck-svg" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
+      <div class="ci-label">Cubrir área con campos estériles</div>
+    </div>
+  </div>
+</div>
+
+<!-- FASE 3: ANESTESIA LOCAL -->
+<div class="phase" id="phase3">
+  <div class="phase-hdr">
+    <div class="phase-num" id="pn3">3</div>
+    <div class="phase-title">Anestesia local</div>
+    <svg class="phase-ok" width="20" height="20" viewBox="0 0 24 24" fill="none"
+         stroke="#09c797" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+  </div>
+
+  <div class="tec-box">
+    <div class="tec-box-title">Técnica Z-Track</div>
+    <div class="tec-box-text">Con mano no dominante desplaza la piel hacia abajo. Infiltra generando un habón en piel. Aspirar intermitentemente para evitar infiltrar vasos. Tras cada aspiración, infiltrar, profundizar y repetir hasta alcanzar peritoneo o límite de la aguja.</div>
+  </div>
+
+  <div class="scard">
+    <div class="ci" id="ci-anestesiaLocal" onclick="toggleCI('anestesiaLocal')">
+      <div class="cibox"><svg class="ck-svg" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
+      <div>
+        <div class="ci-label">Anestesia local infiltrada (técnica Z-Track)</div>
+        <div class="ci-sub">Desde piel hasta peritoneo, aspirando en cada plano</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FASE 4: INSERCIÓN / TÉCNICA -->
+<div class="phase" id="phase4">
+  <div class="phase-hdr">
+    <div class="phase-num" id="pn4">4</div>
+    <div class="phase-title">Inserción de aguja</div>
+    <svg class="phase-ok" width="20" height="20" viewBox="0 0 24 24" fill="none"
+         stroke="#09c797" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+  </div>
+
+  <div class="scard">
+    <div class="scard-hdr">
+      <span class="scard-icon">📍</span>
+      <span class="scard-title">Técnica utilizada</span>
+    </div>
+    <div class="rpill-col">
+      <div class="rpill" id="rp-tecnica-ecolocalizada" onclick="selTecnica('ecolocalizada')">
+        <div class="rdot"></div>
+        <div class="rpill-label">Eco-localizada
+          <span class="rpill-sub">Marcar punto con eco, insertar sin guía en tiempo real</span>
+        </div>
+      </div>
+      <div class="rpill" id="rp-tecnica-ecoguiada" onclick="selTecnica('ecoguiada')">
+        <div class="rdot"></div>
+        <div class="rpill-label">Ecoguiada
+          <span class="rpill-sub">Insertar bajo visión directa con ecógrafo en tiempo real</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pasos eco-localizada -->
+  <div id="steps-ecolocalizada" class="hidden">
+    <div class="scard">
+      <div class="mac-item" id="mi-ecol-loc" onclick="toggleMac('ecol_loc')">
+        <div class="mac-box"><svg class="ck-svg" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
+        <div class="mac-text">Eco-localización: verificar punto ideal, marcar con marcador o aspiración con jeringa</div>
+      </div>
+      <div class="mac-item" id="mi-ecol-insercion" onclick="toggleMac('ecol_insercion')">
+        <div class="mac-box"><svg class="ck-svg" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
+        <div class="mac-text">Inserción Z-Track: mano no dominante desplaza piel hacia abajo, dominante inserta aspirando hasta peritoneo</div>
+      </div>
+      <div class="mac-item" id="mi-ecol-fijacion" onclick="toggleMac('ecol_fijacion')">
+        <div class="mac-box"><svg class="ck-svg" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
+        <div class="mac-text">Fijación: gasa en V + esparadrapo en corbatilla</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pasos ecoguiada -->
+  <div id="steps-ecoguiada" class="hidden">
+    <div class="scard">
+      <div class="mac-item" id="mi-ecog-loc" onclick="toggleMac('ecog_loc')">
+        <div class="mac-box"><svg class="ck-svg" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
+        <div class="mac-text">Eco-localización: verificar punto ideal de drenaje con ecógrafo estéril</div>
+      </div>
+      <div class="mac-item" id="mi-ecog-insercion" onclick="toggleMac('ecog_insercion')">
+        <div class="mac-box"><svg class="ck-svg" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
+        <div class="mac-text">Inserción con ayudante: mano no dominante sostiene ecógrafo, dominante inserta en plano bajo visión directa hasta peritoneo</div>
+      </div>
+      <div class="mac-item" id="mi-ecog-fijacion" onclick="toggleMac('ecog_fijacion')">
+        <div class="mac-box"><svg class="ck-svg" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
+        <div class="mac-text">Fijación: gasa en V + esparadrapo en corbatilla</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FASE 5: DRENAJE -->
+<div class="phase" id="phase5">
+  <div class="phase-hdr">
+    <div class="phase-num" id="pn5">5</div>
+    <div class="phase-title">Drenaje</div>
+    <svg class="phase-ok" width="20" height="20" viewBox="0 0 24 24" fill="none"
+         stroke="#09c797" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+  </div>
+
+  <div class="scard">
+    <div class="scard-hdr">
+      <span class="scard-icon">🍶</span>
+      <span class="scard-title">Sistema de drenaje</span>
+    </div>
+    <div class="mac-item" id="mi-conexion" onclick="toggleMac('conexion')">
+      <div class="mac-box"><svg class="ck-svg" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
+      <div class="mac-text">Conectar línea de infusión: rosca cerrada → botella al vacío → aguja. Abrir rosca tras conectar</div>
+    </div>
+    <div class="mac-item" id="mi-recambio" onclick="toggleMac('recambio')">
+      <div class="mac-box"><svg class="ck-svg" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
+      <div class="mac-text">Recambio de botella: cerrar línea → cambiar botella → reabrir</div>
+    </div>
+    <div class="mac-item" id="mi-retirada" onclick="toggleMac('retirada')">
+      <div class="mac-box"><svg class="ck-svg" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
+      <div class="mac-text">Retirada: al disminuir velocidad de drenaje → retirar aguja, gasa + esparadrapo</div>
+    </div>
+  </div>
+
+</div><!-- end phase5 -->
+
+<div class="btn-row">
+  <button class="btn-primary btn-outline" onclick="goTo('analisis')" style="flex:1;font-size:1rem">🔬 Analizar líquido</button>
+  <button class="btn-primary" onclick="goTo('registro')" style="flex:1;font-size:1rem">Registro →</button>
+</div>
+
+</div><!-- end cnt -->
+</div><!-- end view-checklist -->
+
+<!-- ═══════════════════════════════════════════
+     VIEW 3 — ANÁLISIS LÍQUIDO ASCÍTICO
+════════════════════════════════════════════ -->
+<div class="view" id="view-analisis">
+<div class="cnt">
+
+  <div class="banner b-info" style="margin-bottom:16px">
+    <span class="banner-icon">🔬</span>
+    <div class="banner-body">
+      <div class="banner-title">Análisis del líquido ascítico</div>
+      Introduce los resultados para orientar el diagnóstico
+    </div>
+  </div>
+
+  <!-- STEP 1: COLOR -->
+  <div class="scard">
+    <div class="scard-hdr">
+      <span class="scard-icon">🎨</span>
+      <span class="scard-title">1. Color del líquido</span>
+    </div>
+    <div class="rpill-col">
+      <div class="rpill" id="alg-color-amarillo" onclick="selColor('amarillo')">
+        <div class="rdot"></div>
+        <span class="rpill-label">Amarillo / turbio</span>
+      </div>
+      <div class="rpill" id="alg-color-hematico" onclick="selColor('hematico')">
+        <div class="rdot"></div>
+        <span class="rpill-label">Hemático (rojizo / rosado)</span>
+      </div>
+      <div class="rpill" id="alg-color-lechoso" onclick="selColor('lechoso')">
+        <div class="rdot"></div>
+        <span class="rpill-label">Lechoso (opaco, blanquecino)</span>
+      </div>
+      <div class="rpill" id="alg-color-marron" onclick="selColor('marron')">
+        <div class="rdot"></div>
+        <span class="rpill-label">Marrón / verdoso</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 1b: corrección si hemático -->
+  <div id="alg-hematico-note" class="hidden">
+    <div class="banner b-yellow">
+      <span class="banner-icon">🩸</span>
+      <div class="banner-body">
+        <div class="banner-title">Corregir conteo leucocitario</div>
+        Restar 1 GB por cada 750 GR · Restar 1 PMN por cada 250 GR
+      </div>
+    </div>
+  </div>
+
+  <!-- Diagnóstico rápido: lechoso y marrón -->
+  <div id="alg-dx-lechoso" class="hidden">
+    <div class="dx-box dx-yellow">
+      <div class="dx-title">🥛 Ascitis quilosa</div>
+      <ul class="dx-items">
+        <li>Solicitar <strong>Triglicéridos</strong> en líquido ascítico</li>
+        <li>Si &gt;200 mg/dL → confirma ascitis quilosa</li>
+      </ul>
+    </div>
+    <button class="btn-ghost" onclick="goTo('registro')">Ir al Registro</button>
+  </div>
+
+  <div id="alg-dx-marron" class="hidden">
+    <div class="dx-box dx-warn">
+      <div class="dx-title">⚠️ Sospecha perforación intestinal</div>
+      <ul class="dx-items">
+        <li>Solicitar <strong>Bilirrubina</strong> en líquido ascítico</li>
+        <li>Si Bili líquido &gt; Bili sérica → perforación intestinal</li>
+        <li>Valorar TAC abdominal urgente</li>
+      </ul>
+    </div>
+    <button class="btn-ghost" onclick="goTo('registro')">Ir al Registro</button>
+  </div>
+
+  <!-- STEP 2: LEUCOCITOS -->
+  <div id="alg-step2" class="hidden">
+    <div class="scard">
+      <div class="scard-hdr">
+        <span class="scard-icon">🔢</span>
+        <span class="scard-title">2. Leucocitos totales</span>
+      </div>
+      <div class="rpill-col">
+        <div class="rpill" id="alg-leuco-bajo" onclick="selLeuco('bajo')">
+          <div class="rdot"></div>
+          <span class="rpill-label">&lt; 500 leucocitos/mm³</span>
+        </div>
+        <div class="rpill" id="alg-leuco-alto" onclick="selLeuco('alto')">
+          <div class="rdot"></div>
+          <span class="rpill-label">≥ 500 leucocitos/mm³</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3: PMN -->
+  <div id="alg-step3" class="hidden">
+    <div class="scard">
+      <div class="scard-hdr">
+        <span class="scard-icon">🦠</span>
+        <span class="scard-title">3. PMN (Neutrófilos)</span>
+      </div>
+      <div class="rpill-col">
+        <div class="rpill" id="alg-pmn-bajo" onclick="selPmn('bajo')">
+          <div class="rdot"></div>
+          <span class="rpill-label">&lt; 250 PMN/mm³</span>
+        </div>
+        <div class="rpill" id="alg-pmn-alto" onclick="selPmn('alto')">
+          <div class="rdot"></div>
+          <span class="rpill-label">≥ 250 PMN/mm³</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 4: % PMN (solo si PMN alto) -->
+  <div id="alg-step4-pct" class="hidden">
+    <div class="scard">
+      <div class="scard-hdr">
+        <span class="scard-icon">📊</span>
+        <span class="scard-title">4. Predominio celular</span>
+      </div>
+      <div class="rpill-col">
+        <div class="rpill" id="alg-pct-pmn-alto" onclick="selPctPmn('alto')">
+          <div class="rdot"></div>
+          <span class="rpill-label">&gt; 50% PMN (predominio neutrófilos)</span>
+        </div>
+        <div class="rpill" id="alg-pct-pmn-bajo" onclick="selPctPmn('bajo')">
+          <div class="rdot"></div>
+          <span class="rpill-label">≤ 50% PMN (predominio mononucleares)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 4b: GASA -->
+  <div id="alg-step4-gasa" class="hidden">
+    <div class="scard">
+      <div class="scard-hdr">
+        <span class="scard-icon">⚖️</span>
+        <span class="scard-title">4. GASA (Gradiente Albúmina)</span>
+      </div>
+      <div class="calc-card" style="margin:0 0 8px">
+        <div class="calc-row">
+          <span class="calc-label">Albúmina sérica</span>
+          <input class="calc-input" id="gasaSerica" type="number" step="0.1" placeholder="—"
+                 oninput="calcGASA()" inputmode="decimal">
+          <span style="font-size:.8rem;color:var(--muted)">g/dL</span>
+        </div>
+        <div class="calc-row">
+          <span class="calc-label">Albúmina líquido</span>
+          <input class="calc-input" id="gasaLiquido" type="number" step="0.1" placeholder="—"
+                 oninput="calcGASA()" inputmode="decimal">
+          <span style="font-size:.8rem;color:var(--muted)">g/dL</span>
+        </div>
+        <div class="calc-result" id="gasaResult" style="display:none">
+          <div class="calc-result-label">GASA = Alb sérica − Alb líquido</div>
+          <div class="calc-result-val" id="gasaVal">—</div>
+        </div>
+      </div>
+      <div class="rpill-col" style="padding-top:4px">
+        <div class="rpill" id="alg-gasa-alto" onclick="selGasa('alto')">
+          <div class="rdot"></div>
+          <span class="rpill-label">GASA ≥ 1,1 g/dL (hipertensión portal)</span>
+        </div>
+        <div class="rpill" id="alg-gasa-bajo" onclick="selGasa('bajo')">
+          <div class="rdot"></div>
+          <span class="rpill-label">GASA &lt; 1,1 g/dL (no portal)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 5: Proteínas (solo PMN <250 + GASA) -->
+  <div id="alg-step5-prot" class="hidden">
+    <div class="scard">
+      <div class="scard-hdr">
+        <span class="scard-icon">🧪</span>
+        <span class="scard-title">5. Proteínas totales en líquido</span>
+      </div>
+      <div class="rpill-col">
+        <div class="rpill" id="alg-prot-bajo" onclick="selProt('bajo')">
+          <div class="rdot"></div>
+          <span class="rpill-label">&lt; 2,5 g/dL</span>
+        </div>
+        <div class="rpill" id="alg-prot-alto" onclick="selProt('alto')">
+          <div class="rdot"></div>
+          <span class="rpill-label">≥ 2,5 g/dL</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 5b: Gluc + LDH (PMN >250, >50% PMN, GASA <1.1) -->
+  <div id="alg-step5-glucldh" class="hidden">
+    <div class="scard">
+      <div class="scard-hdr">
+        <span class="scard-icon">🧪</span>
+        <span class="scard-title">5. Glucosa y LDH en líquido</span>
+      </div>
+      <div class="rpill-col">
+        <div class="rpill" id="alg-glucldh-pbe" onclick="selGlucLdh('pbe')">
+          <div class="rdot"></div>
+          <div class="rpill-label">Gluc ≥ 50 mg/dL y LDH &lt; 225 U/L
+            <span class="rpill-sub">Compatible con PBE — un solo germen</span>
+          </div>
+        </div>
+        <div class="rpill" id="alg-glucldh-pb2" onclick="selGlucLdh('pb2')">
+          <div class="rdot"></div>
+          <div class="rpill-label">Gluc &lt; 50 mg/dL o LDH ≥ 225 U/L
+            <span class="rpill-sub">Sospecha peritonitis bacteriana secundaria</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DIAGNÓSTICO FINAL -->
+  <div id="alg-dx-final" class="hidden">
+    <div id="alg-dx-content"></div>
+    <button class="btn-primary" onclick="goTo('registro')" style="margin-top:12px">Ir al Registro →</button>
+  </div>
+
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     VIEW 4 — REGISTRO
+════════════════════════════════════════════ -->
+<div class="view" id="view-registro">
+<div class="cnt">
+
+  <div class="scard">
+    <div class="scard-hdr">
+      <span class="scard-icon">📋</span>
+      <span class="scard-title">Datos del procedimiento</span>
+    </div>
+    <span class="reg-label">Técnica utilizada</span>
+    <div class="rpill-col" style="padding-top:0">
+      <div class="rpill" id="reg-tec-ecolocalizada" onclick="selReg('tecnicaUsada','ecolocalizada')">
+        <div class="rdot"></div>
+        <span class="rpill-label">Eco-localizada</span>
+      </div>
+      <div class="rpill" id="reg-tec-ecoguiada" onclick="selReg('tecnicaUsada','ecoguiada')">
+        <div class="rdot"></div>
+        <span class="rpill-label">Ecoguiada</span>
+      </div>
+    </div>
+    <span class="reg-label">Volumen total drenado (L)</span>
+    <div style="padding:0 16px 12px">
+      <input class="calc-input reg-input" id="regVolumen" type="number" min="0" step="0.5"
+             placeholder="0,0" oninput="syncVolumen()" inputmode="decimal" style="width:120px">
+    </div>
+  </div>
+
+  <!-- ALBÚMINA INTELIGENTE -->
+  <div class="scard" id="alb-card">
+    <div class="scard-hdr">
+      <span class="scard-icon">🧮</span>
+      <span class="scard-title">Reposición de albúmina</span>
+    </div>
+
+    <!-- Sección PBE (peso-dependiente) -->
+    <div id="alb-pbe" class="hidden">
+      <div class="banner b-warn" style="margin:10px 12px 8px;font-size:.78rem">
+        <span class="banner-icon">🦠</span>
+        <div class="banner-body">
+          <div class="banner-title">Protocolo PBE — dosis peso-dependiente</div>
+          1,5 g/Kg en 6h (día 1) · 1 g/Kg (día 3)
+        </div>
+      </div>
+      <div class="calc-card">
+        <div class="calc-row">
+          <span class="calc-label">Peso del paciente</span>
+          <input class="calc-input" id="regPeso" type="number" min="0" step="1"
+                 placeholder="—" oninput="calcAlbPBE()" inputmode="decimal">
+          <span style="font-size:.85rem;color:var(--muted)">Kg</span>
+        </div>
+        <div id="alb-pbe-result" style="display:none">
+          <div class="calc-result" style="margin-top:6px">
+            <div>
+              <div class="calc-result-label">Día 1 (en 6h)</div>
+            </div>
+            <div class="calc-result-val" id="albPbeDia1">— g</div>
+          </div>
+          <div class="calc-result" style="margin-top:6px">
+            <div>
+              <div class="calc-result-label">Día 3</div>
+            </div>
+            <div class="calc-result-val" id="albPbeDia3">— g</div>
+          </div>
+        </div>
+      </div>
+      <div class="scard-hdr" style="border-top:1px solid var(--border);border-bottom:none;margin-top:4px">
+        <span class="scard-title" style="font-size:.85rem">Antibiótico</span>
+      </div>
+      <div class="rpill-col" style="padding-top:6px">
+        <div class="rpill" id="reg-atb-ceftriaxona" onclick="selAtb('ceftriaxona')">
+          <div class="rdot"></div>
+          <div class="rpill-label">Ceftriaxona 1g c/12h
+            <span class="rpill-sub">Sin criterios de sepsis</span>
+          </div>
+        </div>
+        <div class="rpill" id="reg-atb-meropenem" onclick="selAtb('meropenem')">
+          <div class="rdot"></div>
+          <div class="rpill-label">Meropenem 2g c/8h en infusión continua
+            <span class="rpill-sub">Con criterios de sepsis</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección evacuadora (volumen-dependiente) -->
+    <div id="alb-evac" class="hidden">
+      <div class="calc-card">
+        <div class="calc-row">
+          <span class="calc-label">Volumen drenado</span>
+          <input class="calc-input" id="albEvacVol" type="number" min="0" step="0.5"
+                 placeholder="—" oninput="calcAlbEvac()" inputmode="decimal">
+          <span style="font-size:.85rem;color:var(--muted)">L</span>
+        </div>
+        <div id="alb-evac-result" style="display:none">
+          <div class="calc-result" style="margin-top:6px">
+            <div>
+              <div class="calc-result-label">Albúmina a reponer (6g/L)</div>
+              <div id="alb-evac-nota" style="font-size:.7rem;color:var(--muted)"></div>
+            </div>
+            <div class="calc-result-val" id="albEvacVal">— g</div>
+          </div>
+        </div>
+        <div id="alb-evac-no" style="font-size:.78rem;color:var(--muted);margin-top:4px;display:none">
+          Drenaje ≤ 4L — reposición de albúmina no indicada de rutina
+        </div>
+      </div>
+    </div>
+
+    <!-- Sin análisis todavía: mostrar ambas opciones -->
+    <div id="alb-unknown" class="hidden">
+      <div style="padding:12px 16px">
+        <div class="banner b-info" style="margin-bottom:10px;font-size:.78rem">
+          <span class="banner-icon">ℹ️</span>
+          <div class="banner-body">Completa el análisis del líquido para obtener la pauta de albúmina adaptada al diagnóstico</div>
+        </div>
+        <div class="rpill-col" style="padding:0">
+          <div class="rpill" id="alb-manual-pbe" onclick="selAlbManual('pbe')">
+            <div class="rdot"></div>
+            <span class="rpill-label">PBE / sospecha infección</span>
+          </div>
+          <div class="rpill" id="alb-manual-evac" onclick="selAlbManual('evac')">
+            <div class="rdot"></div>
+            <span class="rpill-label">Evacuadora sin PBE</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scard">
+    <div class="scard-hdr">
+      <span class="scard-icon">💊</span>
+      <span class="scard-title">Tratamiento aplicado</span>
+    </div>
+    <div class="compl-grid">
+      <div class="compl-item" id="tr-albumina" onclick="toggleTrat('albumina',this)">
+        <div class="compl-dot"></div>
+        <span>Albúmina administrada</span>
+      </div>
+      <div class="compl-item" id="tr-ceftriaxona" onclick="toggleTrat('ceftriaxona',this)">
+        <div class="compl-dot"></div>
+        <span>Ceftriaxona 1g c/12h</span>
+      </div>
+      <div class="compl-item" id="tr-meropenem" onclick="toggleTrat('meropenem',this)">
+        <div class="compl-dot"></div>
+        <span>Meropenem 2g c/8h</span>
+      </div>
+      <div class="compl-item" id="tr-ninguno" onclick="toggleTrat('ninguno',this)">
+        <div class="compl-dot"></div>
+        <span>Sin tratamiento específico</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="scard">
+    <div class="scard-hdr">
+      <span class="scard-icon">⚠️</span>
+      <span class="scard-title">Complicaciones</span>
+    </div>
+    <div class="compl-grid">
+      <div class="compl-item" id="cp-filtracion" onclick="toggleCompl('filtracion',this,false)">
+        <div class="compl-dot"></div>
+        <span>Filtración de líquido ascítico</span>
+      </div>
+      <div class="compl-item" id="cp-hemorragia" onclick="toggleCompl('hemorragia',this,true)">
+        <div class="compl-dot"></div>
+        <span>Hemorragia por lesión vascular</span>
+      </div>
+      <div class="compl-item" id="cp-perforacion" onclick="toggleCompl('perforacion',this,true)">
+        <div class="compl-dot"></div>
+        <span>Perforación intestinal</span>
+      </div>
+      <div class="compl-item" id="cp-ninguna" onclick="toggleCompl('ninguna',this,false)">
+        <div class="compl-dot"></div>
+        <span>Sin complicaciones</span>
+      </div>
+    </div>
+    <div id="compl-hemorragia-note" class="banner b-warn hidden" style="margin:0 12px 12px">
+      <span class="banner-icon">🩹</span>
+      <div class="banner-body">Considerar punto hemostático en 8</div>
+    </div>
+    <div id="compl-perforacion-note" class="banner b-info hidden" style="margin:0 12px 12px">
+      <span class="banner-icon">ℹ️</span>
+      <div class="banner-body">No requiere tratamiento salvo signos de infección peritoneal. Vigilar clínicamente.</div>
+    </div>
+  </div>
+
+  <div class="scard">
+    <span class="reg-label">Observaciones</span>
+    <div style="padding:0 16px 14px">
+      <textarea class="reg-input" id="regObs" placeholder="Notas clínicas adicionales..." oninput="S.obs=this.value;save()"></textarea>
+    </div>
+  </div>
+
+  <button class="btn-primary" onclick="generateReport()">Generar Informe</button>
+
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     VIEW 5 — INFORME
+════════════════════════════════════════════ -->
+<div class="view" id="view-informe">
+<div class="cnt">
+  <pre class="informe-box" id="informeBox"></pre>
+  <div class="inf-actions btn-row">
+    <button class="btn-primary btn-outline" onclick="copyReport()" style="flex:1">📋 Copiar</button>
+    <button class="btn-primary" onclick="downloadReport()" style="flex:1">⬇️ Descargar</button>
+  </div>
+  <button class="btn-ghost" onclick="resetState()">Nueva paracentesis</button>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════ -->
+<script>
+const LSKEY = 'hj23_paracentesis_state';
+const VIEWS = ['preproc','checklist','analisis','registro','informe'];
+
+function mkState(){
+  return {
+    // pre-procedimiento
+    indicacion: null,
+    contraindicaciones: [],
+    consentimiento: false,
+    // material
+    epp: false,
+    materialEsteril: false,
+    ecografo: false,
+    tubos: false,
+    antiseptico: null,
+    anestesico: null,
+    kit: [],
+    aguja: null,
+    // paciente
+    explicarProc: false,
+    coagulacion: false,
+    ecoUbicacion: false,
+    ecoDistancia: false,
+    ecoVascular: false,
+    posicion: null,
+    lateralizacion: false,
+    asepsia: false,
+    camposEsteriles: false,
+    // técnica
+    anestesiaLocal: false,
+    tecnica: null,
+    ecol_loc: false, ecol_insercion: false, ecol_fijacion: false,
+    ecog_loc: false, ecog_insercion: false, ecog_fijacion: false,
+    // drenaje
+    conexion: false, recambio: false, retirada: false,
+    // tratamiento
+    volumenDrenado: null,
+    atb: null,
+    // análisis
+    algColor: null,
+    algLeuco: null,
+    algPmn: null,
+    algPctPmn: null,
+    algGasa: null,
+    algProt: null,
+    algGlucLdh: null,
+    // registro
+    tecnicaUsada: null,
+    volumenTotal: null,
+    tratamiento: [],
+    complicaciones: [],
+    obs: '',
+    albManual: null,
+    regPeso: null,
+    atb: null
+  };
+}
+
+let S = mkState();
+let currentView = 'preproc';
+
+function save(){ localStorage.setItem(LSKEY, JSON.stringify(S)); }
+
+function loadState(){
+  try {
+    const raw = localStorage.getItem(LSKEY);
+    if(raw){ S = {...mkState(), ...JSON.parse(raw)}; return true; }
+  } catch(e){}
+  return false;
+}
+
+function resetState(){
+  S = mkState();
+  save();
+  goTo('preproc');
+  renderAll();
+}
+
+function goTo(v){
+  currentView = v;
+  VIEWS.forEach(id => {
+    const el = document.getElementById('view-'+id);
+    if(el) el.classList.toggle('active', id===v);
+  });
+  window.scrollTo(0,0);
+  updateHdrSub(v);
+  if(v==='checklist') updateProgress();
+  if(v==='analisis') renderAnalisis();
+  if(v==='registro'){ syncRegistroFromS(); updateAlbuminaSection(); }
+}
+
+function handleBack(){
+  if(currentView==='checklist') goTo('preproc');
+  else if(currentView==='analisis') goTo('checklist');
+  else if(currentView==='registro') goTo('checklist');
+  else if(currentView==='informe') goTo('registro');
+  else window.location.href='../index.html';
+}
+
+function updateHdrSub(v){
+  const subs = {
+    preproc:'Valoración inicial',
+    checklist:'Checklist procedimiento',
+    analisis:'Análisis del líquido',
+    registro:'Registro',
+    informe:'Informe generado'
+  };
+  document.getElementById('hdrSub').textContent = subs[v] || '';
+}
+
+/* ── INDICACIÓN ── */
+function selInd(val){
+  S.indicacion = val;
+  save();
+  ['novo','tension','pbe','control'].forEach(k => {
+    document.getElementById('ind-'+k).classList.toggle('sel', k===val);
+  });
+  const pbeSection = document.getElementById('pbe-atb-section');
+  const albumPbeNote = document.getElementById('albumina-pbe-note');
+  if(val==='pbe'){
+    pbeSection.classList.remove('hidden');
+    albumPbeNote.classList.remove('hidden');
+  } else {
+    pbeSection.classList.add('hidden');
+    albumPbeNote.classList.add('hidden');
+  }
+}
+
+/* ── CONTRAINDICACIONES ── */
+function toggleWarn(key){
+  const el = document.getElementById('wi-'+key);
+  const wb = document.getElementById('wb-'+key);
+  if(S.contraindicaciones.includes(key)){
+    S.contraindicaciones = S.contraindicaciones.filter(k=>k!==key);
+    el.classList.remove('ck');
+  } else {
+    S.contraindicaciones.push(key);
+    el.classList.add('ck');
+  }
+  save();
+  document.getElementById('warnBanner').classList.toggle('hidden', S.contraindicaciones.length===0);
+}
+
+/* ── CHECK ITEMS ── */
+function toggleCI(key){
+  S[key] = !S[key];
+  const el = document.getElementById('ci-'+key);
+  if(el) el.classList.toggle('ck', S[key]);
+  save();
+  updateProgress();
+}
+
+/* ── MAC ITEMS ── */
+function toggleMac(key){
+  S[key] = !S[key];
+  const el = document.getElementById('mi-'+key.replace('_','-'));
+  if(el) el.classList.toggle('ck', S[key]);
+  save();
+  updateProgress();
+}
+
+/* ── MULTI-CHECKBOX ── */
+function toggleMck(key, el){
+  if(S.kit.includes(key)){
+    S.kit = S.kit.filter(k=>k!==key);
+    el.classList.remove('ck');
+  } else {
+    S.kit.push(key);
+    el.classList.add('ck');
+  }
+  save();
+  updateProgress();
+}
+
+/* ── RADIO PILLS ── */
+function selRpill(group, val){
+  S[group] = val;
+  save();
+  document.querySelectorAll('[id^="rp-'+group+'-"]').forEach(el=>{
+    el.classList.toggle('sel', el.id === 'rp-'+group+'-'+val);
+  });
+  updateProgress();
+}
+
+/* ── TÉCNICA (con mostrar pasos) ── */
+function selTecnica(val){
+  S.tecnica = val;
+  save();
+  document.querySelectorAll('[id^="rp-tecnica-"]').forEach(el=>{
+    el.classList.toggle('sel', el.id==='rp-tecnica-'+val);
+  });
+  document.getElementById('steps-ecolocalizada').classList.toggle('hidden', val!=='ecolocalizada');
+  document.getElementById('steps-ecoguiada').classList.toggle('hidden', val!=='ecoguiada');
+  updateProgress();
+}
+
+
+function syncVolumen(){
+  const v = parseFloat(document.getElementById('regVolumen').value);
+  S.volumenTotal = isNaN(v) ? null : v;
+  save();
+  // sync to evacuadora calc if visible
+  const evVol = document.getElementById('albEvacVol');
+  if(evVol && !evVol.value && v) { evVol.value = v; calcAlbEvac(); }
+}
+
+/* ── HELPER: ¿Es diagnóstico de PBE? ── */
+function isPBE(){
+  if(S.indicacion==='pbe' && !S.algColor) return true; // sólo indicación, sin análisis
+  return (S.algPmn==='alto' && S.algPctPmn==='alto' &&
+    (S.algGasa==='alto' || S.algGlucLdh==='pbe'));
+}
+
+/* ── SECCIÓN ALBÚMINA INTELIGENTE ── */
+function updateAlbuminaSection(){
+  const hasDx = !!(S.algColor);    // si hay análisis hecho
+  const pbe = isPBE();
+  const pbeSection = document.getElementById('alb-pbe');
+  const evacSection = document.getElementById('alb-evac');
+  const unkSection = document.getElementById('alb-unknown');
+  if(!pbeSection) return;
+
+  if(S.albManual){
+    // override manual del usuario
+    pbeSection.classList.toggle('hidden', S.albManual!=='pbe');
+    evacSection.classList.toggle('hidden', S.albManual!=='evac');
+    unkSection.classList.add('hidden');
+  } else if(hasDx || S.indicacion==='pbe'){
+    pbeSection.classList.toggle('hidden', !pbe);
+    evacSection.classList.toggle('hidden', pbe);
+    unkSection.classList.add('hidden');
+    // prefill evacuadora vol si ya tenemos volumen
+    if(!pbe && S.volumenTotal){
+      const el = document.getElementById('albEvacVol');
+      if(el && !el.value) { el.value = S.volumenTotal; calcAlbEvac(); }
+    }
+  } else {
+    pbeSection.classList.add('hidden');
+    evacSection.classList.add('hidden');
+    unkSection.classList.remove('hidden');
+    // restaurar selección manual si existía
+    ['pbe','evac'].forEach(k=>{
+      document.getElementById('alb-manual-'+k)?.classList.toggle('sel', S.albManual===k);
+    });
+  }
+}
+
+function selAlbManual(val){
+  S.albManual = val;
+  save();
+  ['pbe','evac'].forEach(k=>{
+    document.getElementById('alb-manual-'+k)?.classList.toggle('sel', k===val);
+  });
+  updateAlbuminaSection();
+}
+
+function calcAlbPBE(){
+  const peso = parseFloat(document.getElementById('regPeso').value);
+  S.regPeso = isNaN(peso) ? null : peso;
+  save();
+  const res = document.getElementById('alb-pbe-result');
+  if(!isNaN(peso) && peso > 0){
+    document.getElementById('albPbeDia1').textContent = Math.round(peso*1.5)+' g';
+    document.getElementById('albPbeDia3').textContent = Math.round(peso*1)+' g';
+    res.style.display='block';
+  } else {
+    res.style.display='none';
+  }
+}
+
+function calcAlbEvac(){
+  const vol = parseFloat(document.getElementById('albEvacVol').value);
+  const res = document.getElementById('alb-evac-result');
+  const noEl = document.getElementById('alb-evac-no');
+  const valEl = document.getElementById('albEvacVal');
+  const notaEl = document.getElementById('alb-evac-nota');
+  if(!isNaN(vol) && vol > 0){
+    if(vol > 4){
+      const g = Math.round(vol*6);
+      valEl.textContent = g+' g';
+      notaEl.textContent = vol.toFixed(1)+'L × 6g/L';
+      res.style.display='flex';
+      noEl.style.display='none';
+    } else {
+      res.style.display='none';
+      noEl.style.display='block';
+    }
+  } else {
+    res.style.display='none';
+    noEl.style.display='none';
+  }
+}
+
+function selAtb(val){
+  S.atb=val; save();
+  ['ceftriaxona','meropenem'].forEach(k=>{
+    document.getElementById('reg-atb-'+k)?.classList.toggle('sel', k===val);
+  });
+}
+
+/* ── PROGRESS BAR ── */
+function phaseOk(n){
+  switch(n){
+    case 1:
+      return S.epp && S.materialEsteril && S.ecografo && S.tubos &&
+             S.antiseptico && S.anestesico && S.kit.length>=3 && S.aguja;
+    case 2:
+      return S.explicarProc && S.coagulacion && S.ecoUbicacion &&
+             S.ecoDistancia && S.ecoVascular && S.posicion &&
+             S.asepsia && S.camposEsteriles;
+    case 3:
+      return S.anestesiaLocal;
+    case 4:
+      if(!S.tecnica) return false;
+      if(S.tecnica==='ecolocalizada')
+        return S.ecol_loc && S.ecol_insercion && S.ecol_fijacion;
+      return S.ecog_loc && S.ecog_insercion && S.ecog_fijacion;
+    case 5:
+      return S.conexion && S.retirada;
+  }
+  return false;
+}
+
+function updateProgress(){
+  for(let i=1;i<=5;i++){
+    const done = phaseOk(i);
+    const seg = document.getElementById('ps'+i);
+    if(seg) seg.className='pseg'+(done?' done':'');
+    const ph = document.getElementById('phase'+i);
+    if(ph) ph.classList.toggle('done', done);
+  }
+}
+
+/* ── ALGORITMO ANÁLISIS ── */
+function resetAlgFrom(step){
+  const steps = ['step2','step3','step4-pct','step4-gasa','step5-prot','step5-glucldh','dx-final'];
+  const from = steps.indexOf('step'+step);
+  steps.slice(from>=0?from:0).forEach(s=>{
+    document.getElementById('alg-'+s)?.classList.add('hidden');
+  });
+  document.getElementById('alg-dx-final')?.classList.add('hidden');
+  document.getElementById('alg-dx-lechoso')?.classList.add('hidden');
+  document.getElementById('alg-dx-marron')?.classList.add('hidden');
+  document.getElementById('alg-hematico-note')?.classList.add('hidden');
+}
+
+function selColor(val){
+  S.algColor=val; S.algLeuco=null; S.algPmn=null; S.algPctPmn=null;
+  S.algGasa=null; S.algProt=null; S.algGlucLdh=null;
+  save();
+  document.querySelectorAll('[id^="alg-color-"]').forEach(el=>{
+    el.classList.toggle('sel', el.id==='alg-color-'+val);
+  });
+  resetAlgFrom('2');
+  if(val==='lechoso'){
+    document.getElementById('alg-dx-lechoso').classList.remove('hidden');
+  } else if(val==='marron'){
+    document.getElementById('alg-dx-marron').classList.remove('hidden');
+  } else {
+    if(val==='hematico') document.getElementById('alg-hematico-note').classList.remove('hidden');
+    document.getElementById('alg-step2').classList.remove('hidden');
+  }
+}
+
+function selLeuco(val){
+  S.algLeuco=val; S.algPmn=null; S.algPctPmn=null;
+  S.algGasa=null; S.algProt=null; S.algGlucLdh=null;
+  save();
+  ['bajo','alto'].forEach(k=>{
+    document.getElementById('alg-leuco-'+k).classList.toggle('sel',k===val);
+  });
+  document.getElementById('alg-step3').classList.remove('hidden');
+  document.getElementById('alg-step4-pct').classList.add('hidden');
+  document.getElementById('alg-step4-gasa').classList.add('hidden');
+  document.getElementById('alg-step5-prot').classList.add('hidden');
+  document.getElementById('alg-step5-glucldh').classList.add('hidden');
+  document.getElementById('alg-dx-final').classList.add('hidden');
+}
+
+function selPmn(val){
+  S.algPmn=val; S.algPctPmn=null; S.algGasa=null; S.algProt=null; S.algGlucLdh=null;
+  save();
+  ['bajo','alto'].forEach(k=>{
+    document.getElementById('alg-pmn-'+k).classList.toggle('sel',k===val);
+  });
+  document.getElementById('alg-step4-pct').classList.add('hidden');
+  document.getElementById('alg-step4-gasa').classList.add('hidden');
+  document.getElementById('alg-step5-prot').classList.add('hidden');
+  document.getElementById('alg-step5-glucldh').classList.add('hidden');
+  document.getElementById('alg-dx-final').classList.add('hidden');
+  if(val==='alto'){
+    document.getElementById('alg-step4-pct').classList.remove('hidden');
+  } else {
+    document.getElementById('alg-step4-gasa').classList.remove('hidden');
+  }
+}
+
+function selPctPmn(val){
+  S.algPctPmn=val; S.algGasa=null; S.algProt=null; S.algGlucLdh=null;
+  save();
+  ['alto','bajo'].forEach(k=>{
+    document.getElementById('alg-pct-pmn-'+k).classList.toggle('sel',k===val);
+  });
+  document.getElementById('alg-step4-gasa').classList.remove('hidden');
+  document.getElementById('alg-step5-prot').classList.add('hidden');
+  document.getElementById('alg-step5-glucldh').classList.add('hidden');
+  document.getElementById('alg-dx-final').classList.add('hidden');
+}
+
+function calcGASA(){
+  const s = parseFloat(document.getElementById('gasaSerica').value);
+  const l = parseFloat(document.getElementById('gasaLiquido').value);
+  const res = document.getElementById('gasaResult');
+  const val = document.getElementById('gasaVal');
+  if(!isNaN(s) && !isNaN(l)){
+    const gasa = (s-l).toFixed(2);
+    val.textContent = gasa + ' g/dL';
+    res.style.display='flex';
+    S.algGasaCalc = parseFloat(gasa);
+    save();
+  } else {
+    res.style.display='none';
+  }
+}
+
+function selGasa(val){
+  S.algGasa=val; S.algProt=null; S.algGlucLdh=null;
+  save();
+  ['alto','bajo'].forEach(k=>{
+    document.getElementById('alg-gasa-'+k).classList.toggle('sel',k===val);
+  });
+  document.getElementById('alg-step5-prot').classList.add('hidden');
+  document.getElementById('alg-step5-glucldh').classList.add('hidden');
+  document.getElementById('alg-dx-final').classList.add('hidden');
+  // PMN <250 → siempre mostrar proteínas
+  // PMN >=250, >50% PMN, GASA <1.1 → glucosa/LDH
+  // PMN >=250, >50% PMN, GASA >=1.1 → diagnóstico directo PBE
+  // PMN >=250, <=50% PMN → diagnóstico directo
+  if(S.algPmn==='bajo'){
+    document.getElementById('alg-step5-prot').classList.remove('hidden');
+  } else if(S.algPctPmn==='alto'){
+    if(val==='bajo'){
+      document.getElementById('alg-step5-glucldh').classList.remove('hidden');
+    } else {
+      showDx();
+    }
+  } else {
+    showDx();
+  }
+}
+
+function selProt(val){
+  S.algProt=val;
+  save();
+  ['bajo','alto'].forEach(k=>{
+    document.getElementById('alg-prot-'+k).classList.toggle('sel',k===val);
+  });
+  showDx();
+}
+
+function selGlucLdh(val){
+  S.algGlucLdh=val;
+  save();
+  ['pbe','pb2'].forEach(k=>{
+    document.getElementById('alg-glucldh-'+k).classList.toggle('sel',k===val);
+  });
+  showDx();
+}
+
+function showDx(){
+  const box = document.getElementById('alg-dx-final');
+  const content = document.getElementById('alg-dx-content');
+  let html = '';
+  const {algLeuco, algPmn, algPctPmn, algGasa, algProt, algGlucLdh} = S;
+
+  if(algPmn==='bajo'){
+    // <250 PMN
+    if(algGasa==='alto'){
+      if(algProt==='bajo'){
+        html = dx('ok','Ascitis no complicada (cirrosis)',
+          ['GASA ≥1,1 + PMN &lt;250 + Prot &lt;2,5 g/dL','Solicitar ecografía abdominal']);
+      } else if(algProt==='alto'){
+        html = dx('blue','Ascitis cardíaca',
+          ['GASA ≥1,1 + proteínas ≥2,5 g/dL','Solicitar Ecocardio + NT-ProBNP']);
+      }
+    } else if(algGasa==='bajo'){
+      if(algProt==='bajo'){
+        html = dx('yellow','Ascitis nefrótica',
+          ['GASA &lt;1,1 + PMN &lt;250 + Prot &lt;2,5 g/dL','Solicitar proteinuria 24h']);
+      } else if(algProt==='alto'){
+        html = dx('yellow','Causa no portal — investigar',
+          ['GASA &lt;1,1 + proteínas ≥2,5 g/dL','Valorar: tuberculosis, carcinomatosis, pancreatitis']);
+      }
+    }
+  } else {
+    // ≥250 PMN
+    if(algPctPmn==='alto'){
+      // >50% PMN
+      if(algGasa==='alto'){
+        html = dx('warn','PBE — Peritonitis Bacteriana Espontánea',
+          ['GASA ≥1,1 + PMN ≥250 + &gt;50% neutrófilos','Iniciar ATB: Ceftriaxona 1g/12h o Meropenem 2g/8h (sepsis)','Solicitar tinción Gram + hemocultivos','Albúmina 1,5g/Kg (día 1) + 1g/Kg (día 3)']);
+      } else if(algGasa==='bajo'){
+        if(algGlucLdh==='pbe'){
+          html = dx('warn','PBE — Germen aislado (GASA &lt;1,1)',
+            ['Gluc ≥50 mg/dL y LDH &lt;225 U/L','Iniciar ATB: Ceftriaxona 1g/12h','Solicitar tinción Gram + cultivos']);
+        } else if(algGlucLdh==='pb2'){
+          html = dx('warn','Peritonitis Bacteriana Secundaria',
+            ['Gluc &lt;50 mg/dL o LDH ≥225 U/L — polimicrobiana','Solicitar TAC abdominal urgente','Valorar cirugía si perforación']);
+          html += dx('yellow','También descartar: ascitis pancreática',
+            ['Amilasa &gt;100 U/L en líquido ascítico','Solicitar TAC abdominal 48h si amilasa elevada']);
+        }
+      }
+    } else if(algPctPmn==='bajo'){
+      // ≤50% PMN (mononucleares)
+      if(algGasa==='alto'){
+        html = dx('warn','Carcinomatosis peritoneal con HTP',
+          ['GASA ≥1,1 + PMN ≥250 + &lt;50% neutrófilos','Solicitar citología en líquido ascítico','Buscar tumor primario']);
+      } else if(algGasa==='bajo'){
+        html = dx('yellow','Peritonitis tuberculosa',
+          ['GASA &lt;1,1 + predominio mononucleares','Solicitar ADA + cultivo para BAAR','Iniciar valoración antituberculostática']);
+      }
+    }
+  }
+
+  if(!html) return;
+  content.innerHTML = html;
+  box.classList.remove('hidden');
+}
+
+function dx(tipo, titulo, items){
+  const cls = {ok:'dx-ok',warn:'dx-warn',yellow:'dx-yellow',blue:'dx-blue'}[tipo]||'dx-blue';
+  return `<div class="dx-box ${cls}">
+    <div class="dx-title">${titulo}</div>
+    <ul class="dx-items">${items.map(i=>`<li>${i}</li>`).join('')}</ul>
+  </div>`;
+}
+
+function renderAnalisis(){
+  if(S.algColor){
+    document.getElementById('alg-color-'+S.algColor)?.classList.add('sel');
+    selColor(S.algColor);
+  }
+}
+
+/* ── REGISTRO ── */
+function selReg(key, val){
+  S[key]=val; save();
+  document.querySelectorAll('[id^="reg-tec-"]').forEach(el=>{
+    el.classList.toggle('sel', el.id==='reg-tec-'+val);
+  });
+}
+
+function toggleTrat(key, el){
+  if(key==='ninguno'){
+    S.tratamiento=['ninguno'];
+    document.querySelectorAll('.compl-item[id^="tr-"]').forEach(e=>e.classList.remove('ck'));
+    el.classList.add('ck');
+  } else {
+    S.tratamiento = S.tratamiento.filter(k=>k!=='ninguno');
+    document.getElementById('tr-ninguno').classList.remove('ck');
+    if(S.tratamiento.includes(key)){
+      S.tratamiento=S.tratamiento.filter(k=>k!==key);
+      el.classList.remove('ck');
+    } else {
+      S.tratamiento.push(key);
+      el.classList.add('ck');
+    }
+  }
+  save();
+}
+
+function toggleCompl(key, el, isWarn){
+  if(key==='ninguna'){
+    S.complicaciones=['ninguna'];
+    document.querySelectorAll('.compl-item[id^="cp-"]').forEach(e=>{
+      e.classList.remove('ck','ck-warn');
+    });
+    el.classList.add('ck');
+  } else {
+    S.complicaciones=S.complicaciones.filter(k=>k!=='ninguna');
+    document.getElementById('cp-ninguna').classList.remove('ck');
+    if(S.complicaciones.includes(key)){
+      S.complicaciones=S.complicaciones.filter(k=>k!==key);
+      el.classList.remove('ck','ck-warn');
+    } else {
+      S.complicaciones.push(key);
+      el.classList.add(isWarn?'ck-warn':'ck');
+    }
+  }
+  save();
+  document.getElementById('compl-hemorragia-note').classList.toggle('hidden',!S.complicaciones.includes('hemorragia'));
+  document.getElementById('compl-perforacion-note').classList.toggle('hidden',!S.complicaciones.includes('perforacion'));
+}
+
+function syncRegistroFromS(){
+  // técnica
+  if(S.tecnicaUsada){
+    document.querySelectorAll('[id^="reg-tec-"]').forEach(el=>{
+      el.classList.toggle('sel', el.id==='reg-tec-'+S.tecnicaUsada);
+    });
+  } else if(S.tecnica){
+    selReg('tecnicaUsada', S.tecnica);
+    document.querySelectorAll('[id^="reg-tec-"]').forEach(el=>{
+      el.classList.toggle('sel', el.id==='reg-tec-'+S.tecnica);
+    });
+  }
+  if(S.volumenTotal) document.getElementById('regVolumen').value = S.volumenTotal;
+  if(S.obs) document.getElementById('regObs').value = S.obs;
+  if(S.regPeso){ document.getElementById('regPeso').value = S.regPeso; calcAlbPBE(); }
+  if(S.atb) selAtb(S.atb);
+  // tratamiento
+  S.tratamiento.forEach(k=>{
+    const el=document.getElementById('tr-'+k);
+    if(el) el.classList.add('ck');
+  });
+  // complicaciones
+  S.complicaciones.forEach(k=>{
+    const el=document.getElementById('cp-'+k);
+    if(el) el.classList.add(k==='hemorragia'||k==='perforacion'?'ck-warn':'ck');
+  });
+  document.getElementById('compl-hemorragia-note').classList.toggle('hidden',!S.complicaciones.includes('hemorragia'));
+  document.getElementById('compl-perforacion-note').classList.toggle('hidden',!S.complicaciones.includes('perforacion'));
+}
+
+/* ── INFORME ── */
+function generateReport(){
+  const now = new Date();
+  const fecha = now.toLocaleDateString('es-ES');
+  const hora = now.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+  const ind = {novo:'Ascitis de novo', tension:'Ascitis a tensión', pbe:'Sospecha PBE', control:'Control'}[S.indicacion]||'—';
+  const tec = {ecolocalizada:'Eco-localizada', ecoguiada:'Ecoguiada'}[S.tecnicaUsada||S.tecnica]||'—';
+  const vol = S.volumenTotal ? S.volumenTotal+'L' : S.volumenDrenado ? S.volumenDrenado+'L' : '—';
+  const volNum = parseFloat(S.volumenTotal)||0;
+  let albumina;
+  if(isPBE()){
+    const peso = S.regPeso;
+    albumina = peso
+      ? `PBE: ${Math.round(peso*1.5)}g día 1 + ${Math.round(peso)}g día 3`
+      : 'PBE: 1,5g/Kg día 1 + 1g/Kg día 3 (peso no registrado)';
+  } else {
+    albumina = volNum>4 ? `${Math.round(volNum*6)}g (6g/L × ${volNum}L)` : 'No indicada (≤4L)';
+  }
+  const ci = S.contraindicaciones.length ? S.contraindicaciones.join(', ') : 'Ninguna';
+  const compl = S.complicaciones.length ? S.complicaciones.map(k=>({filtracion:'Filtración de líquido',hemorragia:'Hemorragia vascular',perforacion:'Perforación intestinal',ninguna:'Sin complicaciones'}[k]||k)).join(', ') : '—';
+  const trat = S.tratamiento.length ? S.tratamiento.map(k=>({albumina:'Albúmina humana',ceftriaxona:'Ceftriaxona 1g/12h',meropenem:'Meropenem 2g/8h',ninguno:'Sin tratamiento específico'}[k]||k)).join(', ') : '—';
+
+  const L = [];
+  L.push('══════════════════════════════════════════════');
+  L.push('  PARACENTESIS — Hospital Universitari Joan XXIII');
+  L.push('══════════════════════════════════════════════');
+  L.push(`  Fecha: ${fecha}   Hora: ${hora}`);
+  L.push('──────────────────────────────────────────────');
+  L.push('INDICACIÓN');
+  L.push('  '+ind);
+  L.push('');
+  L.push('CONTRAINDICACIONES RELATIVAS VALORADAS');
+  L.push('  '+ci);
+  L.push('');
+  L.push('TÉCNICA');
+  L.push('  '+tec);
+  L.push('');
+  L.push('DRENAJE');
+  L.push('  Volumen total: '+vol);
+  L.push('  Albúmina indicada: '+albumina);
+  L.push('');
+  L.push('TRATAMIENTO APLICADO');
+  L.push('  '+trat);
+  L.push('');
+  if(S.algColor){
+    L.push('ANÁLISIS DEL LÍQUIDO ASCÍTICO');
+    const colorMap = {amarillo:'Amarillo/turbio',hematico:'Hemático',lechoso:'Lechoso',marron:'Marrón'};
+    L.push('  Color: '+(colorMap[S.algColor]||S.algColor));
+    if(S.algLeuco) L.push('  Leucocitos: '+(S.algLeuco==='bajo'?'<500':'>= 500')+'/mm³');
+    if(S.algPmn) L.push('  PMN: '+(S.algPmn==='bajo'?'<250':'>= 250')+'/mm³');
+    if(S.algGasa) L.push('  GASA: '+(S.algGasa==='alto'?'>= 1,1':'< 1,1')+' g/dL');
+    if(S.algProt) L.push('  Proteínas: '+(S.algProt==='bajo'?'<2,5':'>= 2,5')+' g/dL');
+    L.push('');
+  }
+  L.push('COMPLICACIONES');
+  L.push('  '+compl);
+  L.push('');
+  if(S.obs){
+    L.push('OBSERVACIONES');
+    L.push('  '+S.obs);
+    L.push('');
+  }
+  L.push('──────────────────────────────────────────────');
+  L.push('  Generado con URGlab — HJ23');
+  L.push('══════════════════════════════════════════════');
+
+  document.getElementById('informeBox').textContent = L.join('\n');
+  S.obs=''; save();
+  goTo('informe');
+}
+
+function copyReport(){
+  navigator.clipboard.writeText(document.getElementById('informeBox').textContent);
+  const btn = event.target;
+  btn.textContent='✓ Copiado';
+  setTimeout(()=>btn.textContent='📋 Copiar', 1800);
+}
+
+function downloadReport(){
+  const text = document.getElementById('informeBox').textContent;
+  const a = document.createElement('a');
+  a.href = 'data:text/plain;charset=utf-8,'+encodeURIComponent(text);
+  a.download = 'paracentesis_'+new Date().toISOString().slice(0,10)+'.txt';
+  a.click();
+}
+
+/* ── RESTORE UI FROM STATE ── */
+function renderAll(){
+  // indicación
+  if(S.indicacion) selInd(S.indicacion);
+  // contraindicaciones
+  S.contraindicaciones.forEach(k=>{
+    document.getElementById('wi-'+k)?.classList.add('ck');
+  });
+  if(S.contraindicaciones.length) document.getElementById('warnBanner').classList.remove('hidden');
+  // consentimiento
+  document.getElementById('ci-consentimiento')?.classList.toggle('ck', S.consentimiento);
+  // checks
+  ['epp','materialEsteril','ecografo','tubos','explicarProc','coagulacion',
+   'lateralizacion','asepsia','camposEsteriles','anestesiaLocal'].forEach(k=>{
+    document.getElementById('ci-'+k)?.classList.toggle('ck', !!S[k]);
+  });
+  // mac items
+  ['ecoUbicacion','ecoDistancia','ecoVascular','conexion','recambio','retirada',
+   'ecol_loc','ecol_insercion','ecol_fijacion','ecog_loc','ecog_insercion','ecog_fijacion'].forEach(k=>{
+    const id = 'mi-'+k.replace('_','-');
+    document.getElementById(id)?.classList.toggle('ck', !!S[k]);
+  });
+  // radio pills
+  if(S.antiseptico) document.getElementById('rp-antiseptico-'+S.antiseptico)?.classList.add('sel');
+  if(S.anestesico) document.getElementById('rp-anestesico-'+S.anestesico)?.classList.add('sel');
+  if(S.posicion) document.getElementById('rp-posicion-'+S.posicion)?.classList.add('sel');
+  if(S.aguja) document.getElementById('rp-aguja-'+S.aguja)?.classList.add('sel');
+  if(S.atb) document.getElementById('rp-atb-'+S.atb)?.classList.add('sel');
+  // kit mck
+  S.kit.forEach(k=>{ document.getElementById('mk-'+k)?.classList.add('ck'); });
+  // técnica
+  if(S.tecnica) selTecnica(S.tecnica);
+  // volumen
+  if(S.volumenDrenado){
+    document.getElementById('inputVolumen').value = S.volumenDrenado;
+    calcAlbumina();
+  }
+  updateProgress();
+}
+
+/* ── INIT ── */
+(function init(){
+  const hadData = loadState();
+  if(hadData && S.indicacion){
+    document.getElementById('sessionBanner').classList.remove('hidden');
+  }
+  renderAll();
+  goTo('preproc');
+})();
+</script>
+</body>
+</html>

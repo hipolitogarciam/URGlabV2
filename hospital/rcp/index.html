@@ -1,0 +1,1891 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>RCP — URGlab</title>
+<link rel="stylesheet" href="../../fonts.css">
+<style>
+:root {
+  --display: 'Barlow Condensed', sans-serif;
+  --body:    'IBM Plex Sans', sans-serif;
+  --mono:    'IBM Plex Mono', monospace;
+  --bg:       #f4f6f9;
+  --surface:  #ffffff;
+  --border:   rgba(0,0,0,0.09);
+  --text:     #1a2636;
+  --muted:    #8898aa;
+  --defib:    #e53e3e;
+  --aesp:     #c8920a;
+  --rosc:     #2f9659;
+  --epi:      #e07b00;
+  --shock:    #b89200;
+  --info:     #1a7fc8;
+  --alert:    #e53e3e;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { background: var(--bg); font-family: var(--body); min-height: 100svh; }
+
+/* ── Header ── */
+header {
+  background: linear-gradient(135deg, #1a7fc8 0%, #1a6fad 100%);
+  border-bottom: 3px solid #09c797;
+  padding: 12px 18px; position: sticky; top: 0; z-index: 1000;
+  display: grid; grid-template-columns: 48px 1fr 48px;
+  align-items: center; gap: 8px; min-height: 68px;
+}
+.back-btn { display:flex; align-items:center; justify-content:center; width:38px; height:38px; border-radius:10px; background:rgba(255,255,255,0.15); border:none; cursor:pointer; text-decoration:none; }
+.back-btn:active { background:rgba(255,255,255,0.28); }
+.header-center { text-align:center; }
+.header-label { font-family:var(--body); font-size:0.58rem; font-weight:600; color:#09c797; letter-spacing:0.12em; text-transform:uppercase; margin-bottom:2px; }
+.header-title { font-family:var(--display); font-size:1.4rem; font-weight:800; color:#fff; letter-spacing:0.04em; text-transform:uppercase; line-height:1; }
+.header-right { display:flex; align-items:center; justify-content:flex-end; opacity:0.7; }
+
+/* ── Views ── */
+.view { display:none; }
+.view.visible { display:flex; flex-direction:column; }
+
+/* ════════════ IDLE ════════════ */
+#view-idle {
+  max-width:480px; margin:0 auto; width:100%;
+  padding:20px 20px 80px; align-items:center; gap:16px;
+  min-height:calc(100svh - 68px); justify-content:center;
+}
+.idle-ecg { width:100%; max-width:300px; opacity:0.18; }
+
+/* ── Banner restaurar sesión ── */
+.restore-banner { width:100%; background:#fff8e6; border:1.5px solid #f0a500; border-radius:14px; padding:14px 16px; display:none; flex-direction:column; gap:10px; }
+.restore-banner.visible { display:flex; }
+.restore-banner-title { font-family:var(--display); font-size:1rem; font-weight:800; color:#7a4f00; text-transform:uppercase; letter-spacing:.04em; }
+.restore-banner-sub { font-family:var(--body); font-size:.8rem; color:#9a6500; }
+.restore-banner-sub strong { font-weight:700; color:#7a4f00; }
+.restore-banner-actions { display:flex; gap:8px; }
+.btn-restore { flex:1; padding:11px; background:var(--info); color:white; border:none; border-radius:10px; font-family:var(--display); font-size:1rem; font-weight:800; text-transform:uppercase; cursor:pointer; }
+.btn-discard { flex:1; padding:11px; background:transparent; color:#9a6500; border:1.5px solid #f0a500; border-radius:10px; font-family:var(--display); font-size:.9rem; font-weight:700; text-transform:uppercase; cursor:pointer; }
+.idle-title { font-family:var(--display); font-size:2rem; font-weight:900; color:var(--text); text-transform:uppercase; text-align:center; line-height:1.1; }
+.idle-desc  { color:var(--muted); font-size:0.82rem; text-align:center; letter-spacing:0.04em; text-transform:uppercase; }
+.btn-start { width:100%; padding:26px 18px; border-radius:16px; border:none; font-family:var(--display); font-size:1.75rem; font-weight:800; text-transform:uppercase; letter-spacing:0.06em; cursor:pointer; transition:transform .1s,opacity .15s; min-height:86px; color:white; }
+.btn-start.medica  { background:var(--info); }
+.btn-start.trauma  { background:#c41520; }
+.btn-start:active { transform:scale(0.97); opacity:0.9; }
+
+/* ════════════ ACTIVE ════════════ */
+#view-active { width:100%; height:calc(100svh - 68px); display:flex; flex-direction:column; }
+.active-split { display:flex; flex:1; overflow:hidden; max-width:640px; width:100%; margin:0 auto; }
+.active-main { flex:1; min-width:0; max-width:480px; overflow-y:auto; display:flex; flex-direction:column; }
+.active-sidebar { width:0; min-width:0; overflow:hidden; flex-shrink:0; transition:width .22s cubic-bezier(.4,0,.2,1); }
+.active-sidebar.open { width:152px; overflow-y:auto; border-left:2px solid rgba(26,127,200,0.12); background:var(--bg); }
+.sidebar-hdr { background:linear-gradient(135deg,#1a7fc8,#1a6fad); border-bottom:2px solid #09c797; padding:9px 10px 8px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:1; }
+.sidebar-hdr-label { font-family:var(--display); font-size:.82rem; font-weight:800; color:#fff; letter-spacing:.08em; text-transform:uppercase; }
+.sidebar-close { background:none; border:none; color:rgba(255,255,255,.65); cursor:pointer; font-size:.9rem; padding:2px 4px; line-height:1; }
+.sidebar-close:active { color:#fff; }
+.active-sidebar .modal-section { padding:0 6px 4px; }
+.active-sidebar .modal-section-title { font-size:.53rem; font-weight:700; color:var(--muted); letter-spacing:.1em; text-transform:uppercase; padding:8px 4px 3px; display:flex; align-items:center; gap:4px; }
+.active-sidebar .modal-section-title::before { content:''; display:inline-block; width:3px; height:9px; border-radius:2px; background:#09c797; flex-shrink:0; }
+.active-sidebar .intervention-btn, .active-sidebar .drug-btn { padding:7px 8px; margin-bottom:3px; min-height:0; border-radius:8px; background:var(--surface); }
+.active-sidebar .intervention-btn.done, .active-sidebar .drug-btn.done { background:rgba(9,199,151,.07); border-color:rgba(9,199,151,.4); }
+.active-sidebar .intervention-name, .active-sidebar .drug-name { font-size:.75rem; line-height:1.3; font-weight:500; }
+.active-sidebar .intervention-time, .active-sidebar .drug-time { font-size:.6rem; color:#09915a; font-weight:600; flex-shrink:0; margin-left:3px; }
+
+/* Status bar */
+.status-bar {
+  background:#ecf2f9;
+  border-bottom:1px solid rgba(26,127,200,0.14); flex-shrink:0;
+}
+.status-bar-inner {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:11px 18px; max-width:640px; margin:0 auto; width:100%;
+}
+.total-wrap { display:flex; align-items:baseline; gap:8px; }
+.total-label { font-family:var(--body); font-size:0.68rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.1em; }
+.total-value { font-family:var(--mono); font-size:1.55rem; font-weight:700; color:var(--text); }
+.status-right { display:flex; gap:6px; align-items:center; }
+.btn-interv {
+  display:flex; align-items:center; gap:4px;
+  background:transparent; border:1.5px solid rgba(26,127,200,0.35);
+  border-radius:8px; padding:7px 10px;
+  font-family:var(--display); font-size:0.9rem; font-weight:800;
+  color:var(--info); cursor:pointer; letter-spacing:0.04em; transition:background .15s,color .15s,border-color .15s;
+}
+.btn-interv.open { background:var(--info); color:#fff; border-color:var(--info); }
+.btn-interv:active { opacity:.85; }
+.btn-ht {
+  display:flex; align-items:center; justify-content:center;
+  background:var(--info); border:none;
+  border-radius:8px; padding:8px 13px;
+  font-family:var(--display); font-size:0.95rem; font-weight:800;
+  color:#fff; cursor:pointer; letter-spacing:0.04em;
+}
+.btn-ht:active { background:#1669a8; }
+.btn-log {
+  display:flex; align-items:center; gap:5px;
+  background:var(--surface); border:1px solid rgba(26,127,200,0.25);
+  border-radius:8px; padding:8px 12px;
+  font-family:var(--body); font-size:0.75rem; font-weight:600;
+  color:var(--info); cursor:pointer;
+}
+.btn-log:active { background:#e5eef8; }
+.log-badge { background:var(--info); color:white; border-radius:9px; padding:1px 6px; font-size:0.65rem; font-weight:700; }
+.interv-count-badge { font-family:var(--mono); font-size:.65rem; font-weight:700; }
+
+/* Cycle zone — slightly shorter */
+.cycle-zone {
+  flex:1; display:flex; align-items:center; justify-content:center;
+  padding:10px 16px; min-height:165px;
+}
+.cycle-zone.mode-normal   { flex-direction:column; }
+.cycle-zone.mode-overtime { flex-direction:row; gap:10px; }
+.cycle-zone.mode-analysis { flex-direction:row; gap:10px; }
+
+.cycle-timer-col { display:flex; flex-direction:column; align-items:center; flex-shrink:0; }
+.cycle-num { font-family:var(--display); font-size:0.85rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.16em; margin-bottom:4px; }
+.cycle-timer-display { font-family:var(--display); font-weight:900; line-height:1; letter-spacing:0.02em; transition:color .3s; }
+.mode-normal   .cycle-timer-display { font-size:5.2rem; color:var(--text); }
+.mode-overtime .cycle-timer-display { font-size:3.8rem; color:var(--defib); }
+.mode-analysis .cycle-timer-display { font-size:3.4rem; color:var(--muted); }
+.cycle-timer-display.pre-alert { color:var(--defib) !important; }
+.cycle-timer-display.pulse { animation:pulse-anim .8s ease-in-out infinite; }
+@keyframes pulse-anim { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.6;transform:scale(.97)} }
+.cycle-subtext { font-family:var(--body); font-size:0.68rem; font-weight:600; color:var(--defib); text-transform:uppercase; letter-spacing:.1em; margin-top:4px; min-height:1em; }
+.cycle-progress { width:100%; max-width:280px; height:5px; background:var(--border); border-radius:3px; margin-top:12px; overflow:hidden; }
+.cycle-bar { height:100%; background:var(--info); border-radius:3px; transition:width .4s linear,background .3s; }
+.cycle-bar.alert { background:var(--defib); }
+
+/* Rhythm tabs */
+.rhythm-tabs { display:flex; flex-direction:column; gap:8px; flex:1; max-width:160px; }
+.btn-rhythm-tab { width:100%; padding:12px 8px; border-radius:12px; border:none; font-family:var(--display); font-size:1rem; font-weight:900; text-transform:uppercase; letter-spacing:.03em; cursor:pointer; min-height:62px; transition:transform .1s,opacity .15s; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; }
+.btn-rhythm-tab:active { transform:scale(.95); opacity:.9; }
+.btn-rhythm-tab.t-defib { background:var(--defib); color:white; }
+.btn-rhythm-tab.t-aesp  { background:#f5c518; color:#1a1000; }
+.rhythm-tab-sub { font-size:.62rem; font-weight:600; opacity:.75; font-family:var(--body); }
+
+/* Main action zone */
+.main-action-zone { padding:0 16px 10px; flex-shrink:0; display:flex; flex-direction:column; gap:8px; }
+.btn-cycle { width:100%; padding:15px; border-radius:14px; background:var(--info); color:white; border:none; font-family:var(--display); font-size:1.3rem; font-weight:800; text-transform:uppercase; letter-spacing:.06em; cursor:pointer; transition:transform .1s,opacity .15s; min-height:58px; }
+.btn-cycle:active { transform:scale(.97); opacity:.9; }
+.btn-cycle:disabled { opacity:.3; cursor:not-allowed; transform:none !important; }
+.btn-analyze { width:100%; padding:13px; border-radius:14px; background:var(--surface); border:1px solid var(--border); color:var(--text); font-family:var(--display); font-size:1.1rem; font-weight:800; text-transform:uppercase; letter-spacing:.06em; cursor:pointer; min-height:52px; transition:transform .1s,opacity .15s; }
+.btn-analyze:active { transform:scale(.97); opacity:.9; }
+
+/* Actions zone */
+.actions-zone { margin:0 16px 10px; background:var(--surface); border:1px solid var(--border); border-radius:14px; overflow:hidden; flex-shrink:0; }
+.action-row { display:flex; align-items:center; gap:10px; padding:10px 14px; }
+.action-row + .action-row { border-top:1px solid var(--border); }
+.btn-epi { flex-shrink:0; padding:10px 12px; border-radius:10px; background:var(--epi); color:white; border:none; font-family:var(--display); font-size:.95rem; font-weight:800; text-transform:uppercase; letter-spacing:.04em; cursor:pointer; min-height:48px; min-width:116px; transition:transform .1s,opacity .15s; }
+.btn-epi:active { transform:scale(.96); opacity:.9; }
+.btn-defib-action { flex-shrink:0; padding:10px 12px; border-radius:10px; background:#f5c518; color:#1a1000; border:none; font-family:var(--display); font-size:.95rem; font-weight:800; text-transform:uppercase; letter-spacing:.04em; cursor:pointer; min-height:48px; min-width:116px; display:flex; align-items:center; justify-content:center; gap:5px; transition:transform .1s,opacity .15s,box-shadow .3s; }
+.btn-defib-action:active { transform:scale(.96); opacity:.9; }
+.btn-defib-action.highlight { background:var(--defib) !important; color:white !important; animation:defib-glow .65s ease-in-out infinite; }
+@keyframes defib-glow { 0%,100%{box-shadow:0 0 0 3px rgba(229,62,62,.5); transform:scale(1)} 50%{box-shadow:0 0 0 10px rgba(229,62,62,.15); transform:scale(1.03)} }
+.btn-cycle.highlight { animation:cycle-pulse .7s ease-in-out infinite; }
+@keyframes cycle-pulse { 0%,100%{box-shadow:0 0 0 3px rgba(26,127,200,.5); transform:scale(1)} 50%{box-shadow:0 0 0 10px rgba(26,127,200,.15); transform:scale(1.03)} }
+.btn-epi.highlight { animation:epi-pulse .7s ease-in-out infinite; }
+@keyframes epi-pulse { 0%,100%{box-shadow:0 0 0 3px rgba(224,123,0,.6); transform:scale(1)} 50%{box-shadow:0 0 0 10px rgba(224,123,0,.18); transform:scale(1.03)} }
+.defib-icon { width:17px; height:17px; flex-shrink:0; }
+.action-info { flex:1; display:flex; flex-direction:column; gap:2px; }
+.action-count { font-family:var(--body); font-size:.68rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; }
+.epi-since { font-family:var(--mono); font-size:.95rem; font-weight:600; color:var(--text); }
+.epi-since.warn   { color:var(--aesp); }
+.epi-since.danger { color:var(--defib); }
+.defib-last { font-family:var(--mono); font-size:.88rem; color:var(--muted); }
+
+/* Bottom actions */
+.bottom-actions { padding:0 16px calc(14px + env(safe-area-inset-bottom,0px)); display:grid; grid-template-columns:1fr; flex-shrink:0; }
+.btn-action { padding:12px 6px; border-radius:12px; font-family:var(--display); font-size:.95rem; font-weight:800; text-transform:uppercase; letter-spacing:.04em; cursor:pointer; min-height:52px; transition:transform .1s,opacity .15s; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; line-height:1.1; }
+.btn-action:active { transform:scale(.96); opacity:.85; }
+.btn-finish { background:rgba(229,62,62,.08); border:1px solid rgba(229,62,62,.25); color:var(--defib); }
+
+/* ── Modal Finalizar ── */
+#modal-finish { display:none; position:fixed; inset:0; z-index:1500; }
+#modal-finish.visible { display:block; }
+.finish-sheet { position:absolute; bottom:0; left:50%; transform:translateX(-50%); width:100%; max-width:480px; background:var(--surface); border-radius:20px 20px 0 0; padding:12px 16px calc(28px + env(safe-area-inset-bottom,0px)); }
+.finish-title { font-family:var(--display); font-size:1.1rem; font-weight:800; color:var(--text); text-transform:uppercase; letter-spacing:.04em; text-align:center; margin:8px 0 4px; }
+.finish-subtitle { font-family:var(--body); font-size:.75rem; color:var(--muted); text-align:center; margin-bottom:16px; }
+.finish-options { display:flex; flex-direction:column; gap:9px; }
+.btn-finish-opt { width:100%; padding:15px 18px; border-radius:13px; border:none; font-family:var(--display); font-size:1.15rem; font-weight:800; text-transform:uppercase; letter-spacing:.04em; cursor:pointer; text-align:left; display:flex; align-items:center; gap:12px; transition:transform .1s,opacity .15s; }
+.btn-finish-opt:active { transform:scale(.97); opacity:.9; }
+.btn-finish-opt .opt-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+.btn-finish-opt.opt-rosc  { background:rgba(47,150,89,.1); color:#1d6e3f; }
+.btn-finish-opt.opt-rosc .opt-dot { background:#2f9659; }
+.btn-finish-opt.opt-exitus { background:rgba(229,62,62,.08); color:#a02020; }
+.btn-finish-opt.opt-exitus .opt-dot { background:#c41520; }
+.btn-finish-opt.opt-let   { background:rgba(200,146,10,.1); color:#7a5800; }
+.btn-finish-opt.opt-let .opt-dot { background:#c8920a; }
+.btn-finish-opt.opt-ecmo  { background:rgba(26,127,200,.1); color:#0d5a99; }
+.btn-finish-opt.opt-ecmo .opt-dot { background:#1a7fc8; }
+.btn-finish-opt.opt-otros { background:rgba(136,152,170,.1); color:#556070; }
+.btn-finish-opt.opt-otros .opt-dot { background:#8898aa; }
+.btn-finish-cancel { width:100%; margin-top:10px; padding:13px; border-radius:13px; background:transparent; border:1px solid var(--border); font-family:var(--display); font-size:1rem; font-weight:700; color:var(--muted); text-transform:uppercase; cursor:pointer; }
+.btn-finish-cancel:active { background:var(--bg); }
+.btn-interventions { background:var(--surface); border:1px solid var(--border); color:var(--text); }
+.interv-count-badge { font-size:.62rem; font-weight:600; opacity:.65; font-family:var(--body); }
+
+/* ════════════ H&T MODAL ════════════ */
+#modal-ht { position:fixed; inset:0; z-index:1100; display:none; flex-direction:column; justify-content:flex-end; align-items:center; }
+#modal-ht.visible { display:flex; }
+#modal-ht .modal-backdrop { position:absolute; inset:0; background:rgba(0,0,0,.45); }
+.ht-sheet {
+  position:relative; z-index:1;
+  max-width:480px; width:100%;
+  background:var(--surface); border-radius:20px 20px 0 0;
+  border-top:1px solid var(--border);
+  max-height:82svh; overflow-y:auto;
+  padding-bottom:env(safe-area-inset-bottom,8px);
+}
+.modal-handle { width:40px; height:4px; background:var(--border); border-radius:2px; margin:12px auto 0; }
+.ht-title { font-family:var(--display); font-size:1.15rem; font-weight:800; color:var(--text); text-transform:uppercase; letter-spacing:.06em; padding:12px 20px 4px; }
+.ht-section { padding:4px 16px 8px; }
+.ht-section-title { font-size:.62rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.12em; padding:8px 0 6px; }
+.ht-item { display:flex; align-items:flex-start; gap:10px; padding:8px 0; border-bottom:1px solid var(--border); }
+.ht-item:last-child { border-bottom:none; }
+.ht-badge { width:24px; height:24px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-family:var(--display); font-size:.85rem; font-weight:900; flex-shrink:0; margin-top:1px; }
+.ht-badge.h { background:rgba(26,127,200,.12); color:var(--info); }
+.ht-badge.t { background:rgba(229,62,62,.1); color:var(--defib); }
+.ht-cause  { font-family:var(--body); font-size:.88rem; font-weight:600; color:var(--text); }
+.ht-action { font-family:var(--body); font-size:.75rem; color:var(--muted); margin-top:2px; line-height:1.4; }
+
+/* ════════════ INTERVENTIONS MODAL ════════════ */
+#modal-interventions { display:none !important; }
+.modal-backdrop { position:absolute; inset:0; background:rgba(0,0,0,.35); }
+.modal-section { padding:4px 14px; }
+.modal-section-title { font-size:.62rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.12em; padding:10px 4px 4px; }
+.intervention-btn { width:100%; padding:12px 14px; border-radius:10px; border:1px solid var(--border); background:var(--bg); display:flex; align-items:center; justify-content:space-between; cursor:pointer; margin-bottom:5px; min-height:48px; transition:background .12s; }
+.intervention-btn:active { background:#e8f0f8; }
+.intervention-btn.done { background:rgba(9,199,151,.1); border-color:rgba(9,199,151,.3); }
+.intervention-name { font-family:var(--body); font-size:.88rem; font-weight:500; color:var(--text); text-align:left; }
+.intervention-time { font-family:var(--mono); font-size:.73rem; color:#09915a; }
+.drug-btn { width:100%; padding:10px 14px; border-radius:8px; border:1px solid var(--border); background:var(--bg); display:flex; align-items:center; justify-content:space-between; cursor:pointer; margin-bottom:4px; min-height:44px; transition:background .12s; }
+.drug-btn:active { background:#e8f0f8; }
+.drug-btn.done { background:rgba(9,199,151,.08); border-color:rgba(9,199,151,.25); }
+.drug-name { font-family:var(--body); font-size:.85rem; color:var(--text); }
+.drug-time { font-family:var(--mono); font-size:.7rem; color:#09915a; }
+.modal-close { display:block; width:calc(100% - 28px); margin:10px 14px 14px; padding:14px; border-radius:12px; background:var(--bg); border:1px solid var(--border); color:var(--muted); font-family:var(--display); font-size:1rem; font-weight:700; text-transform:uppercase; cursor:pointer; }
+.modal-close:active { background:#e5eef8; }
+
+/* ════════════ LOG PANEL ════════════ */
+#panel-log { position:fixed; inset:0; z-index:1050; display:none; flex-direction:column; justify-content:flex-end; align-items:center; }
+#panel-log.visible { display:flex; }
+.log-backdrop { position:absolute; inset:0; background:rgba(0,0,0,.45); }
+.log-sheet { position:relative; z-index:1; max-width:480px; width:100%; background:var(--surface); border-radius:20px 20px 0 0; border-top:1px solid var(--border); max-height:75svh; display:flex; flex-direction:column; }
+.log-handle { width:40px; height:4px; background:var(--border); border-radius:2px; margin:12px auto 8px; }
+.log-title-bar { padding:0 20px 10px; flex-shrink:0; font-family:var(--display); font-size:1.1rem; font-weight:800; color:var(--text); text-transform:uppercase; letter-spacing:.06em; }
+.log-body { flex:1; overflow-y:auto; padding:4px 16px; }
+.log-entry { display:flex; gap:10px; padding:8px 0; border-bottom:1px solid var(--border); }
+.log-entry:last-child { border-bottom:none; }
+.log-time { font-family:var(--mono); font-size:.7rem; color:var(--muted); flex-shrink:0; width:50px; padding-top:2px; }
+.log-dot  { width:8px; height:8px; border-radius:50%; flex-shrink:0; margin-top:4px; }
+.log-text { font-family:var(--body); font-size:.82rem; color:var(--text); flex:1; }
+.log-close { display:block; width:calc(100% - 28px); margin:8px 14px; padding:14px; border-radius:12px; flex-shrink:0; background:var(--bg); border:1px solid var(--border); color:var(--muted); font-family:var(--display); font-size:1rem; font-weight:700; text-transform:uppercase; cursor:pointer; margin-bottom:calc(14px + env(safe-area-inset-bottom,0px)); }
+.log-close:active { background:#e5eef8; }
+
+/* ════════════ FINISHED ════════════ */
+#view-finished { max-width:480px; margin:0 auto; width:100%; padding:20px 20px calc(32px + env(safe-area-inset-bottom,0px)); gap:12px; }
+.finished-header { text-align:center; padding-bottom:6px; }
+.summary-result { font-family:var(--display); font-size:2rem; font-weight:900; text-transform:uppercase; letter-spacing:.04em; }
+.summary-result.rosc    { color:var(--rosc); }
+.summary-result.no-rosc { color:var(--defib); }
+.summary-duration { font-family:var(--mono); font-size:.88rem; color:var(--muted); margin-top:4px; }
+.informe-box { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:16px; font-family:var(--mono); font-size:.76rem; color:var(--text); line-height:1.7; white-space:pre-wrap; word-break:break-word; }
+.inf-actions { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.btn-copy { width:100%; padding:15px; border-radius:14px; background:#09c797; color:white; border:none; font-family:var(--display); font-size:1.1rem; font-weight:800; text-transform:uppercase; letter-spacing:.06em; cursor:pointer; min-height:52px; transition:transform .1s,opacity .15s; }
+.btn-copy:active { opacity:.85; transform:scale(.97); }
+.btn-download { width:100%; padding:15px; border-radius:14px; background:var(--surface); border:1px solid var(--border); color:var(--muted); font-family:var(--display); font-size:1.1rem; font-weight:700; text-transform:uppercase; letter-spacing:.04em; cursor:pointer; min-height:52px; transition:transform .1s,opacity .15s; }
+.btn-download:active { background:#e5eef8; }
+.btn-new { width:100%; padding:16px; border-radius:14px; background:var(--info); color:white; border:none; font-family:var(--display); font-size:1.3rem; font-weight:800; text-transform:uppercase; letter-spacing:.06em; cursor:pointer; min-height:56px; transition:transform .1s,opacity .15s; }
+.btn-new:active { transform:scale(.97); opacity:.9; }
+
+/* Defib reminder */
+.defib-reminder {
+  margin:0 16px 8px; background:#fffbea; border:1.5px solid #f5c518;
+  border-radius:12px; padding:10px 14px; display:flex; align-items:center; gap:10px;
+  animation:reminder-in .35s ease;
+}
+@keyframes reminder-in { from{opacity:0;transform:translateY(-5px)} to{opacity:1;transform:translateY(0)} }
+.defib-reminder-icon { flex-shrink:0; color:#b89200; }
+.defib-reminder-title { font-family:var(--display); font-size:.97rem; font-weight:800; color:#7a5800; letter-spacing:.02em; }
+.defib-reminder-sub   { font-family:var(--body); font-size:.71rem; color:#a07000; margin-top:1px; line-height:1.3; }
+
+/* Refractory VF banner */
+.refractory-banner {
+  margin:0 16px 8px; background:rgba(229,62,62,.07); border:1.5px solid rgba(229,62,62,.35);
+  border-radius:12px; padding:10px 14px; display:flex; align-items:center; gap:10px;
+  animation:reminder-in .35s ease;
+}
+.refractory-banner-icon { flex-shrink:0; color:var(--defib); }
+.refractory-banner-title { font-family:var(--display); font-size:.97rem; font-weight:800; color:var(--defib); letter-spacing:.02em; }
+.refractory-banner-sub   { font-family:var(--body); font-size:.71rem; color:#c03030; margin-top:1px; line-height:1.3; }
+
+/* ROSC flash */
+.rosc-flash { position:fixed; inset:0; z-index:2000; background:rgba(47,150,89,.35); pointer-events:none; opacity:0; transition:opacity .15s; }
+.rosc-flash.on { opacity:1; }
+
+/* ════════════ POST-RCP ════════════ */
+#view-post-rcp { max-width:480px; margin:0 auto; width:100%; padding:16px 16px calc(32px + env(safe-area-inset-bottom,0px)); }
+.pr-sec { background:var(--surface); border:1px solid var(--border); border-radius:14px; margin-bottom:12px; overflow:hidden; }
+.pr-sec-hdr { padding:10px 16px 8px; font-family:var(--mono); font-size:.58rem; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+/* Check items */
+.pr-check { display:flex; align-items:flex-start; gap:12px; padding:12px 16px; background:var(--surface); border-bottom:1px solid var(--border); cursor:pointer; transition:background .12s; -webkit-user-select:none; user-select:none; }
+.pr-check:last-child { border-bottom:none; }
+.pr-check:active { background:#f5faff; }
+.pr-check.ck { background:rgba(9,199,151,.07); }
+.pr-cbox { width:22px; height:22px; border-radius:6px; border:2px solid var(--border); flex-shrink:0; display:flex; align-items:center; justify-content:center; transition:all .12s; margin-top:1px; }
+.pr-check.ck .pr-cbox { background:#09c797; border-color:#09c797; }
+.pr-clbl { font-size:.87rem; color:var(--text); font-weight:500; line-height:1.3; }
+.pr-csub { font-size:.73rem; color:var(--muted); margin-top:2px; line-height:1.4; }
+.pr-check.ck .pr-clbl { color:#077d60; }
+.pr-group-lbl { padding:8px 16px 4px; font-size:.62rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.1em; background:var(--bg); border-bottom:1px solid var(--border); }
+/* Info cards (non-interactive) */
+.pr-info { margin:8px 12px 10px; padding:10px 13px; border-radius:10px; background:#f0f7ff; border:1px solid rgba(26,127,200,.18); }
+.pr-info-name { font-family:var(--display); font-size:.98rem; font-weight:800; color:var(--info); text-transform:uppercase; letter-spacing:.02em; }
+.pr-info-ind { font-size:.7rem; font-weight:500; color:var(--muted); font-family:var(--body); text-transform:none; letter-spacing:0; margin-left:5px; }
+.pr-info-dil { font-family:var(--mono); font-size:.67rem; color:var(--muted); margin-top:3px; }
+.pr-info-row { display:flex; justify-content:space-between; align-items:baseline; margin-top:6px; }
+.pr-info-key { font-size:.72rem; color:var(--muted); }
+.pr-info-val { font-family:var(--mono); font-size:.95rem; font-weight:700; color:var(--info); }
+/* Perf drug cards (sedoanalgesia) */
+.pr-perf { background:var(--surface); border-radius:10px; border:1px solid var(--border); overflow:hidden; margin:0 12px 8px; }
+.pr-perf-hdr { padding:9px 13px 5px; border-bottom:1px solid var(--border); }
+.pr-perf-name { font-family:var(--body); font-size:.88rem; font-weight:600; color:var(--text); }
+.pr-perf-dil { font-family:var(--mono); font-size:.64rem; color:var(--muted); margin-top:2px; }
+.pr-perf-body { padding:5px 13px 9px; }
+.pr-perf-row { display:flex; justify-content:space-between; align-items:baseline; padding:3px 0; }
+.pr-perf-key { font-size:.7rem; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:.04em; }
+.pr-perf-val { font-family:var(--mono); font-size:.88rem; font-weight:700; color:var(--text); }
+.pr-perf-val.hi { color:var(--info); font-size:1.02rem; }
+.pr-perf-ck-hdr { display:flex; align-items:center; gap:10px; cursor:pointer; -webkit-user-select:none; user-select:none; }
+.pr-perf.ck > .pr-perf-ck-hdr { background:rgba(9,199,151,.07); }
+.pr-perf.ck > .pr-perf-ck-hdr .pr-cbox { background:#09c797; border-color:#09c797; }
+/* Radio pills */
+.pr-pills { display:flex; flex-wrap:wrap; gap:7px; padding:12px 16px 14px; }
+.pr-pill { padding:9px 13px; border-radius:10px; border:1.5px solid var(--border); background:var(--bg); cursor:pointer; font-size:.84rem; font-weight:500; color:var(--text); transition:all .12s; -webkit-user-select:none; user-select:none; }
+.pr-pill.sel { border-color:var(--info); background:rgba(26,127,200,.1); color:var(--info); font-weight:600; }
+.pr-pill:active { transform:scale(.97); }
+/* Drug dose rows */
+.pr-drug-row { padding:11px 16px; border-bottom:1px solid var(--border); }
+.pr-drug-row:last-child { border-bottom:none; }
+.pr-drug-lbl { font-size:.86rem; color:var(--text); font-weight:500; margin-bottom:6px; display:block; }
+.pr-drug-auto { display:inline-block; font-family:var(--mono); font-size:.82rem; font-weight:700; color:#09915a; background:rgba(9,199,151,.12); padding:4px 10px; border-radius:8px; }
+.pr-drug-ctrl { display:flex; align-items:center; gap:6px; }
+.pr-drug-inp { width:84px; border:1.5px solid var(--border); border-radius:8px; padding:6px 8px; font-family:var(--mono); font-size:.9rem; font-weight:700; color:var(--text); text-align:right; background:var(--bg); outline:none; transition:border-color .12s; }
+.pr-drug-inp:focus { border-color:var(--info); background:#fff; }
+.pr-drug-unit { font-family:var(--mono); font-size:.72rem; color:var(--muted); }
+.pr-presets { display:flex; gap:5px; flex-wrap:wrap; }
+.pr-preset { padding:6px 10px; border-radius:8px; border:1.5px solid var(--border); background:var(--bg); font-family:var(--mono); font-size:.75rem; font-weight:600; color:var(--text); cursor:pointer; transition:all .12s; -webkit-user-select:none; user-select:none; }
+.pr-preset.sel { border-color:var(--info); background:rgba(26,127,200,.1); color:var(--info); }
+/* Patient form */
+.pr-sex-row { display:flex; gap:8px; padding:12px 16px; }
+.pr-sex-btn { flex:1; padding:11px; border-radius:10px; border:2px solid var(--border); background:var(--bg); font-family:var(--display); font-size:1.05rem; font-weight:800; text-transform:uppercase; color:var(--muted); cursor:pointer; text-align:center; transition:all .12s; }
+.pr-sex-btn.sel { border-color:var(--info); background:rgba(26,127,200,.1); color:var(--info); }
+.pr-form-row { padding:10px 16px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.pr-form-row:last-of-type { border-bottom:none; }
+.pr-form-lbl { font-size:.76rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; }
+.pr-form-inp { width:88px; border:1.5px solid var(--border); border-radius:8px; padding:7px 9px; font-family:var(--mono); font-size:.9rem; font-weight:700; color:var(--text); text-align:right; background:var(--bg); outline:none; transition:border-color .12s; }
+.pr-form-inp:focus { border-color:var(--info); background:#fff; }
+.pr-form-unit { font-family:var(--mono); font-size:.72rem; color:var(--muted); width:24px; }
+.pr-calc { margin:10px 16px; padding:10px 13px; background:rgba(9,199,151,.1); border:1px solid rgba(9,199,151,.3); border-radius:10px; display:none; }
+.pr-calc-row { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:3px; }
+.pr-calc-row:last-child { margin-bottom:0; }
+.pr-calc-key { font-size:.7rem; color:#077d60; font-weight:600; text-transform:uppercase; letter-spacing:.04em; }
+.pr-calc-val { font-family:var(--mono); font-size:.92rem; font-weight:700; color:#077d60; }
+.pr-save-btn { display:block; width:calc(100% - 32px); margin:10px 16px 14px; padding:11px; border-radius:10px; background:var(--info); color:#fff; border:none; font-family:var(--display); font-size:.95rem; font-weight:800; text-transform:uppercase; cursor:pointer; }
+.pr-save-btn:active { opacity:.85; }
+.pr-edit-btn { font-size:.72rem; color:var(--info); font-weight:600; cursor:pointer; background:none; border:none; padding:0; text-decoration:underline; }
+/* Actions */
+.pr-actions { display:grid; grid-template-columns:1fr 1.6fr; gap:10px; margin-top:4px; }
+.pr-btn-skip { padding:16px; border-radius:14px; background:var(--bg); border:1.5px solid var(--border); color:var(--muted); font-family:var(--display); font-size:1rem; font-weight:700; text-transform:uppercase; cursor:pointer; }
+.pr-btn-skip:active { opacity:.7; }
+.pr-btn-report { padding:16px; border-radius:14px; background:var(--info); color:#fff; border:none; font-family:var(--display); font-size:1.1rem; font-weight:800; text-transform:uppercase; letter-spacing:.04em; cursor:pointer; }
+.pr-btn-report:active { opacity:.85; }
+/* VMI post-ROSC */
+.pr-vmi-strat { display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:10px 14px 8px; }
+.pr-vs-btn { padding:9px; border-radius:9px; border:2px solid var(--border); background:var(--bg); cursor:pointer; text-align:center; font-family:var(--display); font-size:.93rem; font-weight:700; text-transform:uppercase; color:var(--text); transition:all .15s; -webkit-user-select:none; user-select:none; }
+.pr-vs-btn.sel { border-color:var(--info); background:rgba(26,127,200,.1); color:var(--info); }
+.pr-vs-btn:active { transform:scale(.97); }
+.pr-vmi-tbl { width:100%; border-collapse:collapse; }
+.pr-vmi-tbl th { font-family:var(--mono); font-size:.55rem; font-weight:600; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); padding:7px 14px; text-align:left; border-bottom:1px solid var(--border); border-top:1px solid var(--border); }
+.pr-vmi-tbl td { padding:8px 14px; font-size:.85rem; color:var(--text); border-bottom:1px solid var(--border); }
+.pr-vmi-tbl tr:last-child td { border-bottom:none; }
+.pr-vmi-tbl td:first-child { font-size:.73rem; font-weight:600; color:var(--muted); }
+.pr-vt-val { font-family:var(--mono) !important; font-weight:700 !important; color:var(--info) !important; font-size:.95rem !important; }
+.pr-vmi-ph { padding:16px; text-align:center; color:var(--muted); font-size:.83rem; }
+</style>
+</head>
+<body>
+<div class="rosc-flash" id="rosc-flash"></div>
+
+<header>
+  <a class="back-btn" href="../index.html#menu" onclick="handleBackBtn(event)" aria-label="Volver">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+  </a>
+  <div class="header-center">
+    <div class="header-label">Hospital Universitari Joan XXIII</div>
+    <div class="header-title">RCP</div>
+  </div>
+  <div class="header-right">
+    <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+  </div>
+</header>
+
+<!-- ═══ IDLE ═══ -->
+<div id="view-idle" class="view visible">
+  <div class="restore-banner" id="restore-banner">
+    <div class="restore-banner-title" id="restore-banner-title">⚠ Sesión en curso detectada</div>
+    <div class="restore-banner-sub" id="restore-banner-sub">Reanimación activa — duración acumulada: <strong id="restore-elapsed">--:--</strong></div>
+    <div class="restore-banner-actions">
+      <button class="btn-restore" id="btn-restore" onclick="restoreSession()">RESTAURAR</button>
+      <button class="btn-discard" id="btn-discard" onclick="discardSession()">DESCARTAR</button>
+    </div>
+  </div>
+  <button class="btn-start medica" onclick="startRCP()">INICIAR PCR MÉDICA</button>
+  <svg class="idle-ecg" viewBox="0 0 300 60" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <polyline points="0,30 40,30 50,30 55,10 60,50 65,30 70,30 110,30 115,30 120,8 125,52 130,30 135,30 175,30 180,30 185,10 190,50 195,30 200,30 240,30 245,30 250,8 255,52 260,30 265,30 300,30"
+      stroke="#1a2636" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+  </svg>
+  <p class="idle-desc">Gestor en tiempo real</p>
+  <button class="btn-start trauma" onclick="openTrauma()">INICIAR PCR TRAUMÁTICA</button>
+</div>
+
+<!-- ═══ ACTIVE ═══ -->
+<div id="view-active" class="view">
+  <div class="status-bar">
+    <div class="status-bar-inner">
+      <div class="total-wrap">
+        <span class="total-label">Total</span>
+        <span class="total-value" id="total-display">00:00</span>
+      </div>
+      <div class="status-right">
+        <button class="btn-interv" id="btn-interv" onclick="toggleSidebar()">INTERV.<span class="interv-count-badge" id="interv-count"></span></button>
+        <button class="btn-ht" onclick="showHT()">H&amp;T</button>
+        <button class="btn-log" onclick="showLog()">LOG <span class="log-badge" id="log-badge">0</span></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="active-split">
+  <div class="active-main">
+  <div class="cycle-zone mode-normal" id="cycle-zone">
+    <div class="cycle-timer-col" id="timer-col">
+      <div class="cycle-num" id="cycle-label">CICLO 1</div>
+      <div class="cycle-timer-display" id="cycle-display">2:00</div>
+      <div class="cycle-subtext" id="cycle-subtext"></div>
+      <div class="cycle-progress" id="cycle-progress-wrap">
+        <div class="cycle-bar" id="cycle-bar" style="width:100%"></div>
+      </div>
+    </div>
+    <div class="rhythm-tabs" id="rhythm-tabs" style="display:none">
+      <button class="btn-rhythm-tab t-defib" onclick="registerRhythm('FV/TVSP')">
+        ⚡ FV / TVSP
+        <span class="rhythm-tab-sub">Desfibrilable</span>
+      </button>
+      <button class="btn-rhythm-tab t-aesp" onclick="registerRhythm('AESP/ASISTOLIA')">
+        〰 AESP / ASISTOLIA
+        <span class="rhythm-tab-sub">No desfibrilable</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="defib-reminder" id="defib-reminder" style="display:none">
+    <svg class="defib-reminder-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+    <div>
+      <div class="defib-reminder-title">Pre-cargar desfibrilador</div>
+      <div class="defib-reminder-sub">Minimiza el tiempo sin compresiones</div>
+    </div>
+  </div>
+
+  <div class="main-action-zone">
+    <button class="btn-cycle" id="btn-cycle" onclick="handleCycleButton()">INICIAR COMPRESIONES</button>
+    <button class="btn-analyze" id="btn-analyze" onclick="startAnalysis()">🔍 ANALIZAR RITMO</button>
+  </div>
+
+  <div class="actions-zone">
+    <div class="action-row">
+      <button class="btn-defib-action" id="btn-defib-action" onclick="registerDefib()">
+        <svg class="defib-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        DESCARGA
+      </button>
+      <div class="action-info">
+        <span class="action-count" id="defib-count">0 descargas</span>
+        <span class="defib-last" id="defib-last">—</span>
+      </div>
+    </div>
+    <div class="action-row">
+      <button class="btn-epi" id="btn-epi" onclick="registerEpi()">ADRENALINA</button>
+      <div class="action-info">
+        <span class="action-count" id="epi-count">0 dosis</span>
+        <span class="epi-since" id="epi-since">—</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="refractory-banner" id="refractory-banner" style="display:none">
+    <svg class="refractory-banner-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" transform="translate(5,0)" opacity=".45"/></svg>
+    <div>
+      <div class="refractory-banner-title">FV refractaria</div>
+      <div class="refractory-banner-sub">Considerar cambio de vector o doble desfibrilación secuencial</div>
+    </div>
+  </div>
+
+  <div class="bottom-actions">
+    <button class="btn-action btn-finish" onclick="showFinishModal()">FINALIZAR<br>RCP</button>
+  </div>
+  </div><!-- /active-main -->
+
+  <div class="active-sidebar" id="active-sidebar">
+    <div class="sidebar-hdr">
+      <span class="sidebar-hdr-label">Intervenciones</span>
+      <button class="sidebar-close" onclick="toggleSidebar()">✕</button>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">Acceso vascular</div>
+      <button class="intervention-btn" id="int-avp" onclick="registerIntervention('avp','Acceso venoso periférico')">
+        <span class="intervention-name">Acceso venoso periférico</span><span class="intervention-time" id="time-avp"></span>
+      </button>
+      <button class="intervention-btn" id="int-avc" onclick="registerIntervention('avc','Acceso venoso central')">
+        <span class="intervention-name">Acceso venoso central</span><span class="intervention-time" id="time-avc"></span>
+      </button>
+      <button class="intervention-btn" id="int-io" onclick="registerIntervention('io','Acceso intraóseo')">
+        <span class="intervention-name">Acceso intraóseo</span><span class="intervention-time" id="time-io"></span>
+      </button>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">Vía aérea</div>
+      <button class="intervention-btn" id="int-guedel" onclick="registerIntervention('guedel','Guedel + Ventilación con BVM')">
+        <span class="intervention-name">Guedel + BVM</span><span class="intervention-time" id="time-guedel"></span>
+      </button>
+      <button class="intervention-btn" id="int-iot" onclick="registerIntervention('iot','Intubación orotraqueal')">
+        <span class="intervention-name">Intubación OT</span><span class="intervention-time" id="time-iot"></span>
+      </button>
+      <button class="intervention-btn" id="int-sga" onclick="registerIntervention('sga','Dispositivo supraglótico')">
+        <span class="intervention-name">Dispositivo SGA</span><span class="intervention-time" id="time-sga"></span>
+      </button>
+      <button class="intervention-btn" id="int-cricot" onclick="registerIntervention('cricot','Cricotiroidotomía')">
+        <span class="intervention-name">Cricotiroidotomía</span><span class="intervention-time" id="time-cricot"></span>
+      </button>
+      <button class="intervention-btn" id="int-capno" onclick="registerIntervention('capno','Confirmación capnográfica')">
+        <span class="intervention-name">Capnografía</span><span class="intervention-time" id="time-capno"></span>
+      </button>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">Fármacos</div>
+      <button class="drug-btn" id="int-amiodarona" onclick="registerAmiodarona300()">
+        <span class="drug-name">Amiodarona 300 mg</span><span class="drug-time" id="time-amiodarona"></span>
+      </button>
+      <button class="drug-btn" id="int-amiodarona2" onclick="registerAmiodarona150()" style="display:none">
+        <span class="drug-name">Amiodarona 150 mg</span><span class="drug-time" id="time-amiodarona2"></span>
+      </button>
+      <button class="drug-btn" id="int-lidocaina" onclick="registerIntervention('lidocaina','Lidocaína')">
+        <span class="drug-name">Lidocaína</span><span class="drug-time" id="time-lidocaina"></span>
+      </button>
+      <button class="drug-btn" id="int-magnesio" onclick="registerIntervention('magnesio','Sulfato de magnesio')">
+        <span class="drug-name">Sulfato magnesio</span><span class="drug-time" id="time-magnesio"></span>
+      </button>
+      <button class="drug-btn" id="int-bicarbonato" onclick="registerIntervention('bicarbonato','Bicarbonato sódico')">
+        <span class="drug-name">Bicarbonato</span><span class="drug-time" id="time-bicarbonato"></span>
+      </button>
+      <button class="drug-btn" id="int-calcio" onclick="registerIntervention('calcio','Gluconato cálcico')">
+        <span class="drug-name">Gluconato cálcico</span><span class="drug-time" id="time-calcio"></span>
+      </button>
+      <button class="drug-btn" id="int-noradrenalina" onclick="registerIntervention('noradrenalina','Noradrenalina')">
+        <span class="drug-name">Noradrenalina</span><span class="drug-time" id="time-noradrenalina"></span>
+      </button>
+      <button class="drug-btn" id="int-atropina" onclick="registerIntervention('atropina','Atropina')">
+        <span class="drug-name">Atropina</span><span class="drug-time" id="time-atropina"></span>
+      </button>
+      <button class="drug-btn" id="int-insulina" onclick="registerIntervention('insulina','Insulina')">
+        <span class="drug-name">Insulina</span><span class="drug-time" id="time-insulina"></span>
+      </button>
+      <button class="drug-btn" id="int-glucosado" onclick="registerIntervention('glucosado','Suero glucosado 10%')">
+        <span class="drug-name">Glucosado 10%</span><span class="drug-time" id="time-glucosado"></span>
+      </button>
+      <button class="drug-btn" id="int-salbutamol" onclick="registerIntervention('salbutamol','Salbutamol')">
+        <span class="drug-name">Salbutamol</span><span class="drug-time" id="time-salbutamol"></span>
+      </button>
+      <button class="drug-btn" id="int-naloxona" onclick="registerIntervention('naloxona','Naloxona')">
+        <span class="drug-name">Naloxona</span><span class="drug-time" id="time-naloxona"></span>
+      </button>
+      <button class="drug-btn" id="int-flumazenilo" onclick="registerIntervention('flumazenilo','Flumazenilo')">
+        <span class="drug-name">Flumazenilo</span><span class="drug-time" id="time-flumazenilo"></span>
+      </button>
+      <button class="drug-btn" id="int-metoprolol" onclick="registerIntervention('metoprolol','Metoprolol')">
+        <span class="drug-name">Metoprolol</span><span class="drug-time" id="time-metoprolol"></span>
+      </button>
+      <button class="drug-btn" id="int-esmolol" onclick="registerIntervention('esmolol','Esmolol')">
+        <span class="drug-name">Esmolol</span><span class="drug-time" id="time-esmolol"></span>
+      </button>
+      <button class="drug-btn" id="int-ketamina" onclick="registerIntervention('ketamina','Ketamina')">
+        <span class="drug-name">Ketamina</span><span class="drug-time" id="time-ketamina"></span>
+      </button>
+      <button class="drug-btn" id="int-midazolam" onclick="registerIntervention('midazolam','Midazolam')">
+        <span class="drug-name">Midazolam</span><span class="drug-time" id="time-midazolam"></span>
+      </button>
+      <button class="drug-btn" id="int-cristaloides" onclick="registerIntervention('cristaloides','Cristaloides')">
+        <span class="drug-name">Cristaloides</span><span class="drug-time" id="time-cristaloides"></span>
+      </button>
+      <button class="drug-btn" id="int-hemoderivados" onclick="registerIntervention('hemoderivados','Hemoderivados')">
+        <span class="drug-name">Hemoderivados</span><span class="drug-time" id="time-hemoderivados"></span>
+      </button>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">Procedimientos</div>
+      <button class="intervention-btn" id="int-mpc-ext" onclick="registerIntervention('mpc-ext','Marcapasos externo transcutáneo')">
+        <span class="intervention-name">MPC externo</span><span class="intervention-time" id="time-mpc-ext"></span>
+      </button>
+      <button class="intervention-btn" id="int-mpc-tv" onclick="registerIntervention('mpc-tv','Marcapasos transvenoso temporal')">
+        <span class="intervention-name">MPC transvenoso</span><span class="intervention-time" id="time-mpc-tv"></span>
+      </button>
+      <button class="intervention-btn" id="int-vmi" onclick="registerIntervention('vmi','Ventilación mecánica invasiva')">
+        <span class="intervention-name">VMI</span><span class="intervention-time" id="time-vmi"></span>
+      </button>
+      <button class="intervention-btn" id="int-vector" onclick="registerIntervention('vector','Cambio de vector')">
+        <span class="intervention-name">Cambio vector</span><span class="intervention-time" id="time-vector"></span>
+      </button>
+      <button class="intervention-btn" id="int-dobledefib" onclick="registerIntervention('dobledefib','Doble desfibrilación secuencial')">
+        <span class="intervention-name">Doble defib.</span><span class="intervention-time" id="time-dobledefib"></span>
+      </button>
+      <button class="intervention-btn" id="int-pocus" onclick="registerIntervention('pocus','Ultrasonografía POCUS')">
+        <span class="intervention-name">POCUS</span><span class="intervention-time" id="time-pocus"></span>
+      </button>
+      <button class="intervention-btn" id="int-torax" onclick="registerIntervention('torax','Descompresión torácica')">
+        <span class="intervention-name">Descomp. torácica</span><span class="intervention-time" id="time-torax"></span>
+      </button>
+      <button class="intervention-btn" id="int-pericardio" onclick="registerIntervention('pericardio','Pericardiocentesis')">
+        <span class="intervention-name">Pericardiocentesis</span><span class="intervention-time" id="time-pericardio"></span>
+      </button>
+      <button class="intervention-btn" id="int-ganglio" onclick="registerIntervention('ganglio','Bloqueo ganglio estrellado')">
+        <span class="intervention-name">Bloqueo ganglio</span><span class="intervention-time" id="time-ganglio"></span>
+      </button>
+    </div>
+  </div><!-- /active-sidebar -->
+</div><!-- /active-split -->
+
+<!-- ═══ FINISH MODAL ═══ -->
+<div id="modal-finish">
+  <div class="modal-backdrop" onclick="hideFinishModal()"></div>
+  <div class="finish-sheet">
+    <div class="modal-handle"></div>
+    <div class="finish-title">Finalizar Reanimación</div>
+    <div class="finish-subtitle">Selecciona el motivo de finalización</div>
+    <div class="finish-options">
+      <button class="btn-finish-opt opt-rosc"   onclick="confirmFinish('rosc')">  <span class="opt-dot"></span>ROSC</button>
+      <button class="btn-finish-opt opt-exitus"  onclick="confirmFinish('exitus')"><span class="opt-dot"></span>Exitus</button>
+      <button class="btn-finish-opt opt-let"     onclick="confirmFinish('let')">   <span class="opt-dot"></span>Limitación de Esfuerzo Terapéutico</button>
+      <button class="btn-finish-opt opt-ecmo"    onclick="confirmFinish('ecmo')">  <span class="opt-dot"></span>ECMO</button>
+      <button class="btn-finish-opt opt-otros"   onclick="confirmFinish('otros')"> <span class="opt-dot"></span>Otros</button>
+    </div>
+    <button class="btn-finish-cancel" onclick="hideFinishModal()">Cancelar</button>
+  </div>
+</div>
+
+<!-- ═══ H&T MODAL ═══ -->
+<div id="modal-ht">
+  <div class="modal-backdrop" onclick="hideHT()"></div>
+  <div class="ht-sheet">
+    <div class="modal-handle"></div>
+    <div class="ht-title">Causas Reversibles</div>
+
+    <div class="ht-section">
+      <div class="ht-section-title">4H</div>
+      <div class="ht-item">
+        <div class="ht-badge h">H</div>
+        <div><div class="ht-cause">Hipoxia</div><div class="ht-action">Ventilar O₂ 100% · asegurar vía aérea · SGA o IOT</div></div>
+      </div>
+      <div class="ht-item">
+        <div class="ht-badge h">H</div>
+        <div><div class="ht-cause">Hipovolemia</div><div class="ht-action">Fluidos IV agresivos · control de hemorragia</div></div>
+      </div>
+      <div class="ht-item">
+        <div class="ht-badge h">H</div>
+        <div><div class="ht-cause">Hipo / Hiperpotasemia</div><div class="ht-action">Gluconato cálcico IV · bicarbonato · glucosa + insulina</div></div>
+      </div>
+      <div class="ht-item">
+        <div class="ht-badge h">H</div>
+        <div><div class="ht-cause">Hipotermia</div><div class="ht-action">Calentamiento activo · no parar RCP hasta &gt;30°C</div></div>
+      </div>
+    </div>
+
+    <div class="ht-section">
+      <div class="ht-section-title">4T</div>
+      <div class="ht-item">
+        <div class="ht-badge t">T</div>
+        <div><div class="ht-cause">Neumotórax a tensión</div><div class="ht-action">Descompresión torácica</div></div>
+      </div>
+      <div class="ht-item">
+        <div class="ht-badge t">T</div>
+        <div><div class="ht-cause">Taponamiento cardíaco</div><div class="ht-action">Pericardiocentesis</div></div>
+      </div>
+      <div class="ht-item">
+        <div class="ht-badge t">T</div>
+        <div><div class="ht-cause">Tromboembolismo (TEP / coronaria)</div><div class="ht-action">Fibrinólisis: Tenecteplasa 0.5 mg/kg IV bolo (máx. 50 mg) · valorar ACTP emergente</div></div>
+      </div>
+      <div class="ht-item">
+        <div class="ht-badge t">T</div>
+        <div><div class="ht-cause">Tóxicos</div><div class="ht-action">Antídoto específico · soporte prolongado</div></div>
+      </div>
+    </div>
+
+    <button class="modal-close" onclick="hideHT()">CERRAR</button>
+  </div>
+</div>
+
+<!-- ═══ INTERVENTIONS MODAL ═══ -->
+<div id="modal-interventions">
+  <div class="modal-backdrop" onclick="hideInterventions()"></div>
+  <div class="modal-sheet">
+    <div class="modal-title">Intervenciones
+      <button class="modal-title-close" onclick="hideInterventions()" aria-label="Cerrar">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><line x1="3" y1="3" x2="13" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="13" y1="3" x2="3" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">Acceso vascular</div>
+      <button class="intervention-btn" id="int-avp" onclick="registerIntervention('avp','Acceso venoso periférico')">
+        <span class="intervention-name">Acceso venoso periférico</span><span class="intervention-time" id="time-avp"></span>
+      </button>
+      <button class="intervention-btn" id="int-avc" onclick="registerIntervention('avc','Acceso venoso central')">
+        <span class="intervention-name">Acceso venoso central</span><span class="intervention-time" id="time-avc"></span>
+      </button>
+      <button class="intervention-btn" id="int-io" onclick="registerIntervention('io','Acceso intraóseo')">
+        <span class="intervention-name">Acceso intraóseo</span><span class="intervention-time" id="time-io"></span>
+      </button>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">Vía aérea</div>
+      <button class="intervention-btn" id="int-guedel" onclick="registerIntervention('guedel','Guedel + Ventilación con BVM')">
+        <span class="intervention-name">Guedel + Ventilación con BVM</span><span class="intervention-time" id="time-guedel"></span>
+      </button>
+      <button class="intervention-btn" id="int-iot" onclick="registerIntervention('iot','Intubación orotraqueal')">
+        <span class="intervention-name">Intubación orotraqueal</span><span class="intervention-time" id="time-iot"></span>
+      </button>
+      <button class="intervention-btn" id="int-sga" onclick="registerIntervention('sga','Dispositivo supraglótico')">
+        <span class="intervention-name">Dispositivo supraglótico</span><span class="intervention-time" id="time-sga"></span>
+      </button>
+      <button class="intervention-btn" id="int-cricot" onclick="registerIntervention('cricot','Cricotiroidotomía')">
+        <span class="intervention-name">Cricotiroidotomía</span><span class="intervention-time" id="time-cricot"></span>
+      </button>
+      <button class="intervention-btn" id="int-capno" onclick="registerIntervention('capno','Confirmación capnográfica')">
+        <span class="intervention-name">Confirmación capnográfica</span><span class="intervention-time" id="time-capno"></span>
+      </button>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">Fármacos</div>
+      <button class="drug-btn" id="int-amiodarona" onclick="registerAmiodarona300()">
+        <span class="drug-name">Amiodarona 300 mg <span style="font-size:.7rem;opacity:.6">(1ª dosis)</span></span><span class="drug-time" id="time-amiodarona"></span>
+      </button>
+      <button class="drug-btn" id="int-amiodarona2" onclick="registerAmiodarona150()" style="display:none">
+        <span class="drug-name">Amiodarona 150 mg <span style="font-size:.7rem;opacity:.6">(2ª dosis)</span></span><span class="drug-time" id="time-amiodarona2"></span>
+      </button>
+      <button class="drug-btn" id="int-lidocaina" onclick="registerIntervention('lidocaina','Lidocaína')">
+        <span class="drug-name">Lidocaína</span><span class="drug-time" id="time-lidocaina"></span>
+      </button>
+      <button class="drug-btn" id="int-magnesio" onclick="registerIntervention('magnesio','Sulfato de magnesio')">
+        <span class="drug-name">Sulfato de magnesio</span><span class="drug-time" id="time-magnesio"></span>
+      </button>
+      <button class="drug-btn" id="int-bicarbonato" onclick="registerIntervention('bicarbonato','Bicarbonato sódico')">
+        <span class="drug-name">Bicarbonato sódico</span><span class="drug-time" id="time-bicarbonato"></span>
+      </button>
+      <button class="drug-btn" id="int-calcio" onclick="registerIntervention('calcio','Gluconato cálcico')">
+        <span class="drug-name">Gluconato cálcico</span><span class="drug-time" id="time-calcio"></span>
+      </button>
+      <button class="drug-btn" id="int-noradrenalina" onclick="registerIntervention('noradrenalina','Noradrenalina')">
+        <span class="drug-name">Noradrenalina</span><span class="drug-time" id="time-noradrenalina"></span>
+      </button>
+      <button class="drug-btn" id="int-atropina" onclick="registerIntervention('atropina','Atropina')">
+        <span class="drug-name">Atropina</span><span class="drug-time" id="time-atropina"></span>
+      </button>
+      <button class="drug-btn" id="int-insulina" onclick="registerIntervention('insulina','Insulina')">
+        <span class="drug-name">Insulina</span><span class="drug-time" id="time-insulina"></span>
+      </button>
+      <button class="drug-btn" id="int-glucosado" onclick="registerIntervention('glucosado','Suero glucosado 10%')">
+        <span class="drug-name">Suero glucosado 10%</span><span class="drug-time" id="time-glucosado"></span>
+      </button>
+      <button class="drug-btn" id="int-salbutamol" onclick="registerIntervention('salbutamol','Salbutamol')">
+        <span class="drug-name">Salbutamol</span><span class="drug-time" id="time-salbutamol"></span>
+      </button>
+      <button class="drug-btn" id="int-naloxona" onclick="registerIntervention('naloxona','Naloxona')">
+        <span class="drug-name">Naloxona</span><span class="drug-time" id="time-naloxona"></span>
+      </button>
+      <button class="drug-btn" id="int-flumazenilo" onclick="registerIntervention('flumazenilo','Flumazenilo')">
+        <span class="drug-name">Flumazenilo</span><span class="drug-time" id="time-flumazenilo"></span>
+      </button>
+      <button class="drug-btn" id="int-metoprolol" onclick="registerIntervention('metoprolol','Metoprolol')">
+        <span class="drug-name">Metoprolol</span><span class="drug-time" id="time-metoprolol"></span>
+      </button>
+      <button class="drug-btn" id="int-esmolol" onclick="registerIntervention('esmolol','Esmolol')">
+        <span class="drug-name">Esmolol</span><span class="drug-time" id="time-esmolol"></span>
+      </button>
+      <button class="drug-btn" id="int-ketamina" onclick="registerIntervention('ketamina','Ketamina')">
+        <span class="drug-name">Ketamina</span><span class="drug-time" id="time-ketamina"></span>
+      </button>
+      <button class="drug-btn" id="int-midazolam" onclick="registerIntervention('midazolam','Midazolam')">
+        <span class="drug-name">Midazolam</span><span class="drug-time" id="time-midazolam"></span>
+      </button>
+      <button class="drug-btn" id="int-cristaloides" onclick="registerIntervention('cristaloides','Cristaloides')">
+        <span class="drug-name">Cristaloides</span><span class="drug-time" id="time-cristaloides"></span>
+      </button>
+      <button class="drug-btn" id="int-hemoderivados" onclick="registerIntervention('hemoderivados','Hemoderivados')">
+        <span class="drug-name">Hemoderivados</span><span class="drug-time" id="time-hemoderivados"></span>
+      </button>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">Procedimientos avanzados</div>
+      <button class="intervention-btn" id="int-mpc-ext" onclick="registerIntervention('mpc-ext','Marcapasos externo transcutáneo')">
+        <span class="intervention-name">Marcapasos externo transcutáneo</span><span class="intervention-time" id="time-mpc-ext"></span>
+      </button>
+      <button class="intervention-btn" id="int-mpc-tv" onclick="registerIntervention('mpc-tv','Marcapasos transvenoso temporal')">
+        <span class="intervention-name">Marcapasos transvenoso temporal</span><span class="intervention-time" id="time-mpc-tv"></span>
+      </button>
+      <button class="intervention-btn" id="int-vmi" onclick="registerIntervention('vmi','Ventilación mecánica invasiva')">
+        <span class="intervention-name">Ventilación mecánica invasiva</span><span class="intervention-time" id="time-vmi"></span>
+      </button>
+      <button class="intervention-btn" id="int-vector" onclick="registerIntervention('vector','Cambio de vector')">
+        <span class="intervention-name">Cambio de vector</span><span class="intervention-time" id="time-vector"></span>
+      </button>
+      <button class="intervention-btn" id="int-dobledefib" onclick="registerIntervention('dobledefib','Doble desfibrilación secuencial')">
+        <span class="intervention-name">Doble desfibrilación secuencial</span><span class="intervention-time" id="time-dobledefib"></span>
+      </button>
+      <button class="intervention-btn" id="int-pocus" onclick="registerIntervention('pocus','Ultrasonografía POCUS')">
+        <span class="intervention-name">Ultrasonografía POCUS</span><span class="intervention-time" id="time-pocus"></span>
+      </button>
+      <button class="intervention-btn" id="int-torax" onclick="registerIntervention('torax','Descompresión torácica')">
+        <span class="intervention-name">Descompresión torácica</span><span class="intervention-time" id="time-torax"></span>
+      </button>
+      <button class="intervention-btn" id="int-pericardio" onclick="registerIntervention('pericardio','Pericardiocentesis')">
+        <span class="intervention-name">Pericardiocentesis</span><span class="intervention-time" id="time-pericardio"></span>
+      </button>
+      <button class="intervention-btn" id="int-ganglio" onclick="registerIntervention('ganglio','Bloqueo ganglio estrellado')">
+        <span class="intervention-name">Bloqueo ganglio estrellado</span><span class="intervention-time" id="time-ganglio"></span>
+      </button>
+    </div>
+
+    <button class="modal-close" onclick="hideInterventions()">CERRAR</button>
+  </div>
+</div>
+
+<!-- ═══ LOG PANEL ═══ -->
+<div id="panel-log">
+  <div class="log-backdrop" onclick="hideLog()"></div>
+  <div class="log-sheet">
+    <div class="log-handle"></div>
+    <div class="log-title-bar">Registro de eventos</div>
+    <div class="log-body" id="log-body"></div>
+    <button class="log-close" onclick="hideLog()">CERRAR</button>
+  </div>
+</div>
+
+<!-- ═══ POST-RCP ═══ -->
+<div id="view-post-rcp" class="view">
+  <div id="pr-body"></div>
+</div>
+
+<!-- ═══ FINISHED ═══ -->
+<div id="view-finished" class="view">
+  <div class="finished-header">
+    <div class="summary-result" id="summary-result">RESULTADO</div>
+    <div class="summary-duration" id="summary-duration">Duración: —</div>
+  </div>
+  <div class="informe-box" id="informe-box"></div>
+  <div class="inf-actions">
+    <button class="btn-copy" id="btn-copy" onclick="copyReport()">Copiar</button>
+    <button class="btn-download" onclick="downloadReport()">Descargar .txt</button>
+  </div>
+  <button class="btn-new" onclick="resetRCP()">NUEVA REANIMACIÓN</button>
+</div>
+
+<script>
+const S = {
+  status:'idle', startTime:null, cycleStartTime:null, cycleEndTime:null,
+  cycleDuration:120000, rhythmMode:null, lastRhythm:null,
+  currentCycle:0, cycles:[], epiTimes:[], defibTimes:[],
+  interventions:{}, events:[], roscTs:null, finishReason:null,
+  alertFired:false, zeroFired:false, _rafId:null, _intervalId:null,
+  _rcpEndTs:null, _finishTs:null,
+  postRoscChecks:{}, drugDoses:{}, patientDestination:null, leadService:null,
+  postRoscVMI:null, postRoscFentanilo:false, postRoscSedante:null,
+  postRoscNora:false, postRoscDobu:false,
+};
+
+const p2 = n => String(n).padStart(2,'0');
+function fmtMs(ms)  { if(ms<0)ms=0; const s=Math.floor(ms/1000); return `${p2(Math.floor(s/60))}:${p2(s%60)}`; }
+function fmtCyc(ms) { if(ms<0)ms=0; const s=Math.floor(ms/1000); return `${Math.floor(s/60)}:${p2(s%60)}`; }
+function fmtOT(ms)  { if(ms<0)ms=0; const s=Math.floor(ms/1000); return `-${Math.floor(s/60)}:${p2(s%60)}`; }
+function relTime(ts){ return fmtMs(ts-S.startTime); }
+function absTime(ts){ const d=new Date(ts); return `${p2(d.getHours())}:${p2(d.getMinutes())}:${p2(d.getSeconds())}`; }
+function vib(p){ try{ if(navigator.vibrate) navigator.vibrate(p); }catch(_){} }
+
+const LC={start:'#1a7fc8',cycle:'#1a7fc8',rhythm:'#e53e3e',epi:'#e07b00',defib:'#b89200',interv:'#09915a',rosc:'#2f9659',finish:'#8898aa'};
+function addEvent(type,label,ts){ ts=ts||Date.now(); S.events.push({ts,type,color:LC[type]||'#8898aa',label}); document.getElementById('log-badge').textContent=S.events.length; }
+function renderLog(){
+  const b=document.getElementById('log-body'); b.innerHTML='';
+  [...S.events].reverse().forEach(e=>{ const d=document.createElement('div'); d.className='log-entry';
+    d.innerHTML=`<span class="log-time">${relTime(e.ts)}</span><div class="log-dot" style="background:${e.color}"></div><span class="log-text">${e.label}</span>`; b.appendChild(d); });
+}
+
+function showView(id){ document.querySelectorAll('.view').forEach(v=>v.classList.remove('visible')); document.getElementById(id).classList.add('visible'); }
+function toggleSidebar(){
+  const sb=document.getElementById('active-sidebar');
+  const btn=document.getElementById('btn-interv');
+  const isOpen=sb.classList.toggle('open');
+  if(btn) btn.classList.toggle('open',isOpen);
+}
+function showInterventions(){
+  const sb=document.getElementById('active-sidebar');
+  if(!sb.classList.contains('open')) toggleSidebar();
+}
+function hideInterventions(){
+  const sb=document.getElementById('active-sidebar');
+  if(sb.classList.contains('open')) toggleSidebar();
+}
+function showLog() { renderLog(); document.getElementById('panel-log').classList.add('visible'); }
+function hideLog() { document.getElementById('panel-log').classList.remove('visible'); }
+function showHT()  { document.getElementById('modal-ht').classList.add('visible'); }
+function hideHT()  { document.getElementById('modal-ht').classList.remove('visible'); }
+
+function setCycleMode(mode){
+  document.getElementById('cycle-zone').className='cycle-zone mode-'+mode;
+  const tabs=document.getElementById('rhythm-tabs'), prog=document.getElementById('cycle-progress-wrap');
+  tabs.style.display = mode==='normal' ? 'none' : '';
+  prog.style.display = mode==='normal' ? '' : 'none';
+}
+function updateAnalyzeBtn(){
+  document.getElementById('btn-analyze').style.display = !S.rhythmMode ? '' : 'none';
+}
+
+/* ══════════════════════════════════════
+   PERSISTENCIA DE SESIÓN (localStorage)
+   ══════════════════════════════════════ */
+const RCP_SESSION_KEY = 'hj23_rcp_session';
+let _saveId = null;
+
+function saveSession(){
+  if(S.status !== 'active') return;
+  try {
+    const snap = Object.assign({}, S);
+    delete snap._rafId; delete snap._intervalId;
+    localStorage.setItem(RCP_SESSION_KEY, JSON.stringify(snap));
+  } catch(e) {}
+}
+
+function clearSession(){ localStorage.removeItem(RCP_SESSION_KEY); }
+
+function saveSessionNow(){
+  // Guarda independientemente del status (usado al finalizar)
+  try {
+    const snap = Object.assign({}, S);
+    delete snap._rafId; delete snap._intervalId;
+    localStorage.setItem(RCP_SESSION_KEY, JSON.stringify(snap));
+  } catch(e) {}
+}
+function startSaveInterval(){ stopSaveInterval(); _saveId = setInterval(saveSession, 5000); }
+function stopSaveInterval(){ if(_saveId){ clearInterval(_saveId); _saveId = null; } }
+
+function checkSavedSession(){
+  try {
+    const raw = localStorage.getItem(RCP_SESSION_KEY);
+    if(!raw) return;
+    const snap = JSON.parse(raw);
+    if(!snap || !snap.startTime){ clearSession(); return; }
+    window._pendingSession = snap;
+    const elapsed = Date.now() - snap.startTime;
+    const banner = document.getElementById('restore-banner');
+    if(snap.status === 'active'){
+      document.getElementById('restore-banner-title').textContent = '⚠ Sesión en curso detectada';
+      document.getElementById('restore-banner-sub').innerHTML =
+        'Reanimación activa — duración acumulada: <strong>' + fmtMs(elapsed) + '</strong>';
+      document.getElementById('btn-restore').textContent  = 'RESTAURAR';
+      document.getElementById('btn-restore').onclick = restoreSession;
+      document.getElementById('btn-discard').textContent = 'DESCARTAR';
+      document.getElementById('btn-discard').onclick = discardSession;
+    } else if(snap.status === 'finished'){
+      document.getElementById('restore-banner-title').textContent = '📋 Informe pendiente';
+      document.getElementById('restore-banner-sub').innerHTML =
+        'Hay un informe de reanimación sin guardar — duración: <strong>' + fmtMs(snap.roscTs ? snap.roscTs - snap.startTime : Date.now() - snap.startTime) + '</strong>';
+      document.getElementById('btn-restore').textContent  = 'VER INFORME';
+      document.getElementById('btn-restore').onclick = restoreFinishedSession;
+      document.getElementById('btn-discard').textContent = 'NUEVA RCP';
+      document.getElementById('btn-discard').onclick = discardSession;
+    } else { clearSession(); return; }
+    banner.classList.add('visible');
+  } catch(e){ clearSession(); }
+}
+
+function restoreSession(){
+  const snap = window._pendingSession;
+  if(!snap) return;
+  hideRestoreBanner();
+  Object.assign(S, snap);
+  S._rafId = null; S._intervalId = null;
+  // Restaurar estado visual
+  _restoreInterventionsUI();
+  // Modo del ciclo
+  if(S.rhythmMode) setCycleMode(S.rhythmMode);
+  else setCycleMode('normal');
+  // Etiqueta ciclo
+  document.getElementById('cycle-label').textContent =
+    S.currentCycle > 0 ? `CICLO ${S.currentCycle}` : 'CICLO 1';
+  document.getElementById('cycle-subtext').textContent =
+    S.rhythmMode === 'overtime' ? 'PAUSA CONTROL RITMO' :
+    S.rhythmMode === 'analysis' ? 'PAUSA ANÁLISIS RITMO' : '';
+  // Botón de ciclo
+  if(S.cycleStartTime !== null && !S.rhythmMode){
+    document.getElementById('btn-cycle').disabled = true;
+    document.getElementById('btn-cycle').textContent = 'COMPRESIONES EN CURSO';
+  } else if(S.rhythmMode === 'overtime' || S.rhythmMode === 'analysis'){
+    document.getElementById('btn-cycle').disabled = true;
+    document.getElementById('btn-cycle').textContent = 'SELECCIONAR RITMO ↑';
+  } else {
+    document.getElementById('btn-cycle').disabled = false;
+    document.getElementById('btn-cycle').textContent = 'INICIAR COMPRESIONES';
+  }
+  // Contadores y displays
+  document.getElementById('log-badge').textContent = S.events.length;
+  updateEpiDisplay(); updateDefibDisplay(); updateAnalyzeBtn();
+  showView('view-active');
+  startLoop(); startSaveInterval();
+  document.addEventListener('visibilitychange', handleVisibility);
+  window._pendingSession = null;
+}
+
+function _restoreInterventionsUI(){
+  Object.keys(S.interventions).forEach(key => {
+    const btn = document.getElementById('int-' + key);
+    const te  = document.getElementById('time-' + key);
+    if(btn) btn.classList.add('done');
+    if(te && S.interventions[key]) te.textContent = relTime(S.interventions[key].ts);
+  });
+  // Amiodarona: lógica de dosis
+  if(S.interventions['amiodarona']){
+    const b300 = document.getElementById('int-amiodarona');
+    if(b300) b300.disabled = true;
+    const b150 = document.getElementById('int-amiodarona2');
+    if(b150) b150.style.display = '';
+  }
+  if(S.interventions['amiodarona2']){
+    const b150 = document.getElementById('int-amiodarona2');
+    if(b150) b150.disabled = true;
+  }
+  // Badge de intervenciones
+  const count = Object.keys(S.interventions).length;
+  const badge = document.getElementById('interv-count');
+  if(badge) badge.textContent = count > 0 ? `${count} reg.` : '';
+}
+
+function restoreFinishedSession(){
+  const snap = window._pendingSession;
+  if(!snap) return;
+  hideRestoreBanner();
+  Object.assign(S, snap);
+  S._rafId = null; S._intervalId = null;
+  // Reconstruir pantalla de informe
+  const info = FINISH_LABELS[S.finishReason] || FINISH_LABELS.otros;
+  const re = document.getElementById('summary-result');
+  re.textContent = info.text; re.style.color = info.color; re.className = 'summary-result';
+  const endTs = S.roscTs || snap._finishTs || Date.now();
+  document.getElementById('summary-duration').textContent = `Duración total: ${fmtMs(endTs - S.startTime)}`;
+  document.getElementById('informe-box').textContent = buildReportText();
+  showView('view-finished');
+  window._pendingSession = null;
+}
+
+function discardSession(){ clearSession(); hideRestoreBanner(); window._pendingSession = null; }
+function hideRestoreBanner(){ document.getElementById('restore-banner').classList.remove('visible'); }
+
+function startRCP(){
+  const now=Date.now();
+  Object.assign(S,{status:'active',startTime:now,cycleStartTime:null,cycleEndTime:null,rhythmMode:null,currentCycle:0,cycles:[],epiTimes:[],defibTimes:[],interventions:{},events:[],roscTs:null,finishReason:null,alertFired:false,zeroFired:false});
+  document.querySelectorAll('.intervention-btn,.drug-btn').forEach(b=>{ b.classList.remove('done'); b.disabled=false; });
+  document.querySelectorAll('[id^="time-"]').forEach(el=>el.textContent='');
+  document.getElementById('int-amiodarona2').style.display='none';
+  document.getElementById('btn-defib-action').classList.remove('highlight');
+  document.getElementById('btn-cycle').classList.remove('highlight');
+  document.getElementById('btn-epi').classList.remove('highlight');
+  addEvent('start','Inicio de reanimación',now);
+  setCycleMode('normal');
+  document.getElementById('cycle-label').textContent='CICLO 1';
+  document.getElementById('cycle-display').textContent='2:00';
+  document.getElementById('cycle-display').className='cycle-timer-display';
+  document.getElementById('cycle-bar').style.width='100%';
+  document.getElementById('cycle-bar').className='cycle-bar';
+  document.getElementById('cycle-subtext').textContent='';
+  document.getElementById('btn-cycle').disabled=false;
+  document.getElementById('btn-cycle').textContent='INICIAR COMPRESIONES';
+  document.getElementById('log-badge').textContent='1';
+  document.getElementById('interv-count').textContent='';
+  updateEpiDisplay(); updateDefibDisplay(); updateAnalyzeBtn();
+  showView('view-active');
+  startLoop(); startSaveInterval(); saveSession();
+  document.addEventListener('visibilitychange',handleVisibility);
+}
+
+function startLoop(){ stopLoop(); tick(); S._intervalId=setInterval(()=>{ if(S.status==='active'&&S.cycleStartTime!==null&&!S.rhythmMode) checkExpiry(); },500); }
+function stopLoop(){ if(S._rafId){cancelAnimationFrame(S._rafId);S._rafId=null;} if(S._intervalId){clearInterval(S._intervalId);S._intervalId=null;} }
+function tick(){ if(S.status!=='active')return; updateDisplays(); S._rafId=requestAnimationFrame(tick); }
+function handleVisibility(){ if(document.visibilityState==='visible'&&S.status==='active'){ if(S.cycleStartTime!==null&&!S.rhythmMode) checkExpiry(); if(!S._rafId) tick(); } }
+
+function handleCycleButton(){ if(!S.rhythmMode&&S.cycleStartTime===null) startCycle(); }
+function startCycle(){
+  const now=Date.now(); S.currentCycle++; S.cycleStartTime=now; S.cycleEndTime=null; S.rhythmMode=null; S.alertFired=false; S.zeroFired=false;
+  S.cycles.push({num:S.currentCycle,startTs:now,endTs:null,rhythm:null,pause:null});
+  addEvent('cycle',`Inicio ciclo ${S.currentCycle}`,now);
+  document.getElementById('btn-defib-action').classList.remove('highlight');
+  document.getElementById('btn-cycle').classList.remove('highlight');
+  document.getElementById('defib-reminder').style.display='none';
+  setCycleMode('normal');
+  document.getElementById('cycle-label').textContent=`CICLO ${S.currentCycle}`;
+  document.getElementById('cycle-subtext').textContent='';
+  document.getElementById('btn-cycle').disabled=true;
+  document.getElementById('btn-cycle').textContent='COMPRESIONES EN CURSO';
+  updateAnalyzeBtn();
+}
+
+function checkExpiry(){
+  if(!S.cycleStartTime||S.rhythmMode)return;
+  const rem=S.cycleDuration-(Date.now()-S.cycleStartTime);
+  if(!S.alertFired&&rem>0&&rem<=15000){ S.alertFired=true; vib([100,50,100]); }
+  if(!S.zeroFired&&rem<=0){ S.zeroFired=true; enterOvertime(); }
+}
+function enterOvertime(){
+  const now=Date.now(); S.rhythmMode='overtime'; S.cycleEndTime=now;
+  const cyc=S.cycles[S.cycles.length-1]; if(cyc) cyc.endTs=now;
+  vib([300,100,300,100,300]);
+  document.getElementById('defib-reminder').style.display='none';
+  setCycleMode('overtime');
+  document.getElementById('cycle-label').textContent=`CICLO ${S.currentCycle}`;
+  document.getElementById('cycle-subtext').textContent='PAUSA CONTROL RITMO';
+  document.getElementById('btn-cycle').disabled=true;
+  document.getElementById('btn-cycle').textContent='SELECCIONAR RITMO ↑';
+  updateAnalyzeBtn();
+}
+function startAnalysis(){
+  if(S.cycleStartTime!==null){ enterOvertime(); return; }
+  S.rhythmMode='analysis'; S.cycleEndTime=Date.now();
+  setCycleMode('analysis');
+  document.getElementById('cycle-label').textContent='ANÁLISIS';
+  document.getElementById('cycle-subtext').textContent='PAUSA ANÁLISIS RITMO';
+  document.getElementById('btn-cycle').disabled=true;
+  document.getElementById('btn-cycle').textContent='SELECCIONAR RITMO ↑';
+  updateAnalyzeBtn();
+}
+function registerRhythm(rhythm){
+  const now=Date.now(); S.lastRhythm=rhythm;
+  if(S.rhythmMode==='overtime'){
+    const pause=now-S.cycleEndTime; const cyc=S.cycles[S.cycles.length-1]; if(cyc){cyc.rhythm=rhythm;cyc.pause=pause;}
+    addEvent('rhythm',`${rhythm} — ciclo ${S.currentCycle} (pausa: ${fmtMs(pause)})`,now);
+    S.cycleStartTime=null; S.cycleEndTime=null; S.alertFired=false; S.zeroFired=false;
+    document.getElementById('cycle-display').textContent='2:00';
+    document.getElementById('cycle-display').className='cycle-timer-display';
+    document.getElementById('cycle-bar').style.width='100%';
+    document.getElementById('cycle-bar').className='cycle-bar';
+    document.getElementById('btn-cycle').textContent='INICIAR COMPRESIONES';
+  } else {
+    addEvent('rhythm',`Análisis de ritmo: ${rhythm}`,now);
+    document.getElementById('btn-cycle').textContent='INICIAR COMPRESIONES';
+  }
+  S.rhythmMode=null;
+  document.getElementById('cycle-label').textContent=`CICLO ${S.currentCycle===0?1:S.currentCycle+1}`;
+  document.getElementById('cycle-subtext').textContent='';
+  document.getElementById('btn-cycle').disabled=false;
+  setCycleMode('normal');
+  updateAnalyzeBtn();
+  if(rhythm==='FV/TVSP'){
+    document.getElementById('btn-defib-action').classList.add('highlight');
+  }
+  if(rhythm==='AESP/ASISTOLIA'){
+    document.getElementById('btn-cycle').classList.add('highlight');
+    if(S.epiTimes.length===0) document.getElementById('btn-epi').classList.add('highlight');
+  }
+  checkRefractoryBanner();
+}
+
+function updateDisplays(){
+  const now=Date.now();
+  document.getElementById('total-display').textContent=fmtMs(now-S.startTime);
+  if(S.rhythmMode==='overtime'){
+    document.getElementById('cycle-display').textContent=fmtOT(now-S.cycleEndTime);
+  } else if(S.rhythmMode==='analysis'){
+    document.getElementById('cycle-display').textContent=fmtOT(now-S.cycleEndTime);
+    document.getElementById('cycle-display').className='cycle-timer-display';
+  } else if(S.cycleStartTime!==null){
+    const rem=Math.max(0,S.cycleDuration-(now-S.cycleStartTime)), pct=(rem/S.cycleDuration)*100;
+    const disp=document.getElementById('cycle-display'), bar=document.getElementById('cycle-bar');
+    disp.textContent=fmtCyc(rem); bar.style.width=pct+'%';
+    const isAlert=rem>0&&rem<=15000;
+    disp.classList.toggle('pre-alert',isAlert||rem===0); disp.classList.toggle('pulse',isAlert); bar.classList.toggle('alert',isAlert);
+    document.getElementById('defib-reminder').style.display=isAlert?'flex':'none';
+    checkExpiry();
+  }
+  updateEpiDisplay(); updateDefibDisplay();
+}
+
+function updateEpiDisplay(){
+  const c=S.epiTimes.length; document.getElementById('epi-count').textContent=c===1?'1 dosis':`${c} dosis`;
+  const el=document.getElementById('epi-since');
+  if(!c||!S.startTime){el.textContent='—';el.className='epi-since';return;}
+  const ms=Date.now()-S.epiTimes[c-1]; el.textContent=`Hace ${fmtMs(ms)}`;
+  el.className='epi-since'+(ms>=360000?' danger':ms>=300000?' warn':'');
+}
+function updateDefibDisplay(){
+  const c=S.defibTimes.length; document.getElementById('defib-count').textContent=c===1?'1 descarga':`${c} descargas`;
+  const el=document.getElementById('defib-last'); el.textContent=c&&S.startTime?`Última: ${relTime(S.defibTimes[c-1])}`:'—';
+}
+
+function registerEpi(){
+  const now=Date.now(), dose=S.epiTimes.length+1, prev=S.epiTimes[S.epiTimes.length-1]||null; S.epiTimes.push(now);
+  addEvent('epi',dose===1?`Adrenalina — 1ª dosis`:`Adrenalina — ${dose}ª dosis (intervalo: ${fmtMs(now-prev)})`,now);
+  vib([150,50,150]); updateEpiDisplay();
+  document.getElementById('btn-epi').classList.remove('highlight');
+}
+function registerDefib(){
+  const now=Date.now(), shock=S.defibTimes.length+1; S.defibTimes.push(now);
+  addEvent('defib',`Descarga ${shock} (${relTime(now)})`,now);
+  vib([200,80,200]); updateDefibDisplay(); checkRefractoryBanner();
+  document.getElementById('btn-defib-action').classList.remove('highlight');
+  document.getElementById('btn-cycle').classList.add('highlight');
+}
+function checkRefractoryBanner(){
+  const show=S.defibTimes.length>=3 && S.lastRhythm==='FV/TVSP';
+  document.getElementById('refractory-banner').style.display=show?'flex':'none';
+}
+function registerAmiodarona300(){
+  registerIntervention('amiodarona','Amiodarona 300 mg');
+  document.getElementById('int-amiodarona').disabled = true;
+  document.getElementById('int-amiodarona2').style.display = '';
+}
+function registerAmiodarona150(){
+  registerIntervention('amiodarona2','Amiodarona 150 mg');
+  document.getElementById('int-amiodarona2').disabled = true;
+}
+
+function registerIntervention(key,label){
+  const now=Date.now(), isNew=!S.interventions[key]; S.interventions[key]={label,ts:now};
+  const btn=document.getElementById('int-'+key), te=document.getElementById('time-'+key);
+  if(btn) btn.classList.add('done'); if(te) te.textContent=relTime(now);
+  const count=Object.keys(S.interventions).length;
+  const badge=document.getElementById('interv-count'); if(badge) badge.textContent=count>0?`${count} reg.`:'';
+  addEvent('interv',isNew?label:`${label} (repetido)`,now); vib(80);
+}
+
+function showFinishModal(){ document.getElementById('modal-finish').classList.add('visible'); }
+function hideFinishModal(){ document.getElementById('modal-finish').classList.remove('visible'); }
+
+const FINISH_LABELS = {
+  rosc:   { text:'ROSC',                             cls:'rosc',    color:'#2f9659' },
+  exitus: { text:'EXITUS',                           cls:'no-rosc', color:'#c41520' },
+  let:    { text:'LET',                              cls:'no-rosc', color:'#c8920a' },
+  ecmo:   { text:'ECMO',                             cls:'rosc',    color:'#1a7fc8' },
+  otros:  { text:'OTROS',                            cls:'no-rosc', color:'#8898aa' },
+};
+
+// ── POST-RCP CONFIG ──────────────────────────────────────────────────
+const VMI_PARAMS = {
+  protectora:  {fr:'14–16 rpm', peep:'5 cmH₂O',   fio2:'100% → 40%', ie:'1:2', trigger:'Presión: -1 cmH₂O / Flujo: 2 L/min'},
+  obstructiva: {fr:'8–10 rpm',  peep:'0–5 cmH₂O', fio2:'40%',         ie:'≥1:3', trigger:'Presión: -1 cmH₂O / Flujo: 2 L/min'},
+};
+const POST_ROSC_CFG = [
+  { group:'Vía aérea y ventilación', items:[
+    { key:'vaIOT',   label:'IOT confirmada + capnografía continua' },
+    { key:'vaSpO2',  label:'SpO₂ objetivo 94–98%', sub:'Evitar hiperoxia · FiO₂ al mínimo necesario' },
+    { key:'vaEtCO2', label:'EtCO₂ objetivo 35–45 mmHg' },
+  ]},
+  { group:'Hemodinámica', items:[
+    { key:'hdLinea', label:'Valorar línea arterial si disponible' },
+    { key:'hdPOCUS', label:'POCUS precoz', sub:'Función VI, derrame pericárdico, neumotórax' },
+    { key:'hdTAM',   label:'TAS > 100 mmHg / TAM > 60–65 mmHg', sub:'Tratar hipotensión activamente' },
+  ]},
+  { group:'Diagnóstico', items:[
+    { key:'dxECG',    label:'ECG 12 derivaciones' },
+    { key:'dxCorona', label:'Coronariografía urgente', sub:'Si SCACEST o sospecha coronaria' },
+    { key:'dxTC',     label:'AngioTC / Body TC', sub:'Si causa no coronaria probable' },
+    { key:'dxGaso',   label:'Gasometría arterial post-ROSC' },
+    { key:'dxAnal',   label:'Analítica completa', sub:'Troponina · Lactato · Iones · Hemograma · Coagulación' },
+  ]},
+  { group:'Analgo-sedación', items:[], _inject:'sdCards' },
+  { group:'Neuroprotección y temperatura', items:[
+    { key:'npFiebre',    label:'Temperatura ≤ 37,5°C', sub:'Prevenir fiebre activamente (ERC 2025)' },
+    { key:'npHipotermia',label:'Si hipotermia accidental (32–36°C): no recalentar activamente' },
+    { key:'npGluce',     label:'Glucemia objetivo 126–180 mg/dL', sub:'Evitar hiper e hipoglucemia' },
+    { key:'npCabecero',  label:'Cabecero 30°', sub:'Salvo contraindicación' },
+  ]},
+];
+
+const DRUG_DOSES_CFG = {
+  amiodarona:   { label:'Amiodarona (1ª dosis)', type:'auto', autoVal:'300 mg' },
+  amiodarona2:  { label:'Amiodarona (2ª dosis)', type:'auto', autoVal:'150 mg' },
+  lidocaina:    { label:'Lidocaína',             type:'num',  unit:'mg' },
+  magnesio:     { label:'Sulfato de magnesio',   type:'num',  unit:'g' },
+  bicarbonato:  { label:'Bicarbonato sódico',    type:'num',  unit:'mEq' },
+  calcio:       { label:'Gluconato cálcico',     type:'num',  unit:'mg' },
+  noradrenalina:{ label:'Noradrenalina',         type:'text', unit:'mcg/kg/min', ph:'p.ej. 0,1' },
+  atropina:     { label:'Atropina',              type:'num',  unit:'mg' },
+  insulina:     { label:'Insulina',              type:'num',  unit:'UI' },
+  glucosado:    { label:'Suero glucosado 10%',   type:'num',  unit:'ml' },
+  salbutamol:   { label:'Salbutamol',            type:'num',  unit:'mg' },
+  naloxona:     { label:'Naloxona',              type:'num',  unit:'mg' },
+  flumazenilo:  { label:'Flumazenilo',           type:'num',  unit:'mg' },
+  metoprolol:   { label:'Metoprolol',            type:'num',  unit:'mg' },
+  esmolol:      { label:'Esmolol',               type:'num',  unit:'mg' },
+  ketamina:     { label:'Ketamina',              type:'num',  unit:'mg' },
+  midazolam:    { label:'Midazolam',             type:'num',  unit:'mg' },
+  cristaloides: { label:'Cristaloides',  type:'presets', presets:['250','500','1000'], unit:'ml' },
+  hemoderivados:{ label:'Hemoderivados', type:'presets', presets:['1','2','4'],        unit:'U'  },
+};
+const DRUG_KEYS_SET = new Set(Object.keys(DRUG_DOSES_CFG));
+
+function getPatient(){ try{ return JSON.parse(localStorage.getItem('hj23_patient')||'null'); }catch(e){return null;} }
+function calcIBW(sex,h){ if(!h)return null; const base=sex==='F'?45.5:50; return Math.max(30,parseFloat((base+0.91*(+h-152.4)).toFixed(1))); }
+
+// ── POST-RCP FLOW ────────────────────────────────────────────────────
+function showPostRCP(){
+  if(S.status!=='rosc'){ stopLoop(); document.removeEventListener('visibilitychange',handleVisibility); }
+  stopSaveInterval();
+  if(!S._rcpEndTs) S._rcpEndTs = Date.now();
+  S.status='finished'; S._finishTs=S._rcpEndTs;
+  saveSessionNow(); // si se cierra el navegador aquí, al volver irá a view-finished directamente
+  ['panel-log','modal-ht','modal-finish'].forEach(id=>document.getElementById(id).classList.remove('visible'));
+  if(!S.postRoscChecks) S.postRoscChecks={};
+  if(!S.drugDoses) S.drugDoses={};
+  _renderPostRCP();
+  showView('view-post-rcp');
+}
+
+function _renderPostRCP(){
+  const body=document.getElementById('pr-body'); if(!body) return;
+  const isROSC=S.finishReason==='rosc';
+  const info=FINISH_LABELS[S.finishReason]||FINISH_LABELS.otros;
+  const endTs=S.roscTs||S._rcpEndTs||Date.now();
+  const duration=fmtMs(endTs-S.startTime);
+  let h='';
+
+  // ── Causa ──
+  h+=`<div class="pr-sec" style="text-align:center;padding:16px 16px 14px">
+    <div style="font-family:var(--mono);font-size:.58rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Reanimación finalizada</div>
+    <div style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:12px;background:${info.color}18;border:2px solid ${info.color}40">
+      <div style="width:10px;height:10px;border-radius:50%;background:${info.color};flex-shrink:0"></div>
+      <span style="font-family:var(--display);font-size:1.5rem;font-weight:900;color:${info.color};text-transform:uppercase;letter-spacing:.04em">${info.text}</span>
+    </div>
+    <div style="font-family:var(--mono);font-size:.78rem;color:var(--muted);margin-top:8px">Duración total: ${duration}</div>
+  </div>`;
+
+  // ── Paciente y cuidados post-ROSC (solo ROSC) ──
+  if(isROSC){ h+=_renderPatientHTML(); h+=_renderPostRoscHTML(); }
+
+  // ── Destino ──
+  const dests=['UCI','UCO','REA','Quirófano','Traslado a otro centro','Funeraria','Otros'];
+  h+=`<div class="pr-sec"><div class="pr-sec-hdr">Destino del paciente</div>
+    <div class="pr-pills" id="pr-dest-pills">${dests.map(d=>`<div class="pr-pill${S.patientDestination===d?' sel':''}" onclick="selectDest('${d}')">${d}</div>`).join('')}</div>
+  </div>`;
+
+  // ── Servicio ──
+  const svcs=['Urgencias','UCI','Cardiología','Anestesia','Otros'];
+  h+=`<div class="pr-sec"><div class="pr-sec-hdr">Servicio que lideró la PCR</div>
+    <div class="pr-pills" id="pr-svc-pills">${svcs.map(s=>`<div class="pr-pill${S.leadService===s?' sel':''}" onclick="selectSvc('${s}')">${s}</div>`).join('')}</div>
+  </div>`;
+
+  // ── Fármacos con dosis ──
+  const dKeys=Object.keys(S.interventions).filter(k=>DRUG_KEYS_SET.has(k));
+  if(dKeys.length){
+    h+=`<div class="pr-sec"><div class="pr-sec-hdr">Fármacos administrados — dosis</div>${dKeys.map(_drugRowHTML).join('')}</div>`;
+  }
+
+  // ── Acciones ──
+  h+=`<div class="pr-actions">
+    <button class="pr-btn-skip" onclick="goToReport(false)">Saltar →</button>
+    <button class="pr-btn-report" onclick="goToReport(true)">VER INFORME →</button>
+  </div>`;
+
+  body.innerHTML=h;
+}
+
+function _renderPatientHTML(){
+  const pat=getPatient();
+  const editing=window._prEditing;
+  if(pat&&pat.weight&&!editing){
+    const ibw=pat.ibw||(pat.height&&pat.sex?calcIBW(pat.sex,pat.height):null);
+    const vt=ibw?(6*ibw).toFixed(0)+' ml':'—';
+    return `<div class="pr-sec">
+      <div class="pr-sec-hdr">Datos del paciente <button class="pr-edit-btn" onclick="prEditPat()">Editar</button></div>
+      <div style="padding:12px 16px 14px">
+        <div style="display:flex;flex-wrap:wrap;gap:10px 16px">
+          <div><div style="font-size:.64rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px">Sexo</div><div style="font-family:var(--mono);font-size:.9rem;font-weight:700">${pat.sex==='F'?'Mujer':'Hombre'}</div></div>
+          <div><div style="font-size:.64rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px">Peso real</div><div style="font-family:var(--mono);font-size:.9rem;font-weight:700">${pat.weight} kg</div></div>
+          ${pat.height?`<div><div style="font-size:.64rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px">Talla</div><div style="font-family:var(--mono);font-size:.9rem;font-weight:700">${pat.height} cm</div></div>`:''}
+          ${ibw?`<div><div style="font-size:.64rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px">IBW</div><div style="font-family:var(--mono);font-size:.9rem;font-weight:700;color:#09915a">${ibw} kg</div></div>`:''}
+        </div>
+      </div>
+    </div>`;
+  }
+  const tmp=window._prSex||(pat&&pat.sex)||null;
+  const tmpW=pat&&pat.weight?pat.weight:'';
+  const tmpH=pat&&pat.height?pat.height:'';
+  return `<div class="pr-sec">
+    <div class="pr-sec-hdr">Datos del paciente</div>
+    <div class="pr-sex-row">
+      <button class="pr-sex-btn${tmp==='M'?' sel':''}" onclick="prSetSex('M')">Hombre</button>
+      <button class="pr-sex-btn${tmp==='F'?' sel':''}" onclick="prSetSex('F')">Mujer</button>
+    </div>
+    <div class="pr-form-row">
+      <span class="pr-form-lbl">Peso real</span>
+      <div style="display:flex;align-items:center;gap:5px">
+        <input class="pr-form-inp" type="number" id="pr-w" min="20" max="250" step="1" placeholder="70" value="${tmpW}" oninput="prCalc()">
+        <span class="pr-form-unit">kg</span>
+      </div>
+    </div>
+    <div class="pr-form-row" style="border-bottom:none">
+      <span class="pr-form-lbl">Talla</span>
+      <div style="display:flex;align-items:center;gap:5px">
+        <input class="pr-form-inp" type="number" id="pr-h" min="100" max="220" step="1" placeholder="170" value="${tmpH}" oninput="prCalc()">
+        <span class="pr-form-unit">cm</span>
+      </div>
+    </div>
+    <div class="pr-calc" id="pr-calc" style="display:block">
+      <div class="pr-calc-row"><span class="pr-calc-key">IBW</span><span class="pr-calc-val">—</span></div>
+    </div>
+    <button class="pr-save-btn" onclick="prSavePat()">Guardar datos del paciente</button>
+  </div>`;
+}
+
+function _renderPostRoscHTML(){
+  const pat=getPatient();
+  const ibw=pat?(pat.ibw||(pat.height&&pat.sex?calcIBW(pat.sex,pat.height):null)):null;
+  const wt=pat&&pat.weight?+pat.weight:null;
+  let h=`<div class="pr-sec"><div class="pr-sec-hdr">Cuidados post-ROSC</div>`;
+  POST_ROSC_CFG.forEach(grp=>{
+    h+=`<div class="pr-group-lbl">${grp.group}</div>`;
+    grp.items.forEach(item=>{
+      const ck=!!(S.postRoscChecks&&S.postRoscChecks[item.key]);
+      let sub=item.sub||'';
+      if(item.ibwSub) sub=ibw?`VT calculado: ${(6*ibw).toFixed(0)} ml`:'sin peso introducido';
+      h+=`<div class="pr-check${ck?' ck':''}" data-prc="${item.key}" onclick="togglePRC('${item.key}')">
+        <div class="pr-cbox"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="pointer-events:none"><polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div><div class="pr-clbl">${item.label}</div>${sub?`<div class="pr-csub">${sub}</div>`:''}</div>
+      </div>`;
+      if(item.key==='vaIOT'){
+        const selP=S.postRoscVMI==='protectora'?' sel':'';
+        const selO=S.postRoscVMI==='obstructiva'?' sel':'';
+        h+=`<div style="background:var(--bg);border-top:1px solid var(--border);padding:10px 14px 2px">
+          <div style="font-family:var(--mono);font-size:.58rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Parámetros VMI</div>
+          <div class="pr-vmi-strat">
+            <div class="pr-vs-btn${selP}" data-vmi="protectora" onclick="prSelVMI('protectora')">Protectora</div>
+            <div class="pr-vs-btn${selO}" data-vmi="obstructiva" onclick="prSelVMI('obstructiva')">Obstructiva</div>
+          </div>
+        </div>
+        <div id="pr-vmi-table" style="border-top:1px solid var(--border);border-bottom:1px solid var(--border)">${_vmiTableHTML()}</div>`;
+      }
+      if(item.key==='hdTAM'){
+        const neMlh=wt?((0.1*wt*60)/80).toFixed(1):null;
+        const dobMlh=wt?((5*wt*60)/2000).toFixed(1):null;
+        const noraCk=S.postRoscNora?' ck':'';
+        const dobaCk=S.postRoscDobu?' ck':'';
+        const svgCk=`<svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="pointer-events:none"><polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+        h+=`<div class="pr-perf${noraCk}" id="pr-nora-card" style="margin-top:6px">
+          <div class="pr-perf-hdr pr-perf-ck-hdr" onclick="prToggleNora()">
+            <div class="pr-cbox">${svgCk}</div>
+            <div><div class="pr-perf-name">Noradrenalina <span class="pr-info-ind">si hipotensión</span></div><div class="pr-perf-dil">20 mg en 250 ml SG 5% · 80 mcg/ml · peso real</div></div>
+          </div>
+          <div class="pr-perf-body">
+            <div class="pr-perf-row"><span class="pr-perf-key">Inicio 0,1 mcg/kg/min →</span><span class="pr-perf-val hi">${neMlh?neMlh+' ml/hr':'—'}</span></div>
+            <div class="pr-perf-row"><span class="pr-perf-key">Rango</span><span class="pr-perf-val">0,05 – 1 mcg/kg/min</span></div>
+          </div>
+        </div>
+        <div class="pr-perf${dobaCk}" id="pr-dobu-card">
+          <div class="pr-perf-hdr pr-perf-ck-hdr" onclick="prToggleDobu()">
+            <div class="pr-cbox">${svgCk}</div>
+            <div><div class="pr-perf-name">Dobutamina <span class="pr-info-ind">si disfunción VI</span></div><div class="pr-perf-dil">500 mg en 250 ml SG 5% · 2000 mcg/ml · peso real</div></div>
+          </div>
+          <div class="pr-perf-body">
+            <div class="pr-perf-row"><span class="pr-perf-key">Inicio 5 mcg/kg/min →</span><span class="pr-perf-val hi">${dobMlh?dobMlh+' ml/hr':'—'}</span></div>
+            <div class="pr-perf-row"><span class="pr-perf-key">Rango</span><span class="pr-perf-val">2,5 – 20 mcg/kg/min</span></div>
+          </div>
+        </div>`;
+      }
+    });
+    if(grp._inject==='sdCards'){
+      const fentCk=S.postRoscFentanilo?' ck':'';
+      const selP=S.postRoscSedante==='propofol'?' sel':'';
+      const selM=S.postRoscSedante==='midazolam'?' sel':'';
+      const fMlh=ibw?((0.5*ibw)/9).toFixed(1):null;
+      const svgCk=`<svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="pointer-events:none"><polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+      h+=`<div class="pr-perf${fentCk}" id="pr-fent-card" style="margin-top:8px">
+        <div class="pr-perf-hdr pr-perf-ck-hdr" onclick="prToggleFent()">
+          <div class="pr-cbox">${svgCk}</div>
+          <div><div class="pr-perf-name">Fentanilo</div><div class="pr-perf-dil">900 mcg en 100 ml SF · 9 mcg/ml · IBW</div></div>
+        </div>
+        <div class="pr-perf-body">
+          <div class="pr-perf-row"><span class="pr-perf-key">Inicio 0,5 mcg/kg/h →</span><span class="pr-perf-val hi">${fMlh?fMlh+' ml/hr':'—'}</span></div>
+          <div class="pr-perf-row"><span class="pr-perf-key">Rango</span><span class="pr-perf-val">0,5 – 2 mcg/kg/h</span></div>
+        </div>
+      </div>
+      <div class="pr-perf">
+        <div class="pr-perf-body" style="padding-top:10px">
+          <div class="pr-vmi-strat" style="padding:0 0 6px">
+            <div class="pr-vs-btn${selP}" data-sed="propofol" onclick="prSelSedante('propofol')">Propofol<div style="font-family:var(--mono);font-size:.6rem;color:var(--muted);margin-top:3px;font-weight:400;text-transform:none;letter-spacing:0">Sin diluir · 20 mg/ml</div></div>
+            <div class="pr-vs-btn${selM}" data-sed="midazolam" onclick="prSelSedante('midazolam')">Midazolam<div style="font-family:var(--mono);font-size:.6rem;color:var(--muted);margin-top:3px;font-weight:400;text-transform:none;letter-spacing:0">100 mg / 100 ml SF</div></div>
+          </div>
+          <div id="pr-sed-details">${_sedDetailsHTML()}</div>
+        </div>
+      </div>`;
+    }
+  });
+  h+=`</div>`;
+  return h;
+}
+
+function _vmiTableHTML(){
+  if(!S.postRoscVMI) return '<div class="pr-vmi-ph">Selecciona estrategia ventilatoria</div>';
+  const p=VMI_PARAMS[S.postRoscVMI];
+  const pat=getPatient();
+  const ibw=pat?(pat.ibw||(pat.height&&pat.sex?calcIBW(pat.sex,pat.height):null)):null;
+  const vtTxt=ibw?`${(6*ibw).toFixed(0)}–${(8*ibw).toFixed(0)} ml`:'6–8 ml/kg IBW';
+  const range='6–8 ml/kg IBW';
+  return `<table class="pr-vmi-tbl">
+    <tr><th>Parámetro</th><th>Valor</th></tr>
+    <tr><td>Modo</td><td>AC/VC</td></tr>
+    <tr><td>VT (${range})</td><td class="pr-vt-val">${vtTxt}</td></tr>
+    <tr><td>FR</td><td>${p.fr}</td></tr>
+    <tr><td>PEEP</td><td>${p.peep}</td></tr>
+    <tr><td>Trigger</td><td>${p.trigger}</td></tr>
+    <tr><td>FiO₂</td><td>${p.fio2}</td></tr>
+    <tr><td>I:E</td><td>${p.ie}</td></tr>
+  </table>`;
+}
+function prSelVMI(strat){
+  S.postRoscVMI=strat;
+  document.querySelectorAll('[data-vmi]').forEach(b=>b.classList.toggle('sel',b.dataset.vmi===strat));
+  const tbl=document.getElementById('pr-vmi-table');
+  if(tbl) tbl.innerHTML=_vmiTableHTML();
+}
+
+function _sedDetailsHTML(){
+  if(!S.postRoscSedante) return '';
+  const pat=getPatient();
+  const ibw=pat?(pat.ibw||(pat.height&&pat.sex?calcIBW(pat.sex,pat.height):null)):null;
+  if(S.postRoscSedante==='propofol'){
+    const pMlh=ibw?((0.3*ibw)/20).toFixed(1):null;
+    return `<div style="background:var(--bg);border-radius:8px;padding:10px 12px;margin-top:4px">
+      <div class="pr-perf-row"><span class="pr-perf-key">Inicio 0,3 mg/kg/h →</span><span class="pr-perf-val hi">${pMlh?pMlh+' ml/hr':'—'}</span></div>
+      <div class="pr-perf-row"><span class="pr-perf-key">Rango</span><span class="pr-perf-val">0,3 – 4 mg/kg/h</span></div>
+    </div>`;
+  }
+  const mMlh=ibw?(0.05*ibw).toFixed(1):null;
+  return `<div style="background:var(--bg);border-radius:8px;padding:10px 12px;margin-top:4px">
+    <div class="pr-perf-row"><span class="pr-perf-key">Inicio 0,05 mg/kg/h →</span><span class="pr-perf-val hi">${mMlh?mMlh+' ml/hr':'—'}</span></div>
+    <div class="pr-perf-row"><span class="pr-perf-key">Rango</span><span class="pr-perf-val">0,05 – 0,4 mg/kg/h</span></div>
+  </div>`;
+}
+function prToggleFent(){
+  S.postRoscFentanilo=!S.postRoscFentanilo;
+  const card=document.getElementById('pr-fent-card');
+  if(card) card.classList.toggle('ck',S.postRoscFentanilo);
+}
+function prToggleNora(){
+  S.postRoscNora=!S.postRoscNora;
+  const card=document.getElementById('pr-nora-card');
+  if(card) card.classList.toggle('ck',S.postRoscNora);
+}
+function prToggleDobu(){
+  S.postRoscDobu=!S.postRoscDobu;
+  const card=document.getElementById('pr-dobu-card');
+  if(card) card.classList.toggle('ck',S.postRoscDobu);
+}
+function prSelSedante(strat){
+  S.postRoscSedante=S.postRoscSedante===strat?null:strat;
+  document.querySelectorAll('[data-sed]').forEach(b=>b.classList.toggle('sel',b.dataset.sed===S.postRoscSedante));
+  const det=document.getElementById('pr-sed-details');
+  if(det) det.innerHTML=_sedDetailsHTML();
+}
+
+function _drugRowHTML(key){
+  const cfg=DRUG_DOSES_CFG[key]; if(!cfg) return '';
+  const stored=S.drugDoses[key]||'';
+  if(cfg.type==='auto') return `<div class="pr-drug-row"><span class="pr-drug-lbl">${cfg.label}</span><span class="pr-drug-auto">${cfg.autoVal}</span></div>`;
+  if(cfg.type==='presets'){
+    const btns=cfg.presets.map(p=>`<button class="pr-preset${stored===p?' sel':''}" data-pk="${key}" data-pv="${p}" onclick="prPreset('${key}','${p}',this)">${p} ${cfg.unit}</button>`).join('');
+    const freeVal=stored&&!cfg.presets.includes(stored)?stored:'';
+    return `<div class="pr-drug-row"><span class="pr-drug-lbl">${cfg.label}</span>
+      <div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px">
+        <div class="pr-presets">${btns}</div>
+        <div style="display:flex;align-items:center;gap:4px">
+          <input class="pr-drug-inp" type="number" id="dose-${key}" min="0" step="1" placeholder="—" value="${freeVal}" oninput="S.drugDoses['${key}']=this.value;prClearPresets('${key}')">
+          <span class="pr-drug-unit">${cfg.unit}</span>
+        </div>
+      </div></div>`;
+  }
+  return `<div class="pr-drug-row"><span class="pr-drug-lbl">${cfg.label}</span>
+    <div class="pr-drug-ctrl">
+      <input class="pr-drug-inp" type="${cfg.type==='num'?'number':'text'}" id="dose-${key}" ${cfg.type==='num'?'min="0" step="1"':''} placeholder="${cfg.ph||'—'}" value="${stored}" oninput="S.drugDoses['${key}']=this.value">
+      <span class="pr-drug-unit">${cfg.unit}</span>
+    </div></div>`;
+}
+
+// ── Patient form helpers ─────────────────────────────────────────────
+function prSetSex(sex){
+  window._prSex=sex;
+  document.querySelectorAll('.pr-sex-btn').forEach(b=>b.classList.toggle('sel',b.textContent.trim()===(sex==='M'?'Hombre':'Mujer')));
+  prCalc();
+}
+function prCalc(){
+  const hEl=document.getElementById('pr-h'), calcEl=document.getElementById('pr-calc');
+  if(!calcEl) return;
+  const ht=hEl?+hEl.value:0, sex=window._prSex;
+  calcEl.style.display='block';
+  if(sex&&ht){
+    const ibw=calcIBW(sex,ht);
+    calcEl.innerHTML=`<div class="pr-calc-row"><span class="pr-calc-key">IBW</span><span class="pr-calc-val">${ibw} kg</span></div>`;
+  } else {
+    calcEl.innerHTML=`<div class="pr-calc-row"><span class="pr-calc-key">IBW</span><span class="pr-calc-val">—</span></div>`;
+  }
+}
+function prSavePat(){
+  const w=+(document.getElementById('pr-w')||{value:0}).value;
+  const ht=+(document.getElementById('pr-h')||{value:0}).value;
+  const sex=window._prSex;
+  if(!sex||!w){ alert('Introduce al menos sexo y peso'); return; }
+  const ibw=ht?calcIBW(sex,ht):null;
+  try{ localStorage.setItem('hj23_patient',JSON.stringify({sex,weight:w,height:ht||null,ibw})); }catch(e){}
+  window._prEditing=false; window._prSex=null;
+  _renderPostRCP();
+}
+function prEditPat(){
+  const pat=getPatient(); if(pat) window._prSex=pat.sex||null;
+  window._prEditing=true; _renderPostRCP();
+}
+
+// ── Post-RCP interactions ────────────────────────────────────────────
+function togglePRC(key){
+  if(!S.postRoscChecks) S.postRoscChecks={};
+  S.postRoscChecks[key]=!S.postRoscChecks[key];
+  const el=document.querySelector(`.pr-check[data-prc="${key}"]`);
+  if(el) el.classList.toggle('ck',!!S.postRoscChecks[key]);
+}
+function selectDest(val){
+  S.patientDestination=val;
+  document.querySelectorAll('#pr-dest-pills .pr-pill').forEach(p=>p.classList.toggle('sel',p.textContent.trim()===val));
+}
+function selectSvc(val){
+  S.leadService=val;
+  document.querySelectorAll('#pr-svc-pills .pr-pill').forEach(p=>p.classList.toggle('sel',p.textContent.trim()===val));
+}
+function prPreset(key,val,btn){
+  S.drugDoses[key]=val;
+  document.querySelectorAll(`[data-pk="${key}"]`).forEach(b=>b.classList.toggle('sel',b===btn));
+  const inp=document.getElementById('dose-'+key); if(inp) inp.value='';
+}
+function prClearPresets(key){
+  document.querySelectorAll(`[data-pk="${key}"]`).forEach(b=>b.classList.remove('sel'));
+}
+
+// ── Go to report ─────────────────────────────────────────────────────
+function goToReport(save){
+  if(save){
+    Object.keys(S.interventions).filter(k=>DRUG_KEYS_SET.has(k)).forEach(key=>{
+      const cfg=DRUG_DOSES_CFG[key]; if(!cfg||cfg.type==='auto') return;
+      const inp=document.getElementById('dose-'+key);
+      if(inp&&inp.value) S.drugDoses[key]=inp.value;
+    });
+  } else {
+    S.postRoscChecks={}; S.drugDoses={};
+  }
+  window._prEditing=false; window._prSex=null;
+  finishRCP();
+}
+function handleBackBtn(e){
+  const active=document.querySelector('.view.visible');
+  if(!active) return;
+  if(active.id==='view-post-rcp'){
+    e.preventDefault();
+    backToActiveRCP();
+  } else if(active.id==='view-finished'){
+    e.preventDefault();
+    _renderPostRCP();
+    showView('view-post-rcp');
+  }
+  // otros: navega al hub normalmente
+}
+function backToActiveRCP(){
+  S.status='active';
+  S._rcpEndTs=null; S._finishTs=null; S.finishReason=null; S.roscTs=null;
+  startLoop(); startSaveInterval();
+  document.addEventListener('visibilitychange',handleVisibility);
+  showView('view-active');
+}
+
+function confirmFinish(reason){
+  hideFinishModal();
+  S.finishReason = reason;
+  const now = Date.now();
+  if(reason === 'rosc'){
+    S.roscTs = now; S.status = 'rosc'; stopLoop(); document.removeEventListener('visibilitychange',handleVisibility);
+    addEvent('rosc', `ROSC — a los ${relTime(now)}`, now); vib(500);
+    const f=document.getElementById('rosc-flash'); f.classList.add('on'); setTimeout(()=>f.classList.remove('on'),700); setTimeout(()=>showPostRCP(),1200);
+  } else {
+    S._rcpEndTs = now;
+    const labelMap = { exitus:'Exitus', let:'Limitación de Esfuerzo Terapéutico', ecmo:'ECMO — traslado', otros:'Fin de reanimación' };
+    addEvent('finish', labelMap[reason]||'Fin de reanimación', now); vib([100,50,100]);
+    showPostRCP();
+  }
+}
+
+function finishRCP(){
+  const endTs=S.roscTs||S._rcpEndTs||Date.now();
+  S.status='finished';
+  stopLoop(); stopSaveInterval();
+  document.removeEventListener('visibilitychange',handleVisibility);
+  S._finishTs=endTs;
+  saveSessionNow();
+  ['panel-log','modal-ht','modal-finish'].forEach(id=>document.getElementById(id).classList.remove('visible'));
+  const info=FINISH_LABELS[S.finishReason]||FINISH_LABELS.otros;
+  const re=document.getElementById('summary-result');
+  re.textContent=info.text; re.style.color=info.color; re.className='summary-result';
+  document.getElementById('summary-duration').textContent=`Duración total: ${fmtMs(endTs-S.startTime)}`;
+  document.getElementById('informe-box').textContent=buildReportText();
+  showView('view-finished');
+}
+
+function buildReportText(){
+  const endTs=S.roscTs||S._rcpEndTs||Date.now(), d=new Date(S.startTime);
+  const dateStr=`${p2(d.getDate())}/${p2(d.getMonth()+1)}/${d.getFullYear()} ${p2(d.getHours())}:${p2(d.getMinutes())}`;
+  const L='─'.repeat(46), D='═'.repeat(46);
+  const finishLabelMap = { rosc:'ROSC', exitus:'Exitus', let:'Limitación de Esfuerzo Terapéutico', ecmo:'ECMO', otros:'Otros' };
+  const resultLabel = finishLabelMap[S.finishReason] || 'Sin ROSC';
+  let txt=`${D}\nINFORME RCP — Hospital Joan XXIII · URGlab\n${D}\n\nFecha inicio  : ${dateStr}\nDuración      : ${fmtMs(endTs-S.startTime)}\nResultado     : ${resultLabel}\n`;
+  if(S.roscTs) txt+=`ROSC a las    : ${absTime(S.roscTs)}\n`;
+  else txt+=`Fin RCP a las : ${absTime(endTs)}\n`;
+  if(S.patientDestination) txt+=`Destino       : ${S.patientDestination}\n`;
+  if(S.leadService)        txt+=`Servicio líder: ${S.leadService}\n`;
+  // Datos del paciente
+  const pat=getPatient();
+  if(pat&&pat.weight){
+    const ibw=pat.ibw||(pat.height&&pat.sex?calcIBW(pat.sex,pat.height):null);
+    txt+=`\n${L}\nDATOS DEL PACIENTE\n${L}\n`;
+    txt+=`  Sexo        : ${pat.sex==='F'?'Mujer':'Hombre'}\n`;
+    txt+=`  Peso real   : ${pat.weight} kg\n`;
+    if(pat.height) txt+=`  Talla       : ${pat.height} cm\n`;
+    if(ibw){
+      txt+=`  IBW         : ${ibw} kg\n`;
+      txt+=`  VT protector: ${(6*ibw).toFixed(0)}–${(8*ibw).toFixed(0)} ml (6–8 ml/kg IBW)\n`;
+    }
+  }
+  txt+=`\n${L}\nCICLOS (${S.cycles.length})\n${L}\n`;
+  if(!S.cycles.length) txt+='  Sin ciclos completados\n';
+  else S.cycles.forEach(c=>{ txt+=`  Ciclo ${c.num}: ${relTime(c.startTs)} → ${c.endTs?relTime(c.endTs):'—'}  |  ${c.rhythm||'— sin evaluar'}${c.pause?`  pausa: ${fmtMs(c.pause)}`:''}\n`; });
+  txt+=`\n${L}\nADRENALINA (${S.epiTimes.length} dosis)\n${L}\n`;
+  if(!S.epiTimes.length) txt+='  Sin dosis administradas\n';
+  else S.epiTimes.forEach((ts,i)=>{ txt+=`  Dosis ${i+1}: ${relTime(ts)}${i>0?`  [+${fmtMs(ts-S.epiTimes[i-1])} desde anterior]`:''}\n`; });
+  txt+=`\n${L}\nDESCARGAS (${S.defibTimes.length})\n${L}\n`;
+  if(!S.defibTimes.length) txt+='  Sin descargas registradas\n';
+  else S.defibTimes.forEach((ts,i)=>{ txt+=`  Descarga ${i+1}: ${relTime(ts)}\n`; });
+  const keys=Object.keys(S.interventions);
+  txt+=`\n${L}\nINTERVENCIONES\n${L}\n`;
+  if(!keys.length) txt+='  Sin intervenciones registradas\n';
+  else keys.forEach(k=>{ const{label,ts}=S.interventions[k]; txt+=`  ${relTime(ts)}  —  ${label}\n`; });
+  // Fármacos con dosis
+  const dKeys=keys.filter(k=>DRUG_KEYS_SET.has(k));
+  if(dKeys.length){
+    txt+=`\n${L}\nFÁRMACOS — DOSIS ADMINISTRADAS\n${L}\n`;
+    dKeys.forEach(k=>{
+      const cfg=DRUG_DOSES_CFG[k]; if(!cfg) return;
+      if(cfg.type==='auto'){ txt+=`  ${cfg.label}: ${cfg.autoVal}\n`; return; }
+      const val=S.drugDoses&&S.drugDoses[k];
+      txt+=`  ${cfg.label}: ${val?val+' '+cfg.unit:'no registrado'}\n`;
+    });
+  }
+  // Post-ROSC checks
+  const hasPostRosc=S.postRoscVMI||S.postRoscFentanilo||S.postRoscSedante||S.postRoscNora||S.postRoscDobu||(S.postRoscChecks&&Object.values(S.postRoscChecks).some(Boolean));
+  if(S.finishReason==='rosc'&&hasPostRosc){
+    const rpat=getPatient();
+    const ribw=rpat?(rpat.ibw||(rpat.height&&rpat.sex?calcIBW(rpat.sex,rpat.height):null)):null;
+    const rwt=rpat&&rpat.weight?+rpat.weight:null;
+    txt+=`\n${L}\nCUIDADOS POST-ROSC\n${L}\n`;
+    if(S.postRoscVMI){
+      const vmiLbl=S.postRoscVMI==='protectora'?'Protectora (AC/VC · 6–8 ml/kg IBW · PEEP 5 cmH₂O)':'Obstructiva (AC/VC · 6–8 ml/kg IBW · PEEP 0–5 cmH₂O)';
+      txt+=`  VMI: Estrategia ${vmiLbl}\n`;
+    }
+    POST_ROSC_CFG.forEach(grp=>{
+      const checked=grp.items.filter(it=>S.postRoscChecks&&S.postRoscChecks[it.key]);
+      if(checked.length){ txt+=`  ${grp.group}:\n`; checked.forEach(it=>{ txt+=`    ✓ ${it.label}\n`; }); }
+    });
+    if(S.postRoscNora||S.postRoscDobu){
+      txt+=`  Hemodinámica — vasopresores:\n`;
+      if(S.postRoscNora){
+        const neMlh=rwt?((0.1*rwt*60)/80).toFixed(1):null;
+        txt+=`    ✓ Noradrenalina: inicio ${neMlh?neMlh+' ml/hr':'—'} (0,1 mcg/kg/min · 20 mg/250 ml SG5% · 80 mcg/ml)\n`;
+      }
+      if(S.postRoscDobu){
+        const dobMlh=rwt?((5*rwt*60)/2000).toFixed(1):null;
+        txt+=`    ✓ Dobutamina: inicio ${dobMlh?dobMlh+' ml/hr':'—'} (5 mcg/kg/min · 500 mg/250 ml SG5% · 2000 mcg/ml)\n`;
+      }
+    }
+    if(S.postRoscFentanilo||S.postRoscSedante){
+      txt+=`  Sedoanalgesia:\n`;
+      if(S.postRoscFentanilo){
+        const fMlh=ribw?((0.5*ribw)/9).toFixed(1):null;
+        txt+=`    ✓ Fentanilo: inicio ${fMlh?fMlh+' ml/hr':'—'} (0,5 mcg/kg/h · 900 mcg/100 ml SF · 9 mcg/ml)\n`;
+      }
+      if(S.postRoscSedante==='propofol'){
+        const pMlh=ribw?((0.3*ribw)/20).toFixed(1):null;
+        txt+=`    ✓ Propofol: inicio ${pMlh?pMlh+' ml/hr':'—'} (0,3 mg/kg/h · sin diluir · 20 mg/ml)\n`;
+      }
+      if(S.postRoscSedante==='midazolam'){
+        const mMlh=ribw?(0.05*ribw).toFixed(1):null;
+        txt+=`    ✓ Midazolam: inicio ${mMlh?mMlh+' ml/hr':'—'} (0,05 mg/kg/h · 100 mg/100 ml SF · 1 mg/ml)\n`;
+      }
+    }
+  }
+  txt+=`\n${L}\nREGISTRO DE EVENTOS\n${L}\n`;
+  S.events.forEach(e=>{ txt+=`  ${relTime(e.ts)}  ${absTime(e.ts)}  |  ${e.label}\n`; });
+  txt+=`\n${D}\nURGlab — Hospital Universitari Joan XXIII\n${D}\n`;
+  return txt;
+}
+
+function copyReport(){
+  const txt=document.getElementById('informe-box').textContent;
+  const btn=document.getElementById('btn-copy');
+  navigator.clipboard.writeText(txt).catch(()=>{
+    const ta=document.createElement('textarea');
+    ta.value=txt; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+  });
+  const orig=btn.textContent;
+  btn.textContent='¡Copiado!'; setTimeout(()=>btn.textContent=orig,2000);
+}
+
+function downloadReport(){
+  const txt=document.getElementById('informe-box').textContent;
+  const d=new Date(S.startTime);
+  const name=`RCP_${d.getFullYear()}${p2(d.getMonth()+1)}${p2(d.getDate())}_${p2(d.getHours())}${p2(d.getMinutes())}.txt`;
+  try{ const blob=new Blob([txt],{type:'text/plain;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a'); a.href=url; a.download=name; a.click(); URL.revokeObjectURL(url); }
+  catch(_){ alert('No se pudo descargar el archivo'); }
+}
+
+function resetRCP(){
+  stopLoop(); stopSaveInterval(); clearSession();
+  document.removeEventListener('visibilitychange',handleVisibility);
+  window._prEditing=false; window._prSex=null;
+  const backBtn=document.querySelector('header .back-btn');
+  if(backBtn) backBtn.style.visibility='';
+  Object.assign(S,{status:'idle',startTime:null,cycleStartTime:null,cycleEndTime:null,rhythmMode:null,lastRhythm:null,currentCycle:0,cycles:[],epiTimes:[],defibTimes:[],interventions:{},events:[],roscTs:null,finishReason:null,_finishTs:null,_rcpEndTs:null,alertFired:false,zeroFired:false,postRoscChecks:{},drugDoses:{},patientDestination:null,leadService:null,postRoscVMI:null,postRoscFentanilo:false,postRoscSedante:null,postRoscNora:false,postRoscDobu:false});
+  document.getElementById('refractory-banner').style.display='none';
+  document.querySelectorAll('.intervention-btn,.drug-btn').forEach(b=>{ b.classList.remove('done'); b.disabled=false; });
+  document.querySelectorAll('[id^="time-"]').forEach(el=>el.textContent='');
+  document.getElementById('int-amiodarona2').style.display='none';
+  document.getElementById('btn-defib-action').classList.remove('highlight');
+  showView('view-idle');
+}
+
+function openTrauma(){
+  // Fase 2 — módulo PCR traumática (en desarrollo)
+  alert('PCR Traumática — Próximamente');
+}
+
+// Comprobar sesión guardada al cargar
+checkSavedSession();
+</script>
+</body>
+</html>

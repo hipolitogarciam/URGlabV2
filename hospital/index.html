@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>App Hospitalaria — URGlab V2</title>
+    
+        <meta name="theme-color" content="#1a6fad">
+    <script>
+    (function(){
+      var svg = '<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="512" height="512" rx="88" fill="#0e1a27"/><polyline points="52,256 132,256 162,194 202,318 242,156 282,256 318,256 340,216 362,256 400,256" stroke="#ffffff" stroke-width="38" stroke-linecap="round" stroke-linejoin="round" fill="none"/><rect x="396" y="196" width="34" height="34" rx="5" fill="white" opacity="0.25"/><rect x="434" y="196" width="34" height="34" rx="5" fill="white" opacity="0.55"/><rect x="396" y="234" width="34" height="34" rx="5" fill="white" opacity="0.55"/><rect x="434" y="234" width="34" height="34" rx="5" fill="white"/><rect x="396" y="272" width="34" height="34" rx="5" fill="white" opacity="0.35"/><rect x="434" y="272" width="34" height="34" rx="5" fill="white" opacity="0.2"/></svg>';
+      var img = new Image();
+      var blob = new Blob([svg], {type:'image/svg+xml'});
+      var url = URL.createObjectURL(blob);
+      img.onload = function(){
+        var c = document.createElement('canvas');
+        c.width = 512; c.height = 512;
+        c.getContext('2d').drawImage(img, 0, 0);
+        var png = c.toDataURL('image/png');
+        URL.revokeObjectURL(url);
+        var l = document.createElement('link');
+        l.rel = 'apple-touch-icon'; l.href = png;
+        document.head.appendChild(l);
+        var m = document.createElement('link');
+        m.rel = 'manifest';
+        var mdata = JSON.stringify({name:'URGlab',short_name:'URGlab',start_url:'./index.html',display:'standalone',background_color:'#0e1a27',theme_color:'#1a6fad',icons:[{src:png,sizes:'512x512',type:'image/png',purpose:'any maskable'}]});
+        m.href = URL.createObjectURL(new Blob([mdata],{type:'application/manifest+json'}));
+        document.head.appendChild(m);
+      };
+      img.src = url;
+    })();
+    </script> 
+
+
+    <style>
+        :root {
+            --blue:       #1a6fad;
+            --blue-dark:  #145a8f;
+            --blue-light: #e8f3fb;
+            --teal:       #09c797;
+            --teal-dark:  #07a87e;
+            --teal-light: #e6faf5;
+            --black:      #111111;
+            --bg:         #f4f6f9;
+            --surface:    #ffffff;
+            --surface2:   #f4f6f9;
+            --border:     rgba(0,0,0,0.09);
+            --border-mid: rgba(0,0,0,0.18);
+            --text:       #1a2636;
+            --text-muted: #8898aa;
+            --display: 'Barlow Condensed', sans-serif;
+            --body:    'IBM Plex Sans', sans-serif;
+            --mono:    'IBM Plex Mono', monospace;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--body);
+            min-height: 100vh;
+            padding-bottom: 60px;
+        }
+
+        /* ─── HEADER ─────────────────────────────────────────────────── */
+        header {
+            background: linear-gradient(135deg, #1a7fc8 0%, #1a6fad 100%);
+            border-bottom: 3px solid var(--teal);
+            padding: 12px 18px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: grid;
+            grid-template-columns: 48px 1fr 48px;
+            align-items: center;
+            gap: 8px;
+            min-height: 68px;
+        }
+
+        .back-btn {
+            display: flex; align-items: center; justify-content: center;
+            width: 38px; height: 38px; border-radius: 10px;
+            background: rgba(255,255,255,0.15); border: none;
+            cursor: pointer; color: white; transition: background 0.15s;
+            text-decoration: none;
+        }
+        .back-btn:active { background: rgba(255,255,255,0.28); }
+
+        .header-center { text-align: center; }
+        .header-label {
+            font-family: var(--body); font-size: 0.58rem; font-weight: 600;
+            color: #09c797; letter-spacing: 0.12em;
+            text-transform: uppercase; margin-bottom: 2px;
+        }
+        .header-title {
+            font-family: var(--display); font-size: 1.4rem; font-weight: 800;
+            color: #ffffff; letter-spacing: 0.04em;
+            text-transform: uppercase; line-height: 1;
+        }
+        .header-icon {
+            display: flex; align-items: center; justify-content: flex-end; opacity: 0.7;
+        }
+
+        /* ─── LAYOUT ─────────────────────────────────────────────────── */
+        .container {
+            max-width: 480px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        .view { display: none; }
+        .view.active {
+            display: block;
+            animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(14px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ─── TYPOGRAPHY ─────────────────────────────────────────────── */
+        .section-title {
+            font-family: var(--display);
+            font-size: 2.2rem; font-weight: 800;
+            color: var(--black); margin-bottom: 4px;
+            line-height: 1; text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+        .section-sub {
+            color: var(--text-muted); font-size: 0.85rem;
+            margin-bottom: 22px; font-family: var(--body);
+        }
+        .field-label {
+            font-family: var(--mono); font-size: 0.68rem;
+            color: var(--text-muted); letter-spacing: 0.08em;
+            text-transform: uppercase; margin-bottom: 8px; display: block;
+        }
+
+        /* ─── CARD ───────────────────────────────────────────────────── */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+        }
+
+        /* ─── SEX SELECTOR ───────────────────────────────────────────── */
+        .sex-selector {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 8px; margin-bottom: 20px;
+        }
+        .sex-btn {
+            padding: 14px; border: 1.5px solid var(--border-mid);
+            border-radius: 10px; background: var(--surface2);
+            cursor: pointer; font-family: var(--mono);
+            font-size: 0.85rem; font-weight: 500;
+            color: var(--text-muted); transition: all 0.2s;
+            letter-spacing: 0.04em;
+        }
+        .sex-btn.active {
+            border-color: var(--blue); background: var(--blue-light);
+            color: var(--blue-dark); font-weight: 600;
+        }
+
+        /* ─── INPUTS ─────────────────────────────────────────────────── */
+        .input-wrap { position: relative; margin-bottom: 20px; }
+        .input-wrap input {
+            width: 100%; padding: 14px 50px 14px 16px;
+            background: var(--surface2); border: 1.5px solid var(--border-mid);
+            border-radius: 10px; color: var(--text);
+            font-family: var(--mono); font-size: 1.8rem;
+            font-weight: 400; outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            -webkit-appearance: none;
+        }
+        .input-wrap input:focus {
+            border-color: var(--blue); background: var(--surface);
+            box-shadow: 0 0 0 3px rgba(26,111,173,0.1);
+        }
+        .input-unit {
+            position: absolute; right: 14px; top: 50%;
+            transform: translateY(-50%);
+            font-family: var(--mono); font-size: 0.75rem;
+            color: var(--text-muted); pointer-events: none;
+        }
+
+        /* ─── IBW ────────────────────────────────────────────────────── */
+        .ibw-display {
+            background: var(--teal-light);
+            border: 1px solid rgba(9,199,151,0.25);
+            border-left: 4px solid var(--teal);
+            border-radius: 12px; padding: 14px 16px;
+            display: flex; align-items: center;
+            justify-content: space-between; margin-bottom: 24px;
+        }
+        .ibw-label {
+            font-family: var(--mono); font-size: 0.65rem;
+            color: var(--teal-dark); letter-spacing: 0.08em;
+            text-transform: uppercase; font-weight: 500;
+        }
+        .ibw-sub {
+            font-family: var(--body); font-size: 0.7rem;
+            color: var(--text-muted); margin-top: 4px;
+        }
+        .ibw-value {
+            font-family: var(--mono); font-size: 2.2rem;
+            font-weight: 400; color: var(--teal-dark);
+        }
+        .ibw-value span { font-size: 0.9rem; color: var(--text-muted); }
+
+        /* ─── BOTÓN SIGUIENTE ────────────────────────────────────────── */
+        .btn-next {
+            width: 100%; padding: 17px;
+            background: var(--blue); color: white;
+            border: none; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            gap: 10px; cursor: pointer;
+            font-family: var(--display); font-size: 1.15rem;
+            font-weight: 700; letter-spacing: 0.06em;
+            text-transform: uppercase; transition: all 0.2s;
+        }
+        .btn-next:active { transform: scale(0.98); background: var(--blue-dark); }
+        .btn-cancel {
+            width: 100%; padding: 13px;
+            background: none; border: none;
+            font-family: var(--body); font-size: 0.85rem;
+            color: var(--text-muted); cursor: pointer;
+            margin-top: 4px;
+        }
+        .btn-cancel:active { color: var(--blue); }
+
+        /* ─── MENÚ CATEGORÍAS ────────────────────────────────────────── */
+        .menu-grid {
+            display: flex; flex-direction: column; gap: 12px;
+        }
+        .cat-card {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 14px; padding: 20px 18px;
+            display: flex; align-items: center; gap: 16px;
+            cursor: pointer; box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+            transition: transform 0.13s, box-shadow 0.13s;
+            -webkit-user-select: none; user-select: none;
+            text-decoration: none; color: var(--text);
+        }
+        .cat-card:active { transform: scale(0.982); box-shadow: 0 1px 3px rgba(0,0,0,0.07); }
+
+        .cat-icon {
+            width: 52px; height: 52px; border-radius: 13px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .cat-icon.blue  { background: var(--blue-light); }
+        .cat-icon.teal  { background: var(--teal-light); }
+        .cat-icon.red   { background: rgba(239,68,68,0.08); }
+        .cat-icon.amber  { background: rgba(245,158,11,0.1); }
+        .cat-icon.purple { background: rgba(139,92,246,0.1); }
+
+        .cat-text { flex: 1; }
+        .cat-name {
+            font-family: var(--display); font-size: 1.2rem;
+            font-weight: 700; color: var(--black);
+            letter-spacing: 0.02em; text-transform: uppercase;
+            line-height: 1.1; margin-bottom: 3px;
+        }
+        .cat-desc {
+            font-family: var(--body); font-size: 0.76rem;
+            color: var(--text-muted); line-height: 1.35;
+        }
+        .cat-arrow { color: var(--text-muted); flex-shrink: 0; }
+
+        /* ─── BADGE DATOS PACIENTE ───────────────────────────────────── */
+        .patient-badge {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--blue);
+            border-radius: 12px; padding: 12px 16px;
+            display: flex; align-items: center; gap: 14px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        }
+        .patient-badge-data {
+            display: flex; gap: 20px; flex: 1;
+        }
+        .patient-data-item { display: flex; flex-direction: column; }
+        .patient-data-label {
+            font-family: var(--mono); font-size: 0.58rem;
+            color: var(--text-muted); letter-spacing: 0.08em;
+            text-transform: uppercase; margin-bottom: 2px;
+        }
+        .patient-data-value {
+            font-family: var(--mono); font-size: 1rem;
+            font-weight: 500; color: var(--black);
+        }
+        .patient-edit-btn {
+            background: none; border: 1.5px solid var(--border-mid);
+            border-radius: 8px; padding: 6px 10px; cursor: pointer;
+            font-family: var(--body); font-size: 0.75rem;
+            color: var(--text-muted); transition: all 0.2s; flex-shrink: 0;
+        }
+        .patient-edit-btn:active { border-color: var(--blue); color: var(--blue); }
+        /* Aviso de datos de paciente anterior — seguridad dispositivos compartidos */
+        .patient-prev-warning {
+            display: none;
+            background: #fff8e1; border: 1.5px solid #f59e0b;
+            border-radius: 10px; padding: 10px 14px;
+            margin-top: -12px; margin-bottom: 20px;
+            font-family: var(--body); font-size: 0.78rem;
+            color: #92400e; line-height: 1.4;
+            display: none; align-items: center; gap: 10px;
+        }
+        .patient-prev-warning span { flex: 1; }
+        .patient-prev-clear {
+            background: none; border: 1.5px solid #f59e0b;
+            border-radius: 7px; padding: 4px 10px; cursor: pointer;
+            font-family: var(--body); font-size: 0.72rem;
+            color: #92400e; white-space: nowrap; flex-shrink: 0;
+        }
+    </style>
+    <link rel="stylesheet" href="../fonts.css">
+</head>
+
+<body>
+
+<header>
+    <button class="back-btn" id="back-btn" onclick="goBack()" aria-label="Volver">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+             fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"/>
+        </svg>
+    </button>
+    <div class="header-center">
+        <div class="header-label">Hospital Universitari Joan XXIII</div>
+        <div class="header-title" id="header-title">URGLab</div>
+    </div>
+    <div class="header-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
+             fill="none" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 21V7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v14"/>
+            <path d="M3 21h18"/>
+            <path d="M9 21V13h6v8"/>
+            <path d="M10 8h4"/>
+            <path d="M12 6v4"/>
+        </svg>
+    </div>
+</header>
+
+<div class="container">
+
+    <!-- ══════════════ PANTALLA 1: DATOS DEL PACIENTE ══════════════ -->
+    <section id="view-patient" class="view">
+
+        <div class="card" style="margin-top: 8px;">
+            <span class="field-label">Sexo biológico</span>
+            <div class="sex-selector">
+                <button id="btn-male" class="sex-btn active" onclick="setSex('M')">♂ HOMBRE</button>
+                <button id="btn-female" class="sex-btn" onclick="setSex('F')">♀ MUJER</button>
+            </div>
+
+            <span class="field-label">Peso real</span>
+            <div class="input-wrap">
+                <input type="number" id="weight" placeholder="80" inputmode="decimal" min="0">
+                <span class="input-unit">kg</span>
+            </div>
+
+            <span class="field-label">Talla</span>
+            <div class="input-wrap" style="margin-bottom:0;">
+                <input type="number" id="height" placeholder="175" inputmode="decimal" min="0" oninput="updateIBW()">
+                <span class="input-unit">cm</span>
+            </div>
+        </div>
+
+        <div class="ibw-display">
+            <div>
+                <div class="ibw-label">Peso Ideal · Fórmula Devine</div>
+                <div class="ibw-sub">Usado en fármacos con ajuste por peso ideal</div>
+            </div>
+            <div class="ibw-value" id="ibw-val">-- <span>kg</span></div>
+        </div>
+
+        <button class="btn-next" onclick="goToMenu()">
+            <span>Guardar y continuar</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+                 fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"/>
+                <polyline points="12 5 19 12 12 19"/>
+            </svg>
+        </button>
+        <button class="btn-cancel" onclick="showView('view-menu')">Volver al menú sin guardar</button>
+    </section>
+
+    <!-- ══════════════ PANTALLA 2: MENÚ CATEGORÍAS ══════════════ -->
+    <section id="view-menu" class="view active">
+
+        <!-- Badge resumen datos paciente -->
+        <div class="patient-badge">
+            <div class="patient-badge-data">
+                <div class="patient-data-item">
+                    <span class="patient-data-label">Sexo</span>
+                    <span class="patient-data-value" id="badge-sex">--</span>
+                </div>
+                <div class="patient-data-item">
+                    <span class="patient-data-label">Peso real</span>
+                    <span class="patient-data-value" id="badge-weight">-- kg</span>
+                </div>
+                <div class="patient-data-item">
+                    <span class="patient-data-label">Talla</span>
+                    <span class="patient-data-value" id="badge-height">-- cm</span>
+                </div>
+                <div class="patient-data-item">
+                    <span class="patient-data-label">Peso ideal</span>
+                    <span class="patient-data-value" id="badge-ibw">-- kg</span>
+                </div>
+            </div>
+            <button class="patient-edit-btn" onclick="showView('view-patient')">Editar</button>
+        </div>
+        <!-- Aviso de sesión anterior restaurada (dispositivos compartidos) -->
+        <div class="patient-prev-warning" id="prev-session-warning" style="display:none">
+            <span>⚠️ Datos del paciente anterior cargados. Verifica o actualiza antes de continuar.</span>
+            <button class="patient-prev-clear" onclick="clearPatient()">Borrar</button>
+        </div>
+
+        <div class="menu-grid">
+
+            <!-- RCP -->
+            <a class="cat-card" href="rcp/index.html">
+                <div class="cat-icon red">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24"
+                         fill="none" stroke="#ef4444" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                    </svg>
+                </div>
+                <div class="cat-text">
+                    <div class="cat-name">RCP</div>
+                </div>
+                <div class="cat-arrow">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"/>
+                    </svg>
+                </div>
+            </a>
+
+            <!-- Patología -->
+            <a class="cat-card" href="patologia/index.html">
+                <div class="cat-icon blue">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24"
+                         fill="none" stroke="#1a6fad" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/>
+                    </svg>
+                </div>
+                <div class="cat-text">
+                    <div class="cat-name">Patología</div>
+                </div>
+                <div class="cat-arrow">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"/>
+                    </svg>
+                </div>
+            </a>
+
+            <!-- Procedimientos -->
+            <a class="cat-card" href="procedimientos/index.html">
+                <div class="cat-icon amber">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24"
+                         fill="none" stroke="#f59e0b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 3l1 9H4L3 3z"/>
+                        <path d="M9 12l1 9H4l-1-9z" opacity="0.4"/>
+                        <path d="M15 3l1 9h-6l1-9z"/>
+                        <path d="M15 12l1 9h-6l1-9z" opacity="0.4"/>
+                        <line x1="7" y1="3" x2="17" y2="3"/>
+                        <line x1="8" y1="12" x2="16" y2="12"/>
+                    </svg>
+                </div>
+                <div class="cat-text">
+                    <div class="cat-name">Procedimientos</div>
+                </div>
+                <div class="cat-arrow">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"/>
+                    </svg>
+                </div>
+            </a>
+
+            <!-- Fármacos -->
+            <a class="cat-card" href="farmacos/index.html">
+                <div class="cat-icon teal">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24"
+                         fill="none" stroke="#07a87e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="7" y1="7" x2="17" y2="17"/>
+                        <line x1="17" y1="17" x2="20" y2="20"/>
+                        <line x1="4" y1="4" x2="7" y2="7"/>
+                        <line x1="3" y1="5" x2="5" y2="3"/>
+                        <rect x="6.5" y="4.5" width="3" height="11" rx="1" transform="rotate(45 8 10)"/>
+                    </svg>
+                </div>
+                <div class="cat-text">
+                    <div class="cat-name">Fármacos</div>
+                </div>
+                <div class="cat-arrow">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"/>
+                    </svg>
+                </div>
+            </a>
+
+            <!-- Recursos -->
+            <a class="cat-card" href="recursos/index.html">
+                <div class="cat-icon purple">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24"
+                         fill="none" stroke="#7c3aed" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 11.5 19.79 19.79 0 0 1 1.61 2.84 2 2 0 0 1 3.58 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.56a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16z"/>
+                    </svg>
+                </div>
+                <div class="cat-text">
+                    <div class="cat-name">Recursos</div>
+                </div>
+                <div class="cat-arrow">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"/>
+                    </svg>
+                </div>
+            </a>
+
+        </div>
+    </section>
+
+</div>
+
+<script>
+    let patient = { sex: 'M', weight: 0, height: 0, ibw: 0 };
+
+    function setSex(s) {
+        patient.sex = s;
+        document.getElementById('btn-male').classList.toggle('active', s === 'M');
+        document.getElementById('btn-female').classList.toggle('active', s === 'F');
+        updateIBW();
+    }
+
+    function updateIBW() {
+        const h = parseFloat(document.getElementById('height').value);
+        if (h > 100) {
+            const base = patient.sex === 'M' ? 50 : 45.5;
+            patient.ibw = Math.round(base + 0.91 * (h - 152.4));
+            document.getElementById('ibw-val').innerHTML = `${patient.ibw} <span>kg</span>`;
+        } else {
+            patient.ibw = 0;
+            document.getElementById('ibw-val').innerHTML = `-- <span>kg</span>`;
+        }
+    }
+
+    function goToMenu() {
+        const w = parseFloat(document.getElementById('weight').value);
+        if (!w || w <= 0) {
+            alert('Introduce el peso real del paciente.');
+            return;
+        }
+        patient.weight = w;
+        patient.height = parseFloat(document.getElementById('height').value) || 0;
+        if (!patient.ibw || patient.ibw <= 0) patient.ibw = patient.weight;
+
+        localStorage.setItem('hj23_patient', JSON.stringify(patient));
+        updateBadge(patient);
+        showView('view-menu');
+    }
+
+    // Sesión fresca → limpiar. Retorno desde submódulo (#menu) → restaurar con aviso.
+    (function init() {
+        if (location.hash.includes('menu')) {
+            const saved = localStorage.getItem('hj23_patient');
+            if (saved) {
+                try {
+                    const p = JSON.parse(saved);
+                    patient = p;
+                    setSex(p.sex);
+                    document.getElementById('weight').value = p.weight || '';
+                    document.getElementById('height').value = p.height || '';
+                    updateIBW();
+                    updateBadge(p);
+                    // Seguridad (HAL-06): avisar que son datos de sesión anterior
+                    document.getElementById('prev-session-warning').style.display = 'flex';
+                } catch(e) {}
+            }
+        } else {
+            localStorage.removeItem('hj23_patient');
+        }
+    })();
+
+    // Borra los datos del paciente y oculta el aviso
+    function clearPatient() {
+        localStorage.removeItem('hj23_patient');
+        patient = { sex: 'M', weight: 0, height: 0, ibw: 0 };
+        setSex('M');
+        document.getElementById('weight').value = '';
+        document.getElementById('height').value = '';
+        updateIBW();
+        updateBadge(null);
+        document.getElementById('prev-session-warning').style.display = 'none';
+    }
+
+function updateBadge(p) {
+        if (p && p.weight) {
+            document.getElementById('badge-sex').textContent = p.sex === 'M' ? 'H' : 'M';
+            document.getElementById('badge-weight').textContent = p.weight + ' kg';
+            document.getElementById('badge-height').textContent = p.height ? p.height + ' cm' : '--';
+            document.getElementById('badge-ibw').textContent = p.ibw + ' kg';
+        } else {
+            document.getElementById('badge-sex').textContent = '--';
+            document.getElementById('badge-weight').textContent = '-- kg';
+            document.getElementById('badge-height').textContent = '-- cm';
+            document.getElementById('badge-ibw').textContent = '-- kg';
+        }
+    }
+
+    function goBack() {
+        const active = document.querySelector('.view.active');
+        if (active && active.id === 'view-patient') {
+            showView('view-menu');
+        } else {
+            window.location.href = '../index.html';
+        }
+    }
+
+    function showView(id) {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        document.getElementById('header-title').textContent = id === 'view-menu' ? 'URGLab' : 'Paciente';
+        window.scrollTo(0, 0);
+    }
+</script>
+
+</body>
+</html>
