@@ -272,6 +272,57 @@ textarea.reg-input{min-height:80px;resize:vertical;line-height:1.5}
   text-transform:uppercase;letter-spacing:.04em}
 .tec-box-text{font-size:.78rem;color:var(--muted);line-height:1.5}
 
+/* ALBUMIN PROTOCOL CARDS */
+.alb-proto{border:2px solid var(--border-mid);border-radius:12px;
+  margin:8px 14px;padding:14px;cursor:pointer;transition:all .15s;
+  -webkit-user-select:none;user-select:none}
+.alb-proto.sel{border-color:var(--teal);background:var(--teal-s)}
+.alb-proto-hdr{display:flex;align-items:center;gap:10px}
+.alb-proto-dot{width:20px;height:20px;min-width:20px;border-radius:50%;
+  border:2px solid var(--border-mid);transition:all .15s;flex-shrink:0;
+  position:relative}
+.alb-proto.sel .alb-proto-dot{border-color:var(--teal);background:var(--teal)}
+.alb-proto.sel .alb-proto-dot::after{content:'';position:absolute;
+  top:50%;left:50%;transform:translate(-50%,-50%);
+  width:8px;height:8px;background:white;border-radius:50%}
+.alb-proto-title{font-family:var(--display);font-size:.95rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.04em;flex:1}
+.alb-proto-dose{font-family:var(--mono);font-size:1.05rem;font-weight:700;color:var(--blue)}
+
+/* MARCAR TODO */
+.btn-mark-all{font-size:.7rem;padding:3px 10px;border-radius:20px;
+  border:1.5px solid var(--teal);color:var(--teal);background:white;
+  cursor:pointer;font-weight:700;margin-left:auto;font-family:var(--body);
+  flex-shrink:0}
+.btn-mark-all:active{background:var(--teal-s)}
+
+/* TABLA REFERENCIA */
+.ref-card{background:#f0f7ff;border:1px solid #c8dff5;border-radius:14px;
+  margin-bottom:12px;overflow:hidden}
+.ref-card-hdr{background:#daeeff;padding:10px 16px;
+  font-family:var(--display);font-size:.88rem;font-weight:700;
+  letter-spacing:.05em;text-transform:uppercase;color:var(--blue-dark)}
+.ref-row{display:flex;align-items:flex-start;gap:10px;padding:7px 16px;
+  border-top:1px solid rgba(0,0,0,.06);font-size:.77rem;line-height:1.4;color:var(--text)}
+.ref-tag{font-family:var(--mono);font-size:.68rem;font-weight:700;
+  padding:2px 7px;border-radius:10px;white-space:nowrap;flex-shrink:0;margin-top:1px}
+.ref-always{background:var(--teal-s);color:#0a8c6a}
+.ref-pbe{background:var(--warn-s);color:var(--warn)}
+.ref-other{background:rgba(0,0,0,.07);color:var(--muted)}
+
+/* HUB CARDS */
+.hub-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;
+  padding:22px 18px;display:flex;align-items:center;gap:16px;cursor:pointer;
+  box-shadow:0 1px 6px rgba(0,0,0,.06);transition:transform .13s,box-shadow .13s;
+  margin-bottom:14px;-webkit-user-select:none;user-select:none}
+.hub-card:active{transform:scale(.982);box-shadow:0 1px 3px rgba(0,0,0,.07)}
+.hub-icon{width:56px;height:56px;border-radius:14px;background:var(--blue-s);
+  display:flex;align-items:center;justify-content:center;font-size:1.7rem;flex-shrink:0}
+.hub-body{flex:1}
+.hub-title{font-family:var(--display);font-size:1.25rem;font-weight:800;
+  color:var(--text);letter-spacing:.03em;text-transform:uppercase;line-height:1.1}
+.hub-desc{font-size:.76rem;color:var(--muted);margin-top:3px;line-height:1.3}
+
 /* HIDDEN */
 .hidden{display:none!important}
 
@@ -302,19 +353,38 @@ textarea.reg-input{min-height:80px;resize:vertical;line-height:1.5}
 </header>
 
 <!-- ═══════════════════════════════════════════
-     VIEW 1 — PRE-PROCEDIMIENTO
+     VIEW 1 — HUB
 ════════════════════════════════════════════ -->
-<div class="view active" id="view-preproc">
-<div class="cnt">
-
-  <div id="sessionBanner" class="banner b-info hidden">
-    <span class="banner-icon">💾</span>
-    <div class="banner-body">
-      <div class="banner-title">Sesión anterior guardada</div>
-      Hay datos de una paracentesis previa. Puedes continuar o reiniciar.
+<div class="view active" id="view-hub">
+<div class="cnt" style="padding-top:28px">
+  <div class="hub-card" onclick="goTo('precheck')">
+    <div class="hub-icon">📋</div>
+    <div class="hub-body">
+      <div class="hub-title">Checklist</div>
+      <div class="hub-desc">Procedimiento paso a paso</div>
     </div>
-    <button onclick="resetState()" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:.78rem;font-weight:600;white-space:nowrap;padding:4px 0 0 8px">Reiniciar</button>
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+         style="color:var(--muted);flex-shrink:0"><polyline points="9 18 15 12 9 6"/></svg>
   </div>
+  <div class="hub-card" onclick="goTo('analisis')">
+    <div class="hub-icon">🔬</div>
+    <div class="hub-body">
+      <div class="hub-title">Análisis de líquido peritoneal</div>
+      <div class="hub-desc">Algoritmo diagnóstico</div>
+    </div>
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+         style="color:var(--muted);flex-shrink:0"><polyline points="9 18 15 12 9 6"/></svg>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     VIEW 2 — PRE-CHECKLIST
+════════════════════════════════════════════ -->
+<div class="view" id="view-precheck">
+<div class="cnt">
 
   <!-- INDICACIÓN -->
   <div class="scard">
@@ -353,31 +423,31 @@ textarea.reg-input{min-height:80px;resize:vertical;line-height:1.5}
       <span class="scard-title">Contraindicaciones relativas</span>
     </div>
     <div class="warn-item" id="wi-cid" onclick="toggleWarn('cid')">
-      <div class="warn-box" id="wb-cid">
+      <div class="warn-box">
         <svg class="warn-ck-svg" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg>
       </div>
       <span class="warn-text">CID activa</span>
     </div>
     <div class="warn-item" id="wi-ileo" onclick="toggleWarn('ileo')">
-      <div class="warn-box" id="wb-ileo">
+      <div class="warn-box">
         <svg class="warn-ck-svg" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg>
       </div>
       <span class="warn-text">Íleo masivo</span>
     </div>
     <div class="warn-item" id="wi-cicatrices" onclick="toggleWarn('cicatrices')">
-      <div class="warn-box" id="wb-cicatrices">
+      <div class="warn-box">
         <svg class="warn-ck-svg" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg>
       </div>
       <span class="warn-text">Cicatrices quirúrgicas en zona de punción</span>
     </div>
     <div class="warn-item" id="wi-inr" onclick="toggleWarn('inr')">
-      <div class="warn-box" id="wb-inr">
+      <div class="warn-box">
         <svg class="warn-ck-svg" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg>
       </div>
       <span class="warn-text">INR elevado (coagulopatía)</span>
     </div>
     <div class="warn-item" id="wi-trombopenia" onclick="toggleWarn('trombopenia')">
-      <div class="warn-box" id="wb-trombopenia">
+      <div class="warn-box">
         <svg class="warn-ck-svg" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg>
       </div>
       <span class="warn-text">Trombopenia severa</span>
@@ -389,19 +459,6 @@ textarea.reg-input{min-height:80px;resize:vertical;line-height:1.5}
     <div class="banner-body">
       <div class="banner-title">Contraindicación relativa presente</div>
       Valorar riesgo/beneficio antes de proceder. Anota la justificación en el registro.
-    </div>
-  </div>
-
-  <!-- CONSENTIMIENTO -->
-  <div class="scard">
-    <div class="ci" id="ci-consentimiento" onclick="toggleCI('consentimiento')">
-      <div class="cibox">
-        <svg class="ck-svg" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg>
-      </div>
-      <div>
-        <div class="ci-label">Consentimiento del paciente obtenido</div>
-        <div class="ci-sub">Verbal o escrito según protocolo</div>
-      </div>
     </div>
   </div>
 
@@ -437,18 +494,19 @@ textarea.reg-input{min-height:80px;resize:vertical;line-height:1.5}
       <polyline points="20 6 9 17 4 12"/>
     </svg>
   </div>
+
+  <!-- EPP + material básico -->
   <div class="scard">
     <div class="ci" id="ci-epp" onclick="toggleCI('epp')">
       <div class="cibox"><svg class="ck-svg" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
       <div>
-        <div class="ci-label">EPP completo</div>
-        <div class="ci-sub">Guantes no estériles y estériles, bata, gafas</div>
+        <div class="ci-label">Guantes estériles y no estériles</div>
       </div>
     </div>
     <div class="ci" id="ci-materialEsteril" onclick="toggleCI('materialEsteril')">
       <div class="cibox"><svg class="ck-svg" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
       <div>
-        <div class="ci-label">Material estéril paciente</div>
+        <div class="ci-label">Material estéril</div>
         <div class="ci-sub">Tallas estériles, gasas</div>
       </div>
     </div>
@@ -459,18 +517,12 @@ textarea.reg-input{min-height:80px;resize:vertical;line-height:1.5}
         <div class="ci-sub">Con talla y gel estéril</div>
       </div>
     </div>
-    <div class="ci" id="ci-tubos" onclick="toggleCI('tubos')">
-      <div class="cibox"><svg class="ck-svg" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
-      <div>
-        <div class="ci-label">Tubos de análisis</div>
-        <div class="ci-sub">Tapa roja · Tapa morada · 3× tapa verde · 2× botellas cultivo</div>
-      </div>
-    </div>
   </div>
 
+  <!-- Antiséptico -->
   <div class="scard">
     <div class="scard-hdr">
-      <span class="scard-icon">💉</span>
+      <span class="scard-icon">🧴</span>
       <span class="scard-title">Antiséptico</span>
     </div>
     <div class="rpill-col">
@@ -485,10 +537,11 @@ textarea.reg-input{min-height:80px;resize:vertical;line-height:1.5}
     </div>
   </div>
 
+  <!-- Anestésico local -->
   <div class="scard">
     <div class="scard-hdr">
-      <span class="scard-icon">🪢</span>
-      <span class="scard-title">Anestésico local + jeringas</span>
+      <span class="scard-icon">💉</span>
+      <span class="scard-title">Anestésico local</span>
     </div>
     <div class="rpill-col">
       <div class="rpill" id="rp-anestesico-mepivacaina" onclick="selRpill('anestesico','mepivacaina')">
@@ -502,14 +555,19 @@ textarea.reg-input{min-height:80px;resize:vertical;line-height:1.5}
     </div>
   </div>
 
+  <!-- Kit evacuadora -->
   <div class="scard">
     <div class="scard-hdr">
       <span class="scard-icon">🔩</span>
       <span class="scard-title">Kit evacuadora</span>
+      <button class="btn-mark-all" onclick="markAllKit()">Marcar todo</button>
     </div>
     <div class="mck-grid">
       <div class="mck" id="mk-agujaPiel" onclick="toggleMck('agujaPiel',this)">
-        <div class="mck-dot"></div>Aguja 25/22G piel
+        <div class="mck-dot"></div>Aguja infiltración 25/22G
+      </div>
+      <div class="mck" id="mk-agujaParac" onclick="toggleMck('agujaParac',this)">
+        <div class="mck-dot"></div>Aguja paracentesis*
       </div>
       <div class="mck" id="mk-jeringas" onclick="toggleMck('jeringas',this)">
         <div class="mck-dot"></div>Jeringas 20cc ×2
@@ -524,22 +582,41 @@ textarea.reg-input{min-height:80px;resize:vertical;line-height:1.5}
         <div class="mck-dot"></div>Esparadrapo fijación
       </div>
     </div>
-    <div class="scard-hdr" style="border-top:1px solid var(--border);border-bottom:none">
-      <span class="scard-title" style="font-size:.85rem">Aguja de paracentesis</span>
+    <div style="padding:6px 16px 10px;font-size:.72rem;color:var(--muted)">
+      * IM 22G panículo escaso · Aguja espinal/paracentesis panículo abundante
     </div>
-    <div class="rpill-col" style="padding-top:8px">
-      <div class="rpill" id="rp-aguja-im22g" onclick="selRpill('aguja','im22g')">
-        <div class="rdot"></div>
-        <div class="rpill-label">Aguja IM 22G
-          <span class="rpill-sub">Poco panículo adiposo</span>
-        </div>
-      </div>
-      <div class="rpill" id="rp-aguja-espinal" onclick="selRpill('aguja','espinal')">
-        <div class="rdot"></div>
-        <div class="rpill-label">Aguja espinal / de paracentesis
-          <span class="rpill-sub">Mucho panículo adiposo</span>
-        </div>
-      </div>
+  </div>
+
+  <!-- Referencia: parámetros a solicitar -->
+  <div class="ref-card">
+    <div class="ref-card-hdr">📋 Parámetros a solicitar en análisis</div>
+    <div class="ref-row">
+      <span class="ref-tag ref-always">Siempre</span>
+      <span>Contaje celular · proteínas · LDH · albúmina · glucosa</span>
+    </div>
+    <div class="ref-row">
+      <span class="ref-tag ref-pbe">PBE</span>
+      <span>+ Tinción Gram · cultivos en botellas de hemocultivo</span>
+    </div>
+    <div class="ref-row">
+      <span class="ref-tag ref-other">Hemático</span>
+      <span>+ Citología · hematocrito</span>
+    </div>
+    <div class="ref-row">
+      <span class="ref-tag ref-other">Pancreatitis</span>
+      <span>+ Amilasa (líquido amarillo turbio)</span>
+    </div>
+    <div class="ref-row">
+      <span class="ref-tag ref-other">Perforación</span>
+      <span>+ Bilirrubina (líquido marrón)</span>
+    </div>
+    <div class="ref-row">
+      <span class="ref-tag ref-other">TBC</span>
+      <span>+ ADA · cultivo BAAR</span>
+    </div>
+    <div class="ref-row">
+      <span class="ref-tag ref-other">Quilosa</span>
+      <span>+ Triglicéridos · colesterol (líquido lechoso)</span>
     </div>
   </div>
 </div>
@@ -554,16 +631,19 @@ textarea.reg-input{min-height:80px;resize:vertical;line-height:1.5}
       <polyline points="20 6 9 17 4 12"/>
     </svg>
   </div>
+
   <div class="scard">
-    <div class="ci" id="ci-explicarProc" onclick="toggleCI('explicarProc')">
+    <div class="ci" id="ci-consentimiento" onclick="toggleCI('consentimiento')">
       <div class="cibox"><svg class="ck-svg" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
-      <div class="ci-label">Procedimiento explicado al paciente</div>
+      <div>
+        <div class="ci-label">Procedimiento explicado y consentimiento verbal</div>
+      </div>
     </div>
     <div class="ci" id="ci-coagulacion" onclick="toggleCI('coagulacion')">
       <div class="cibox"><svg class="ck-svg" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
       <div>
         <div class="ci-label">Coagulación verificada</div>
-        <div class="ci-sub">INR, plaquetas revisados</div>
+        <div class="ci-sub">INR y plaquetas revisados</div>
       </div>
     </div>
   </div>
@@ -571,13 +651,12 @@ textarea.reg-input{min-height:80px;resize:vertical;line-height:1.5}
   <div class="scard">
     <div class="scard-hdr">
       <span class="scard-icon">📡</span>
-      <span class="scard-title">Sondeo ecográfico previo</span>
+      <span class="scard-title">Sondeo ecográfico</span>
+      <button class="btn-mark-all" onclick="markAllEco()">Marcar todo</button>
     </div>
     <div class="mac-item" id="mi-ecoUbicacion" onclick="toggleMac('ecoUbicacion')">
       <div class="mac-box"><svg class="ck-svg" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
-      <div class="mac-text">Verificar ubicación ideal para drenaje
-        <div class="mac-sub">Zona con mayor contenido de líquido</div>
-      </div>
+      <div class="mac-text">Ubicar zona con mayor contenido de líquido</div>
     </div>
     <div class="mac-item" id="mi-ecoDistancia" onclick="toggleMac('ecoDistancia')">
       <div class="mac-box"><svg class="ck-svg" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
@@ -590,31 +669,6 @@ textarea.reg-input{min-height:80px;resize:vertical;line-height:1.5}
   </div>
 
   <div class="scard">
-    <div class="scard-hdr">
-      <span class="scard-icon">🛏️</span>
-      <span class="scard-title">Posición</span>
-    </div>
-    <div class="rpill-col">
-      <div class="rpill" id="rp-posicion-supino" onclick="selRpill('posicion','supino')">
-        <div class="rdot"></div>
-        <span class="rpill-label">Decúbito supino</span>
-      </div>
-      <div class="rpill" id="rp-posicion-elevado" onclick="selRpill('posicion','elevado')">
-        <div class="rdot"></div>
-        <span class="rpill-label">Cabecera ligeramente elevada
-          <span class="rpill-sub">Si no tolera el decúbito supino</span>
-        </span>
-      </div>
-    </div>
-  </div>
-
-  <div class="scard">
-    <div class="ci" id="ci-lateralizacion" onclick="toggleCI('lateralizacion')">
-      <div class="cibox"><svg class="ck-svg" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
-      <div>
-        <div class="ci-label">Girar hacia el lado con mayor contenido de líquido</div>
-      </div>
-    </div>
     <div class="ci" id="ci-asepsia" onclick="toggleCI('asepsia')">
       <div class="cibox"><svg class="ck-svg" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
       <div class="ci-label">Asepsia y antisepsia de la región</div>
@@ -638,30 +692,34 @@ textarea.reg-input{min-height:80px;resize:vertical;line-height:1.5}
   </div>
 
   <div class="tec-box">
-    <div class="tec-box-title">Técnica Z-Track</div>
-    <div class="tec-box-text">Con mano no dominante desplaza la piel hacia abajo. Infiltra generando un habón en piel. Aspirar intermitentemente para evitar infiltrar vasos. Tras cada aspiración, infiltrar, profundizar y repetir hasta alcanzar peritoneo o límite de la aguja.</div>
+    <div class="tec-box-text">Infiltrar piel en el espacio seleccionado generando un habón. Aspirar intermitentemente para evitar infiltrar vasos. Profundizar plano a plano hasta alcanzar peritoneo.</div>
   </div>
 
   <div class="scard">
     <div class="ci" id="ci-anestesiaLocal" onclick="toggleCI('anestesiaLocal')">
       <div class="cibox"><svg class="ck-svg" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
       <div>
-        <div class="ci-label">Anestesia local infiltrada (técnica Z-Track)</div>
-        <div class="ci-sub">Desde piel hasta peritoneo, aspirando en cada plano</div>
+        <div class="ci-label">Anestesia local infiltrada</div>
+        <div class="ci-sub">Habón en piel · aspirar en cada plano · hasta peritoneo</div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- FASE 4: INSERCIÓN / TÉCNICA -->
+<!-- FASE 4: PARACENTESIS -->
 <div class="phase" id="phase4">
   <div class="phase-hdr">
     <div class="phase-num" id="pn4">4</div>
-    <div class="phase-title">Inserción de aguja</div>
+    <div class="phase-title">Paracentesis</div>
     <svg class="phase-ok" width="20" height="20" viewBox="0 0 24 24" fill="none"
          stroke="#09c797" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
       <polyline points="20 6 9 17 4 12"/>
     </svg>
+  </div>
+
+  <div class="tec-box">
+    <div class="tec-box-title">Técnica Z-Track</div>
+    <div class="tec-box-text">Con mano no dominante desplazar la piel hacia abajo. Con mano dominante insertar la aguja realizando aspiración intermitente y profundizando hasta alcanzar peritoneo (salida de líquido).</div>
   </div>
 
   <div class="scard">
@@ -670,6 +728,12 @@ textarea.reg-input{min-height:80px;resize:vertical;line-height:1.5}
       <span class="scard-title">Técnica utilizada</span>
     </div>
     <div class="rpill-col">
+      <div class="rpill" id="rp-tecnica-anatomica" onclick="selTecnica('anatomica')">
+        <div class="rdot"></div>
+        <div class="rpill-label">Referencia anatómica
+          <span class="rpill-sub">FII o flanco según punto marcado previamente</span>
+        </div>
+      </div>
       <div class="rpill" id="rp-tecnica-ecolocalizada" onclick="selTecnica('ecolocalizada')">
         <div class="rdot"></div>
         <div class="rpill-label">Eco-localizada
@@ -685,6 +749,20 @@ textarea.reg-input{min-height:80px;resize:vertical;line-height:1.5}
     </div>
   </div>
 
+  <!-- Pasos referencia anatómica -->
+  <div id="steps-anatomica" class="hidden">
+    <div class="scard">
+      <div class="mac-item" id="mi-anat-insercion" onclick="toggleMac('anat_insercion')">
+        <div class="mac-box"><svg class="ck-svg" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
+        <div class="mac-text">Inserción Z-Track en punto anatómico: FII (2 cm medial a EIAS) o flanco</div>
+      </div>
+      <div class="mac-item" id="mi-anat-fijacion" onclick="toggleMac('anat_fijacion')">
+        <div class="mac-box"><svg class="ck-svg" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
+        <div class="mac-text">Fijación: gasa en V + esparadrapo en corbatilla</div>
+      </div>
+    </div>
+  </div>
+
   <!-- Pasos eco-localizada -->
   <div id="steps-ecolocalizada" class="hidden">
     <div class="scard">
@@ -694,7 +772,7 @@ textarea.reg-input{min-height:80px;resize:vertical;line-height:1.5}
       </div>
       <div class="mac-item" id="mi-ecol-insercion" onclick="toggleMac('ecol_insercion')">
         <div class="mac-box"><svg class="ck-svg" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
-        <div class="mac-text">Inserción Z-Track: mano no dominante desplaza piel hacia abajo, dominante inserta aspirando hasta peritoneo</div>
+        <div class="mac-text">Inserción Z-Track: mano no dominante desplaza piel, dominante inserta aspirando hasta peritoneo</div>
       </div>
       <div class="mac-item" id="mi-ecol-fijacion" onclick="toggleMac('ecol_fijacion')">
         <div class="mac-box"><svg class="ck-svg" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
@@ -708,11 +786,11 @@ textarea.reg-input{min-height:80px;resize:vertical;line-height:1.5}
     <div class="scard">
       <div class="mac-item" id="mi-ecog-loc" onclick="toggleMac('ecog_loc')">
         <div class="mac-box"><svg class="ck-svg" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
-        <div class="mac-text">Eco-localización: verificar punto ideal de drenaje con ecógrafo estéril</div>
+        <div class="mac-text">Eco-localización: verificar punto ideal con ecógrafo estéril</div>
       </div>
       <div class="mac-item" id="mi-ecog-insercion" onclick="toggleMac('ecog_insercion')">
         <div class="mac-box"><svg class="ck-svg" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
-        <div class="mac-text">Inserción con ayudante: mano no dominante sostiene ecógrafo, dominante inserta en plano bajo visión directa hasta peritoneo</div>
+        <div class="mac-text">Inserción con ayudante: mano no dominante sostiene ecógrafo, dominante inserta en plano bajo visión directa</div>
       </div>
       <div class="mac-item" id="mi-ecog-fijacion" onclick="toggleMac('ecog_fijacion')">
         <div class="mac-box"><svg class="ck-svg" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
@@ -737,6 +815,7 @@ textarea.reg-input{min-height:80px;resize:vertical;line-height:1.5}
     <div class="scard-hdr">
       <span class="scard-icon">🍶</span>
       <span class="scard-title">Sistema de drenaje</span>
+      <button class="btn-mark-all" onclick="markAllDrenaje()">Marcar todo</button>
     </div>
     <div class="mac-item" id="mi-conexion" onclick="toggleMac('conexion')">
       <div class="mac-box"><svg class="ck-svg" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
@@ -754,10 +833,7 @@ textarea.reg-input{min-height:80px;resize:vertical;line-height:1.5}
 
 </div><!-- end phase5 -->
 
-<div class="btn-row">
-  <button class="btn-primary btn-outline" onclick="goTo('analisis')" style="flex:1;font-size:1rem">🔬 Analizar líquido</button>
-  <button class="btn-primary" onclick="goTo('registro')" style="flex:1;font-size:1rem">Registro →</button>
-</div>
+<button class="btn-primary" onclick="goTo('registro')">Ir al Registro →</button>
 
 </div><!-- end cnt -->
 </div><!-- end view-checklist -->
@@ -813,28 +889,25 @@ textarea.reg-input{min-height:80px;resize:vertical;line-height:1.5}
     </div>
   </div>
 
-  <!-- Diagnóstico rápido: lechoso y marrón -->
+  <!-- Notas orientativas por color — NO terminan el algoritmo, continúa el análisis celular -->
   <div id="alg-dx-lechoso" class="hidden">
-    <div class="dx-box dx-yellow">
-      <div class="dx-title">🥛 Ascitis quilosa</div>
-      <ul class="dx-items">
-        <li>Solicitar <strong>Triglicéridos</strong> en líquido ascítico</li>
-        <li>Si &gt;200 mg/dL → confirma ascitis quilosa</li>
-      </ul>
+    <div class="banner b-yellow">
+      <span class="banner-icon">🥛</span>
+      <div class="banner-body">
+        <div class="banner-title">Líquido lechoso — solicitar Triglicéridos</div>
+        Triglicéridos &gt;200 mg/dL confirma ascitis quilosa · Continúa el análisis celular
+      </div>
     </div>
-    <button class="btn-ghost" onclick="goTo('registro')">Ir al Registro</button>
   </div>
 
   <div id="alg-dx-marron" class="hidden">
-    <div class="dx-box dx-warn">
-      <div class="dx-title">⚠️ Sospecha perforación intestinal</div>
-      <ul class="dx-items">
-        <li>Solicitar <strong>Bilirrubina</strong> en líquido ascítico</li>
-        <li>Si Bili líquido &gt; Bili sérica → perforación intestinal</li>
-        <li>Valorar TAC abdominal urgente</li>
-      </ul>
+    <div class="banner b-warn">
+      <span class="banner-icon">⚠️</span>
+      <div class="banner-body">
+        <div class="banner-title">Líquido marrón — solicitar Bilirrubina</div>
+        Si Bili líquido &gt; Bili sérica → sospecha perforación intestinal · Continúa el análisis celular
+      </div>
     </div>
-    <button class="btn-ghost" onclick="goTo('registro')">Ir al Registro</button>
   </div>
 
   <!-- STEP 2: LEUCOCITOS -->
@@ -982,7 +1055,7 @@ textarea.reg-input{min-height:80px;resize:vertical;line-height:1.5}
   <!-- DIAGNÓSTICO FINAL -->
   <div id="alg-dx-final" class="hidden">
     <div id="alg-dx-content"></div>
-    <button class="btn-primary" onclick="goTo('registro')" style="margin-top:12px">Ir al Registro →</button>
+    <button class="btn-primary" onclick="generateReportAnalisis()" style="margin-top:12px">Generar Informe de Análisis</button>
   </div>
 
 </div>
@@ -994,156 +1067,87 @@ textarea.reg-input{min-height:80px;resize:vertical;line-height:1.5}
 <div class="view" id="view-registro">
 <div class="cnt">
 
+  <!-- Volumen drenado -->
   <div class="scard">
     <div class="scard-hdr">
-      <span class="scard-icon">📋</span>
-      <span class="scard-title">Datos del procedimiento</span>
+      <span class="scard-icon">💧</span>
+      <span class="scard-title">Volumen drenado</span>
     </div>
-    <span class="reg-label">Técnica utilizada</span>
-    <div class="rpill-col" style="padding-top:0">
-      <div class="rpill" id="reg-tec-ecolocalizada" onclick="selReg('tecnicaUsada','ecolocalizada')">
-        <div class="rdot"></div>
-        <span class="rpill-label">Eco-localizada</span>
-      </div>
-      <div class="rpill" id="reg-tec-ecoguiada" onclick="selReg('tecnicaUsada','ecoguiada')">
-        <div class="rdot"></div>
-        <span class="rpill-label">Ecoguiada</span>
-      </div>
-    </div>
-    <span class="reg-label">Volumen total drenado (L)</span>
-    <div style="padding:0 16px 12px">
-      <input class="calc-input reg-input" id="regVolumen" type="number" min="0" step="0.5"
-             placeholder="0,0" oninput="syncVolumen()" inputmode="decimal" style="width:120px">
+    <div style="padding:12px 16px 16px;display:flex;align-items:center;gap:12px">
+      <input class="calc-input" id="regVolumen" type="number" min="0" step="0.5"
+             placeholder="0,0" oninput="syncVolumen()" inputmode="decimal" style="width:110px">
+      <span style="font-size:.9rem;color:var(--muted)">litros</span>
     </div>
   </div>
 
-  <!-- ALBÚMINA INTELIGENTE -->
-  <div class="scard" id="alb-card">
+  <!-- Reposición de albúmina — dos opciones siempre visibles -->
+  <div class="scard">
     <div class="scard-hdr">
       <span class="scard-icon">🧮</span>
       <span class="scard-title">Reposición de albúmina</span>
     </div>
 
-    <!-- Sección PBE (peso-dependiente) -->
-    <div id="alb-pbe" class="hidden">
-      <div class="banner b-warn" style="margin:10px 12px 8px;font-size:.78rem">
-        <span class="banner-icon">🦠</span>
-        <div class="banner-body">
-          <div class="banner-title">Protocolo PBE — dosis peso-dependiente</div>
-          1,5 g/Kg en 6h (día 1) · 1 g/Kg (día 3)
-        </div>
+    <!-- Opción A: Evacuadora -->
+    <div class="alb-proto" id="alb-proto-evac" onclick="selAlbProtocol('evac')">
+      <div class="alb-proto-hdr">
+        <div class="alb-proto-dot"></div>
+        <div class="alb-proto-title">Evacuadora — 6g/L</div>
+        <div class="alb-proto-dose" id="alb-evac-dose">—</div>
       </div>
-      <div class="calc-card">
-        <div class="calc-row">
-          <span class="calc-label">Peso del paciente</span>
+      <div id="alb-evac-msg" style="font-size:.74rem;color:var(--muted);margin-top:4px;padding-left:30px">
+        Introduce el volumen drenado
+      </div>
+    </div>
+
+    <!-- Opción B: PBE -->
+    <div class="alb-proto" id="alb-proto-pbe" onclick="selAlbProtocol('pbe')" style="margin-bottom:14px">
+      <div class="alb-proto-hdr">
+        <div class="alb-proto-dot"></div>
+        <div class="alb-proto-title">PBE — peso-dependiente</div>
+      </div>
+      <div id="alb-pbe-body" class="hidden" style="margin-top:10px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+          <span style="font-size:.8rem;color:var(--muted);flex:1">Peso del paciente</span>
           <input class="calc-input" id="regPeso" type="number" min="0" step="1"
-                 placeholder="—" oninput="calcAlbPBE()" inputmode="decimal">
-          <span style="font-size:.85rem;color:var(--muted)">Kg</span>
+                 placeholder="—" oninput="calcAlbPBE()" inputmode="decimal"
+                 onclick="event.stopPropagation()" style="width:80px">
+          <span style="font-size:.8rem;color:var(--muted)">Kg</span>
         </div>
         <div id="alb-pbe-result" style="display:none">
-          <div class="calc-result" style="margin-top:6px">
-            <div>
-              <div class="calc-result-label">Día 1 (en 6h)</div>
-            </div>
-            <div class="calc-result-val" id="albPbeDia1">— g</div>
+          <div style="display:flex;justify-content:space-between;background:white;
+               border-radius:8px;padding:8px 12px;margin-bottom:5px">
+            <span style="font-size:.78rem;color:var(--muted)">Día 1 (en 6h)</span>
+            <span class="alb-proto-dose" id="albPbeDia1">—</span>
           </div>
-          <div class="calc-result" style="margin-top:6px">
-            <div>
-              <div class="calc-result-label">Día 3</div>
-            </div>
-            <div class="calc-result-val" id="albPbeDia3">— g</div>
+          <div style="display:flex;justify-content:space-between;background:white;
+               border-radius:8px;padding:8px 12px;margin-bottom:10px">
+            <span style="font-size:.78rem;color:var(--muted)">Día 3</span>
+            <span class="alb-proto-dose" id="albPbeDia3">—</span>
           </div>
         </div>
-      </div>
-      <div class="scard-hdr" style="border-top:1px solid var(--border);border-bottom:none;margin-top:4px">
-        <span class="scard-title" style="font-size:.85rem">Antibiótico</span>
-      </div>
-      <div class="rpill-col" style="padding-top:6px">
-        <div class="rpill" id="reg-atb-ceftriaxona" onclick="selAtb('ceftriaxona')">
-          <div class="rdot"></div>
-          <div class="rpill-label">Ceftriaxona 1g c/12h
-            <span class="rpill-sub">Sin criterios de sepsis</span>
-          </div>
-        </div>
-        <div class="rpill" id="reg-atb-meropenem" onclick="selAtb('meropenem')">
-          <div class="rdot"></div>
-          <div class="rpill-label">Meropenem 2g c/8h en infusión continua
-            <span class="rpill-sub">Con criterios de sepsis</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Sección evacuadora (volumen-dependiente) -->
-    <div id="alb-evac" class="hidden">
-      <div class="calc-card">
-        <div class="calc-row">
-          <span class="calc-label">Volumen drenado</span>
-          <input class="calc-input" id="albEvacVol" type="number" min="0" step="0.5"
-                 placeholder="—" oninput="calcAlbEvac()" inputmode="decimal">
-          <span style="font-size:.85rem;color:var(--muted)">L</span>
-        </div>
-        <div id="alb-evac-result" style="display:none">
-          <div class="calc-result" style="margin-top:6px">
-            <div>
-              <div class="calc-result-label">Albúmina a reponer (6g/L)</div>
-              <div id="alb-evac-nota" style="font-size:.7rem;color:var(--muted)"></div>
-            </div>
-            <div class="calc-result-val" id="albEvacVal">— g</div>
-          </div>
-        </div>
-        <div id="alb-evac-no" style="font-size:.78rem;color:var(--muted);margin-top:4px;display:none">
-          Drenaje ≤ 4L — reposición de albúmina no indicada de rutina
-        </div>
-      </div>
-    </div>
-
-    <!-- Sin análisis todavía: mostrar ambas opciones -->
-    <div id="alb-unknown" class="hidden">
-      <div style="padding:12px 16px">
-        <div class="banner b-info" style="margin-bottom:10px;font-size:.78rem">
-          <span class="banner-icon">ℹ️</span>
-          <div class="banner-body">Completa el análisis del líquido para obtener la pauta de albúmina adaptada al diagnóstico</div>
-        </div>
-        <div class="rpill-col" style="padding:0">
-          <div class="rpill" id="alb-manual-pbe" onclick="selAlbManual('pbe')">
+        <div style="font-size:.75rem;font-weight:700;color:var(--muted);
+             text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Antibiótico</div>
+        <div class="rpill-col" style="padding:0;gap:5px">
+          <div class="rpill" id="reg-atb-ceftriaxona"
+               onclick="event.stopPropagation();selAtb('ceftriaxona')">
             <div class="rdot"></div>
-            <span class="rpill-label">PBE / sospecha infección</span>
+            <div class="rpill-label">Ceftriaxona 1g c/12h
+              <span class="rpill-sub">Sin criterios de sepsis</span>
+            </div>
           </div>
-          <div class="rpill" id="alb-manual-evac" onclick="selAlbManual('evac')">
+          <div class="rpill" id="reg-atb-meropenem"
+               onclick="event.stopPropagation();selAtb('meropenem')">
             <div class="rdot"></div>
-            <span class="rpill-label">Evacuadora sin PBE</span>
+            <div class="rpill-label">Meropenem 2g c/8h en infusión continua
+              <span class="rpill-sub">Con criterios de sepsis</span>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="scard">
-    <div class="scard-hdr">
-      <span class="scard-icon">💊</span>
-      <span class="scard-title">Tratamiento aplicado</span>
-    </div>
-    <div class="compl-grid">
-      <div class="compl-item" id="tr-albumina" onclick="toggleTrat('albumina',this)">
-        <div class="compl-dot"></div>
-        <span>Albúmina administrada</span>
-      </div>
-      <div class="compl-item" id="tr-ceftriaxona" onclick="toggleTrat('ceftriaxona',this)">
-        <div class="compl-dot"></div>
-        <span>Ceftriaxona 1g c/12h</span>
-      </div>
-      <div class="compl-item" id="tr-meropenem" onclick="toggleTrat('meropenem',this)">
-        <div class="compl-dot"></div>
-        <span>Meropenem 2g c/8h</span>
-      </div>
-      <div class="compl-item" id="tr-ninguno" onclick="toggleTrat('ninguno',this)">
-        <div class="compl-dot"></div>
-        <span>Sin tratamiento específico</span>
-      </div>
-    </div>
-  </div>
-
+  <!-- Complicaciones -->
   <div class="scard">
     <div class="scard-hdr">
       <span class="scard-icon">⚠️</span>
@@ -1177,10 +1181,13 @@ textarea.reg-input{min-height:80px;resize:vertical;line-height:1.5}
     </div>
   </div>
 
+  <!-- Notas -->
   <div class="scard">
-    <span class="reg-label">Observaciones</span>
+    <span class="reg-label">Notas clínicas adicionales</span>
     <div style="padding:0 16px 14px">
-      <textarea class="reg-input" id="regObs" placeholder="Notas clínicas adicionales..." oninput="S.obs=this.value;save()"></textarea>
+      <textarea class="reg-input" id="regObs"
+                placeholder="Observaciones del procedimiento..."
+                oninput="S.obs=this.value;save()"></textarea>
     </div>
   </div>
 
@@ -1196,10 +1203,25 @@ textarea.reg-input{min-height:80px;resize:vertical;line-height:1.5}
 <div class="cnt">
   <pre class="informe-box" id="informeBox"></pre>
   <div class="inf-actions btn-row">
-    <button class="btn-primary btn-outline" onclick="copyReport()" style="flex:1">📋 Copiar</button>
-    <button class="btn-primary" onclick="downloadReport()" style="flex:1">⬇️ Descargar</button>
+    <button class="btn-primary btn-outline" onclick="copyReport('informeBox')" style="flex:1">📋 Copiar</button>
+    <button class="btn-primary" onclick="downloadReport('informeBox','paracentesis')" style="flex:1">⬇️ Descargar</button>
   </div>
   <button class="btn-ghost" onclick="resetState()">Nueva paracentesis</button>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     VIEW — INFORME ANÁLISIS (independiente)
+════════════════════════════════════════════ -->
+<div class="view" id="view-informe-analisis">
+<div class="cnt">
+  <pre class="informe-box" id="informeAnalisisBox"></pre>
+  <div class="inf-actions btn-row">
+    <button class="btn-primary btn-outline" onclick="copyReport('informeAnalisisBox')" style="flex:1">📋 Copiar</button>
+    <button class="btn-primary" onclick="downloadReport('informeAnalisisBox','analisis-liquido')" style="flex:1">⬇️ Descargar</button>
+  </div>
+  <button class="btn-ghost" onclick="goTo('analisis')" style="margin-bottom:8px">← Volver al análisis</button>
+  <button class="btn-ghost" onclick="resetAnalisis()">🔄 Nuevo análisis de líquido</button>
 </div>
 </div>
 
@@ -1208,7 +1230,6 @@ textarea.reg-input{min-height:80px;resize:vertical;line-height:1.5}
 ════════════════════════════════════════════ -->
 <script>
 const LSKEY = 'hj23_paracentesis_state';
-const VIEWS = ['preproc','checklist','analisis','registro','informe'];
 
 function mkState(){
   return {
@@ -1254,6 +1275,7 @@ function mkState(){
     algProt: null,
     algGlucLdh: null,
     // registro
+    anat_insercion: false, anat_fijacion: false,
     tecnicaUsada: null,
     volumenTotal: null,
     tratamiento: [],
@@ -1266,7 +1288,8 @@ function mkState(){
 }
 
 let S = mkState();
-let currentView = 'preproc';
+let currentView = 'hub';
+const VIEWS = ['hub','precheck','checklist','analisis','registro','informe','informe-analisis'];
 
 function save(){ localStorage.setItem(LSKEY, JSON.stringify(S)); }
 
@@ -1279,10 +1302,8 @@ function loadState(){
 }
 
 function resetState(){
-  S = mkState();
-  save();
-  goTo('preproc');
-  renderAll();
+  localStorage.removeItem(LSKEY);
+  location.reload();
 }
 
 function goTo(v){
@@ -1295,24 +1316,28 @@ function goTo(v){
   updateHdrSub(v);
   if(v==='checklist') updateProgress();
   if(v==='analisis') renderAnalisis();
-  if(v==='registro'){ syncRegistroFromS(); updateAlbuminaSection(); }
+  if(v==='registro') syncRegistroFromS();
 }
 
 function handleBack(){
-  if(currentView==='checklist') goTo('preproc');
-  else if(currentView==='analisis') goTo('checklist');
+  if(currentView==='precheck') goTo('hub');
+  else if(currentView==='checklist') goTo('precheck');
+  else if(currentView==='analisis') goTo('hub');
   else if(currentView==='registro') goTo('checklist');
   else if(currentView==='informe') goTo('registro');
+  else if(currentView==='informe-analisis') goTo('analisis');
   else window.location.href='../index.html';
 }
 
 function updateHdrSub(v){
   const subs = {
-    preproc:'Valoración inicial',
+    hub:'',
+    precheck:'Valoración inicial',
     checklist:'Checklist procedimiento',
-    analisis:'Análisis del líquido',
+    analisis:'Análisis del líquido peritoneal',
     registro:'Registro',
-    informe:'Informe generado'
+    informe:'Informe del procedimiento',
+    'informe-analisis':'Informe del análisis'
   };
   document.getElementById('hdrSub').textContent = subs[v] || '';
 }
@@ -1324,15 +1349,6 @@ function selInd(val){
   ['novo','tension','pbe','control'].forEach(k => {
     document.getElementById('ind-'+k).classList.toggle('sel', k===val);
   });
-  const pbeSection = document.getElementById('pbe-atb-section');
-  const albumPbeNote = document.getElementById('albumina-pbe-note');
-  if(val==='pbe'){
-    pbeSection.classList.remove('hidden');
-    albumPbeNote.classList.remove('hidden');
-  } else {
-    pbeSection.classList.add('hidden');
-    albumPbeNote.classList.add('hidden');
-  }
 }
 
 /* ── CONTRAINDICACIONES ── */
@@ -1381,6 +1397,36 @@ function toggleMck(key, el){
   updateProgress();
 }
 
+const KIT_KEYS = ['agujaPiel','agujaParac','jeringas','linea','botellas','esparadrapo'];
+function markAllKit(){
+  KIT_KEYS.forEach(k=>{
+    if(!S.kit.includes(k)) S.kit.push(k);
+    document.getElementById('mk-'+k)?.classList.add('ck');
+  });
+  save();
+  updateProgress();
+}
+
+const ECO_KEYS = ['ecoUbicacion','ecoDistancia','ecoVascular'];
+function markAllEco(){
+  ECO_KEYS.forEach(k=>{
+    S[k] = true;
+    document.getElementById('mi-'+k)?.classList.add('ck');
+  });
+  save();
+  updateProgress();
+}
+
+const DRENAJE_KEYS = ['conexion','recambio','retirada'];
+function markAllDrenaje(){
+  DRENAJE_KEYS.forEach(k=>{
+    S[k] = true;
+    document.getElementById('mi-'+k)?.classList.add('ck');
+  });
+  save();
+  updateProgress();
+}
+
 /* ── RADIO PILLS ── */
 function selRpill(group, val){
   S[group] = val;
@@ -1398,8 +1444,9 @@ function selTecnica(val){
   document.querySelectorAll('[id^="rp-tecnica-"]').forEach(el=>{
     el.classList.toggle('sel', el.id==='rp-tecnica-'+val);
   });
-  document.getElementById('steps-ecolocalizada').classList.toggle('hidden', val!=='ecolocalizada');
-  document.getElementById('steps-ecoguiada').classList.toggle('hidden', val!=='ecoguiada');
+  ['anatomica','ecolocalizada','ecoguiada'].forEach(t=>{
+    document.getElementById('steps-'+t)?.classList.toggle('hidden', val!==t);
+  });
   updateProgress();
 }
 
@@ -1408,95 +1455,49 @@ function syncVolumen(){
   const v = parseFloat(document.getElementById('regVolumen').value);
   S.volumenTotal = isNaN(v) ? null : v;
   save();
-  // sync to evacuadora calc if visible
-  const evVol = document.getElementById('albEvacVol');
-  if(evVol && !evVol.value && v) { evVol.value = v; calcAlbEvac(); }
+  calcAlbEvac();
 }
 
-/* ── HELPER: ¿Es diagnóstico de PBE? ── */
-function isPBE(){
-  if(S.indicacion==='pbe' && !S.algColor) return true; // sólo indicación, sin análisis
-  return (S.algPmn==='alto' && S.algPctPmn==='alto' &&
-    (S.algGasa==='alto' || S.algGlucLdh==='pbe'));
-}
-
-/* ── SECCIÓN ALBÚMINA INTELIGENTE ── */
-function updateAlbuminaSection(){
-  const hasDx = !!(S.algColor);    // si hay análisis hecho
-  const pbe = isPBE();
-  const pbeSection = document.getElementById('alb-pbe');
-  const evacSection = document.getElementById('alb-evac');
-  const unkSection = document.getElementById('alb-unknown');
-  if(!pbeSection) return;
-
-  if(S.albManual){
-    // override manual del usuario
-    pbeSection.classList.toggle('hidden', S.albManual!=='pbe');
-    evacSection.classList.toggle('hidden', S.albManual!=='evac');
-    unkSection.classList.add('hidden');
-  } else if(hasDx || S.indicacion==='pbe'){
-    pbeSection.classList.toggle('hidden', !pbe);
-    evacSection.classList.toggle('hidden', pbe);
-    unkSection.classList.add('hidden');
-    // prefill evacuadora vol si ya tenemos volumen
-    if(!pbe && S.volumenTotal){
-      const el = document.getElementById('albEvacVol');
-      if(el && !el.value) { el.value = S.volumenTotal; calcAlbEvac(); }
-    }
-  } else {
-    pbeSection.classList.add('hidden');
-    evacSection.classList.add('hidden');
-    unkSection.classList.remove('hidden');
-    // restaurar selección manual si existía
-    ['pbe','evac'].forEach(k=>{
-      document.getElementById('alb-manual-'+k)?.classList.toggle('sel', S.albManual===k);
-    });
-  }
-}
-
-function selAlbManual(val){
-  S.albManual = val;
-  save();
-  ['pbe','evac'].forEach(k=>{
-    document.getElementById('alb-manual-'+k)?.classList.toggle('sel', k===val);
+/* ── PROTOCOLO ALBÚMINA ── */
+function selAlbProtocol(proto){
+  S.albManual = proto; save();
+  ['evac','pbe'].forEach(p=>{
+    document.getElementById('alb-proto-'+p)?.classList.toggle('sel', p===proto);
   });
-  updateAlbuminaSection();
-}
-
-function calcAlbPBE(){
-  const peso = parseFloat(document.getElementById('regPeso').value);
-  S.regPeso = isNaN(peso) ? null : peso;
-  save();
-  const res = document.getElementById('alb-pbe-result');
-  if(!isNaN(peso) && peso > 0){
-    document.getElementById('albPbeDia1').textContent = Math.round(peso*1.5)+' g';
-    document.getElementById('albPbeDia3').textContent = Math.round(peso*1)+' g';
-    res.style.display='block';
-  } else {
-    res.style.display='none';
-  }
+  document.getElementById('alb-pbe-body')?.classList.toggle('hidden', proto!=='pbe');
+  if(proto==='evac') calcAlbEvac();
+  if(proto==='pbe' && S.regPeso) calcAlbPBE();
 }
 
 function calcAlbEvac(){
-  const vol = parseFloat(document.getElementById('albEvacVol').value);
-  const res = document.getElementById('alb-evac-result');
-  const noEl = document.getElementById('alb-evac-no');
-  const valEl = document.getElementById('albEvacVal');
-  const notaEl = document.getElementById('alb-evac-nota');
-  if(!isNaN(vol) && vol > 0){
-    if(vol > 4){
-      const g = Math.round(vol*6);
-      valEl.textContent = g+' g';
-      notaEl.textContent = vol.toFixed(1)+'L × 6g/L';
-      res.style.display='flex';
-      noEl.style.display='none';
-    } else {
-      res.style.display='none';
-      noEl.style.display='block';
-    }
+  const vol = S.volumenTotal ?? parseFloat(document.getElementById('regVolumen')?.value);
+  const doseEl = document.getElementById('alb-evac-dose');
+  const msgEl  = document.getElementById('alb-evac-msg');
+  if(!doseEl) return;
+  if(!vol || vol <= 0){
+    doseEl.textContent = '—';
+    if(msgEl) msgEl.textContent = 'Introduce el volumen drenado';
+    return;
+  }
+  if(vol > 4){
+    doseEl.textContent = Math.round(vol*6)+'g';
+    if(msgEl) msgEl.textContent = vol.toFixed(1)+'L × 6g/L';
   } else {
-    res.style.display='none';
-    noEl.style.display='none';
+    doseEl.textContent = 'No indicada';
+    if(msgEl) msgEl.textContent = 'Drenaje ≤4L — no indicada de rutina';
+  }
+}
+
+function calcAlbPBE(){
+  const peso = parseFloat(document.getElementById('regPeso')?.value);
+  S.regPeso = isNaN(peso) ? null : peso; save();
+  const res = document.getElementById('alb-pbe-result');
+  if(!isNaN(peso) && peso > 0){
+    document.getElementById('albPbeDia1').textContent = Math.round(peso*1.5)+'g';
+    document.getElementById('albPbeDia3').textContent = Math.round(peso)+'g';
+    if(res) res.style.display='block';
+  } else {
+    if(res) res.style.display='none';
   }
 }
 
@@ -1511,19 +1512,20 @@ function selAtb(val){
 function phaseOk(n){
   switch(n){
     case 1:
-      return S.epp && S.materialEsteril && S.ecografo && S.tubos &&
-             S.antiseptico && S.anestesico && S.kit.length>=3 && S.aguja;
+      return S.epp && S.materialEsteril && S.ecografo &&
+             S.antiseptico && S.anestesico && S.kit.length>=6;
     case 2:
-      return S.explicarProc && S.coagulacion && S.ecoUbicacion &&
-             S.ecoDistancia && S.ecoVascular && S.posicion &&
+      return S.consentimiento && S.coagulacion &&
+             S.ecoUbicacion && S.ecoDistancia && S.ecoVascular &&
              S.asepsia && S.camposEsteriles;
     case 3:
       return S.anestesiaLocal;
     case 4:
       if(!S.tecnica) return false;
-      if(S.tecnica==='ecolocalizada')
-        return S.ecol_loc && S.ecol_insercion && S.ecol_fijacion;
-      return S.ecog_loc && S.ecog_insercion && S.ecog_fijacion;
+      if(S.tecnica==='anatomica') return S.anat_insercion && S.anat_fijacion;
+      if(S.tecnica==='ecolocalizada') return S.ecol_loc && S.ecol_insercion && S.ecol_fijacion;
+      if(S.tecnica==='ecoguiada') return S.ecog_loc && S.ecog_insercion && S.ecog_fijacion;
+      return false;
     case 5:
       return S.conexion && S.retirada;
   }
@@ -1561,14 +1563,12 @@ function selColor(val){
     el.classList.toggle('sel', el.id==='alg-color-'+val);
   });
   resetAlgFrom('2');
-  if(val==='lechoso'){
-    document.getElementById('alg-dx-lechoso').classList.remove('hidden');
-  } else if(val==='marron'){
-    document.getElementById('alg-dx-marron').classList.remove('hidden');
-  } else {
-    if(val==='hematico') document.getElementById('alg-hematico-note').classList.remove('hidden');
-    document.getElementById('alg-step2').classList.remove('hidden');
-  }
+  // Banners orientativos por color (no terminan el algoritmo)
+  if(val==='lechoso') document.getElementById('alg-dx-lechoso').classList.remove('hidden');
+  if(val==='marron')  document.getElementById('alg-dx-marron').classList.remove('hidden');
+  if(val==='hematico') document.getElementById('alg-hematico-note').classList.remove('hidden');
+  // Todos los colores continúan al análisis celular
+  document.getElementById('alg-step2').classList.remove('hidden');
 }
 
 function selLeuco(val){
@@ -1710,20 +1710,32 @@ function showDx(){
           ['GASA ≥1,1 + PMN ≥250 + &gt;50% neutrófilos','Iniciar ATB: Ceftriaxona 1g/12h o Meropenem 2g/8h (sepsis)','Solicitar tinción Gram + hemocultivos','Albúmina 1,5g/Kg (día 1) + 1g/Kg (día 3)']);
       } else if(algGasa==='bajo'){
         if(algGlucLdh==='pbe'){
-          html = dx('warn','PBE — Germen aislado (GASA &lt;1,1)',
-            ['Gluc ≥50 mg/dL y LDH &lt;225 U/L','Iniciar ATB: Ceftriaxona 1g/12h','Solicitar tinción Gram + cultivos']);
+          html = dx('warn','Peritonitis bacteriana primaria en contexto no cirrótico',
+            ['GASA &lt;1,1 con PMN ≥250 y predominio neutrofílico sugiere infección sin HTP subyacente',
+             'Posibles causas: <strong>Síndrome nefrótico sobreinfectado</strong> · <strong>Ascitis cardíaca sobreinfectada</strong> · PBE en cirrosis con GASA limítrofe',
+             'Iniciar ATB empírico: Ceftriaxona 1g/12h',
+             'Solicitar tinción Gram + cultivos en botellas de hemocultivo',
+             'Descartar S. nefrótico: proteinuria 24h + función renal',
+             'Descartar causa cardíaca: Ecocardio + NT-ProBNP si sospecha']);
         } else if(algGlucLdh==='pb2'){
           html = dx('warn','Peritonitis Bacteriana Secundaria',
-            ['Gluc &lt;50 mg/dL o LDH ≥225 U/L — polimicrobiana','Solicitar TAC abdominal urgente','Valorar cirugía si perforación']);
-          html += dx('yellow','También descartar: ascitis pancreática',
-            ['Amilasa &gt;100 U/L en líquido ascítico','Solicitar TAC abdominal 48h si amilasa elevada']);
+            ['Gluc &lt;50 mg/dL o LDH ≥225 U/L — sugiere origen polimicrobiano (perforación visceral)',
+             'Solicitar TAC abdominal urgente para identificar foco',
+             'Valorar cirugía urgente si perforación confirmada',
+             'Hemocultivos + cultivo líquido ascítico']);
+          html += dx('yellow','Descartar ascitis pancreática (si amilasa en líquido &gt;1000 U/L o &gt;3× valor sérico)',
+            ['Solicitar amilasa + lipasa en líquido ascítico','Solicitar TAC abdominal si confirmada']);
         }
       }
     } else if(algPctPmn==='bajo'){
       // ≤50% PMN (mononucleares)
       if(algGasa==='alto'){
-        html = dx('warn','Carcinomatosis peritoneal con HTP',
-          ['GASA ≥1,1 + PMN ≥250 + &lt;50% neutrófilos','Solicitar citología en líquido ascítico','Buscar tumor primario']);
+        html = dx('warn','Neoplasia / Linfoma peritoneal',
+          ['GASA ≥1,1 con predominio mononuclear sugiere <strong>linfoma</strong> (infiltración hepática con HTP) o <strong>carcinomatosis sobre cirrosis previa</strong>',
+           'La carcinomatosis sin HTP subyacente suele dar GASA &lt;1,1 — valorar en contexto clínico',
+           'Solicitar citología en líquido ascítico (sensibilidad ~60-70%)',
+           'TAC tórax-abdomen-pelvis para buscar tumor primario',
+           'Si sospecha linfoma: LDH sérica + inmunofenotipo en líquido']);
       } else if(algGasa==='bajo'){
         html = dx('yellow','Peritonitis tuberculosa',
           ['GASA &lt;1,1 + predominio mononucleares','Solicitar ADA + cultivo para BAAR','Iniciar valoración antituberculostática']);
@@ -1801,28 +1813,25 @@ function toggleCompl(key, el, isWarn){
   document.getElementById('compl-perforacion-note').classList.toggle('hidden',!S.complicaciones.includes('perforacion'));
 }
 
+function getPatientWeight(){
+  try {
+    const p = JSON.parse(localStorage.getItem('hj23_patient'));
+    return (p && p.weight > 0) ? p.weight : null;
+  } catch(e){ return null; }
+}
+
 function syncRegistroFromS(){
-  // técnica
-  if(S.tecnicaUsada){
-    document.querySelectorAll('[id^="reg-tec-"]').forEach(el=>{
-      el.classList.toggle('sel', el.id==='reg-tec-'+S.tecnicaUsada);
-    });
-  } else if(S.tecnica){
-    selReg('tecnicaUsada', S.tecnica);
-    document.querySelectorAll('[id^="reg-tec-"]').forEach(el=>{
-      el.classList.toggle('sel', el.id==='reg-tec-'+S.tecnica);
-    });
+  if(S.volumenTotal){ document.getElementById('regVolumen').value=S.volumenTotal; calcAlbEvac(); }
+  if(S.obs) document.getElementById('regObs').value=S.obs;
+  if(S.albManual) selAlbProtocol(S.albManual);
+  // Peso: usar el guardado en el registro, o caer back al peso del paciente de la app
+  const pesoFuente = S.regPeso || getPatientWeight();
+  if(pesoFuente){
+    S.regPeso = pesoFuente;
+    document.getElementById('regPeso').value = pesoFuente;
+    calcAlbPBE();
   }
-  if(S.volumenTotal) document.getElementById('regVolumen').value = S.volumenTotal;
-  if(S.obs) document.getElementById('regObs').value = S.obs;
-  if(S.regPeso){ document.getElementById('regPeso').value = S.regPeso; calcAlbPBE(); }
   if(S.atb) selAtb(S.atb);
-  // tratamiento
-  S.tratamiento.forEach(k=>{
-    const el=document.getElementById('tr-'+k);
-    if(el) el.classList.add('ck');
-  });
-  // complicaciones
   S.complicaciones.forEach(k=>{
     const el=document.getElementById('cp-'+k);
     if(el) el.classList.add(k==='hemorragia'||k==='perforacion'?'ck-warn':'ck');
@@ -1835,23 +1844,33 @@ function syncRegistroFromS(){
 function generateReport(){
   const now = new Date();
   const fecha = now.toLocaleDateString('es-ES');
-  const hora = now.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
-  const ind = {novo:'Ascitis de novo', tension:'Ascitis a tensión', pbe:'Sospecha PBE', control:'Control'}[S.indicacion]||'—';
-  const tec = {ecolocalizada:'Eco-localizada', ecoguiada:'Ecoguiada'}[S.tecnicaUsada||S.tecnica]||'—';
-  const vol = S.volumenTotal ? S.volumenTotal+'L' : S.volumenDrenado ? S.volumenDrenado+'L' : '—';
-  const volNum = parseFloat(S.volumenTotal)||0;
-  let albumina;
-  if(isPBE()){
-    const peso = S.regPeso;
-    albumina = peso
-      ? `PBE: ${Math.round(peso*1.5)}g día 1 + ${Math.round(peso)}g día 3`
-      : 'PBE: 1,5g/Kg día 1 + 1g/Kg día 3 (peso no registrado)';
-  } else {
-    albumina = volNum>4 ? `${Math.round(volNum*6)}g (6g/L × ${volNum}L)` : 'No indicada (≤4L)';
+  const hora  = now.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+
+  const ind     = {novo:'Ascitis de novo',tension:'Ascitis a tensión',pbe:'Sospecha PBE',control:'Control'}[S.indicacion]||'—';
+  const tec     = {anatomica:'Referencia anatómica',ecolocalizada:'Eco-localizada',ecoguiada:'Ecoguiada'}[S.tecnica]||'—';
+  const antisep = {betadine:'Betadine',clorhexidina:'Clorhexidina'}[S.antiseptico]||'—';
+  const anest   = {mepivacaina:'Mepivacaína',lidocaina:'Lidocaína'}[S.anestesico]||'—';
+  const vol     = S.volumenTotal ? S.volumenTotal+'L' : '—';
+  const volNum  = parseFloat(S.volumenTotal)||0;
+
+  // Albúmina según protocolo seleccionado por el usuario
+  let albLinea = 'Protocolo no seleccionado';
+  if(S.albManual==='evac'){
+    albLinea = volNum>4
+      ? `Evacuadora: ${Math.round(volNum*6)}g (6g/L × ${volNum}L)`
+      : 'Evacuadora: No indicada (drenaje ≤4L)';
+  } else if(S.albManual==='pbe'){
+    const peso   = S.regPeso || getPatientWeight();
+    const atbStr = {ceftriaxona:'Ceftriaxona 1g/12h',meropenem:'Meropenem 2g/8h'}[S.atb]||'ATB pendiente de selección';
+    albLinea = peso
+      ? `PBE: ${Math.round(peso*1.5)}g día 1 + ${Math.round(peso)}g día 3 | ${atbStr}`
+      : `PBE: 1,5g/Kg día 1 + 1g/Kg día 3 | ${atbStr}`;
   }
-  const ci = S.contraindicaciones.length ? S.contraindicaciones.join(', ') : 'Ninguna';
-  const compl = S.complicaciones.length ? S.complicaciones.map(k=>({filtracion:'Filtración de líquido',hemorragia:'Hemorragia vascular',perforacion:'Perforación intestinal',ninguna:'Sin complicaciones'}[k]||k)).join(', ') : '—';
-  const trat = S.tratamiento.length ? S.tratamiento.map(k=>({albumina:'Albúmina humana',ceftriaxona:'Ceftriaxona 1g/12h',meropenem:'Meropenem 2g/8h',ninguno:'Sin tratamiento específico'}[k]||k)).join(', ') : '—';
+
+  const ciMap   = {cid:'CID activa',ileo:'Íleo masivo',cicatrices:'Cicatrices Qx',inr:'INR elevado',trombopenia:'Trombopenia'};
+  const ci      = S.contraindicaciones.length ? S.contraindicaciones.map(k=>ciMap[k]||k).join(', ') : null;
+  const complMap= {filtracion:'Filtración de líquido',hemorragia:'Hemorragia vascular',perforacion:'Perforación intestinal',ninguna:'Sin complicaciones'};
+  const compl   = S.complicaciones.length ? S.complicaciones.map(k=>complMap[k]||k).join(', ') : '—';
 
   const L = [];
   L.push('══════════════════════════════════════════════');
@@ -1862,34 +1881,28 @@ function generateReport(){
   L.push('INDICACIÓN');
   L.push('  '+ind);
   L.push('');
-  L.push('CONTRAINDICACIONES RELATIVAS VALORADAS');
-  L.push('  '+ci);
+  if(ci){
+    L.push('CONTRAINDICACIONES RELATIVAS VALORADAS');
+    L.push('  '+ci);
+    L.push('');
+  }
+  L.push('PREPARACIÓN');
+  L.push(`  Antiséptico: ${antisep} · Anestésico: ${anest}`);
   L.push('');
   L.push('TÉCNICA');
   L.push('  '+tec);
   L.push('');
   L.push('DRENAJE');
   L.push('  Volumen total: '+vol);
-  L.push('  Albúmina indicada: '+albumina);
   L.push('');
-  L.push('TRATAMIENTO APLICADO');
-  L.push('  '+trat);
+  L.push('REPOSICIÓN DE ALBÚMINA');
+  L.push('  '+albLinea);
   L.push('');
-  if(S.algColor){
-    L.push('ANÁLISIS DEL LÍQUIDO ASCÍTICO');
-    const colorMap = {amarillo:'Amarillo/turbio',hematico:'Hemático',lechoso:'Lechoso',marron:'Marrón'};
-    L.push('  Color: '+(colorMap[S.algColor]||S.algColor));
-    if(S.algLeuco) L.push('  Leucocitos: '+(S.algLeuco==='bajo'?'<500':'>= 500')+'/mm³');
-    if(S.algPmn) L.push('  PMN: '+(S.algPmn==='bajo'?'<250':'>= 250')+'/mm³');
-    if(S.algGasa) L.push('  GASA: '+(S.algGasa==='alto'?'>= 1,1':'< 1,1')+' g/dL');
-    if(S.algProt) L.push('  Proteínas: '+(S.algProt==='bajo'?'<2,5':'>= 2,5')+' g/dL');
-    L.push('');
-  }
   L.push('COMPLICACIONES');
   L.push('  '+compl);
   L.push('');
   if(S.obs){
-    L.push('OBSERVACIONES');
+    L.push('NOTAS CLÍNICAS');
     L.push('  '+S.obs);
     L.push('');
   }
@@ -1902,19 +1915,117 @@ function generateReport(){
   goTo('informe');
 }
 
-function copyReport(){
-  navigator.clipboard.writeText(document.getElementById('informeBox').textContent);
+function copyReport(boxId){
+  navigator.clipboard.writeText(document.getElementById(boxId).textContent);
   const btn = event.target;
   btn.textContent='✓ Copiado';
   setTimeout(()=>btn.textContent='📋 Copiar', 1800);
 }
 
-function downloadReport(){
-  const text = document.getElementById('informeBox').textContent;
+function downloadReport(boxId, prefix){
+  const text = document.getElementById(boxId).textContent;
   const a = document.createElement('a');
   a.href = 'data:text/plain;charset=utf-8,'+encodeURIComponent(text);
-  a.download = 'paracentesis_'+new Date().toISOString().slice(0,10)+'.txt';
+  a.download = (prefix||'paracentesis')+'_'+new Date().toISOString().slice(0,10)+'.txt';
   a.click();
+}
+
+/* ── INFORME ANÁLISIS DE LÍQUIDO (independiente) ── */
+function generateReportAnalisis(){
+  const now   = new Date();
+  const fecha = now.toLocaleDateString('es-ES');
+  const hora  = now.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+
+  const colorMap = {amarillo:'Amarillo / turbio',hematico:'Hemático (rojizo)',lechoso:'Lechoso (quiloso)',marron:'Marrón / verdoso'};
+  const color    = colorMap[S.algColor]||'—';
+
+  // Hallazgos adicionales por color (se suman al diagnóstico celular)
+  const {algLeuco,algPmn,algPctPmn,algGasa,algProt,algGlucLdh} = S;
+  const colorExtra = [];
+  if(S.algColor==='lechoso') colorExtra.push('Líquido lechoso: solicitar Triglicéridos (>200 mg/dL confirma ascitis quilosa)');
+  if(S.algColor==='marron')  colorExtra.push('Líquido marrón: solicitar Bilirrubina (si Bili líquido > Bili sérica → perforación intestinal)');
+  if(S.algColor==='hematico') colorExtra.push('Líquido hemático: conteo corregido (−1 PMN/250 GR · −1 GB/750 GR)');
+
+  let dx = '—', recom = [];
+
+  if(algPmn==='bajo'){
+    if(algGasa==='alto'){
+      if(algProt==='bajo'){  dx='Ascitis no complicada (cirrosis)'; recom=['Ecografía abdominal']; }
+      else if(algProt==='alto'){ dx='Ascitis cardíaca'; recom=['Ecocardio','NT-ProBNP']; }
+    } else if(algGasa==='bajo'){
+      if(algProt==='bajo'){  dx='Ascitis nefrótica'; recom=['Proteinuria 24h']; }
+      else if(algProt==='alto'){ dx='Causa no portal — investigar'; recom=['Valorar TBC, carcinomatosis, pancreatitis']; }
+    }
+  } else if(algPmn==='alto'){
+    if(algPctPmn==='alto'){
+      if(algGasa==='alto'){
+        dx='PBE — Peritonitis Bacteriana Espontánea';
+        recom=['Iniciar ATB: Ceftriaxona 1g/12h (sin sepsis) o Meropenem 2g/8h (sepsis)','Tinción Gram + hemocultivos','Albúmina 1,5g/Kg día 1 + 1g/Kg día 3'];
+      } else if(algGlucLdh==='pbe'){
+        dx='Peritonitis bacteriana primaria en contexto no cirrótico';
+        recom=[
+          'GASA <1,1 + PMN ≥250 sin HTP subyacente evidente',
+          'Posibles causas: Síndrome nefrótico sobreinfectado · Ascitis cardíaca sobreinfectada',
+          'Iniciar ATB empírico: Ceftriaxona 1g/12h',
+          'Solicitar tinción Gram + cultivos · Proteinuria 24h · Ecocardio si sospecha cardíaca'
+        ];
+      } else if(algGlucLdh==='pb2'){
+        dx='Peritonitis bacteriana secundaria (posible perforación visceral)';
+        recom=[
+          'Gluc <50 mg/dL o LDH ≥225 U/L — patrón polimicrobiano',
+          'TAC abdominal urgente para identificar foco',
+          'Valorar cirugía urgente si perforación confirmada',
+          'Si amilasa en líquido >1000 U/L o >3× sérica: descartar ascitis pancreática'
+        ];
+      }
+    } else if(algPctPmn==='bajo'){
+      if(algGasa==='alto'){
+        dx='Neoplasia / Linfoma peritoneal';
+        recom=[
+          'GASA ≥1,1 + mononucleares: sugiere linfoma (HTP por infiltración hepática) o carcinomatosis sobre cirrosis previa',
+          'Citología en líquido ascítico',
+          'TAC tórax-abdomen-pelvis para buscar tumor primario',
+          'Si sospecha linfoma: LDH sérica + inmunofenotipo en líquido'
+        ];
+      }
+      else if(algGasa==='bajo'){ dx='Peritonitis tuberculosa'; recom=['ADA + cultivo BAAR','Valoración antituberculostática']; }
+    }
+  }
+
+  const L = [];
+  L.push('══════════════════════════════════════════════');
+  L.push('  ANÁLISIS DE LÍQUIDO PERITONEAL — HJ23');
+  L.push('══════════════════════════════════════════════');
+  L.push(`  Fecha: ${fecha}   Hora: ${hora}`);
+  L.push('──────────────────────────────────────────────');
+  L.push('RESULTADOS DEL ANÁLISIS');
+  L.push(`  Color: ${color}`);
+  if(colorExtra.length) colorExtra.forEach(c=>L.push('  ⚑ '+c));
+  if(algLeuco) L.push(`  Leucocitos: ${algLeuco==='bajo'?'< 500':'>= 500'} /mm³`);
+  if(algPmn)   L.push(`  PMN: ${algPmn==='bajo'?'< 250':'>= 250'} /mm³`);
+  if(algPctPmn)L.push(`  Predominio: ${algPctPmn==='alto'?'> 50% neutrófilos':'<= 50% neutrófilos (mononucleares)'}`);
+  if(algGasa){
+    const gasaVal = S.algGasaCalc ? ` (${S.algGasaCalc} g/dL)` : '';
+    L.push(`  GASA: ${algGasa==='alto'?'>= 1,1':'< 1,1'} g/dL${gasaVal}`);
+  }
+  if(algProt)  L.push(`  Proteínas: ${algProt==='bajo'?'< 2,5':'>= 2,5'} g/dL`);
+  if(algGlucLdh==='pbe') L.push('  Glucosa >= 50 mg/dL y LDH < 225 U/L');
+  if(algGlucLdh==='pb2') L.push('  Glucosa < 50 mg/dL o LDH >= 225 U/L');
+  L.push('');
+  L.push('DIAGNÓSTICO ORIENTATIVO');
+  L.push('  '+dx);
+  L.push('');
+  if(recom.length){
+    L.push('RECOMENDACIONES');
+    recom.forEach(r=>L.push('  · '+r));
+    L.push('');
+  }
+  L.push('──────────────────────────────────────────────');
+  L.push('  Generado con URGlab — HJ23');
+  L.push('══════════════════════════════════════════════');
+
+  document.getElementById('informeAnalisisBox').textContent = L.join('\n');
+  goTo('informe-analisis');
 }
 
 /* ── RESTORE UI FROM STATE ── */
@@ -1926,45 +2037,57 @@ function renderAll(){
     document.getElementById('wi-'+k)?.classList.add('ck');
   });
   if(S.contraindicaciones.length) document.getElementById('warnBanner').classList.remove('hidden');
-  // consentimiento
-  document.getElementById('ci-consentimiento')?.classList.toggle('ck', S.consentimiento);
   // checks
-  ['epp','materialEsteril','ecografo','tubos','explicarProc','coagulacion',
-   'lateralizacion','asepsia','camposEsteriles','anestesiaLocal'].forEach(k=>{
+  ['epp','materialEsteril','ecografo','coagulacion','consentimiento',
+   'asepsia','camposEsteriles','anestesiaLocal'].forEach(k=>{
     document.getElementById('ci-'+k)?.classList.toggle('ck', !!S[k]);
   });
   // mac items
   ['ecoUbicacion','ecoDistancia','ecoVascular','conexion','recambio','retirada',
-   'ecol_loc','ecol_insercion','ecol_fijacion','ecog_loc','ecog_insercion','ecog_fijacion'].forEach(k=>{
-    const id = 'mi-'+k.replace('_','-');
-    document.getElementById(id)?.classList.toggle('ck', !!S[k]);
+   'anat_insercion','anat_fijacion',
+   'ecol_loc','ecol_insercion','ecol_fijacion',
+   'ecog_loc','ecog_insercion','ecog_fijacion'].forEach(k=>{
+    document.getElementById('mi-'+k.replace('_','-'))?.classList.toggle('ck', !!S[k]);
   });
   // radio pills
   if(S.antiseptico) document.getElementById('rp-antiseptico-'+S.antiseptico)?.classList.add('sel');
-  if(S.anestesico) document.getElementById('rp-anestesico-'+S.anestesico)?.classList.add('sel');
-  if(S.posicion) document.getElementById('rp-posicion-'+S.posicion)?.classList.add('sel');
-  if(S.aguja) document.getElementById('rp-aguja-'+S.aguja)?.classList.add('sel');
-  if(S.atb) document.getElementById('rp-atb-'+S.atb)?.classList.add('sel');
-  // kit mck
+  if(S.anestesico)  document.getElementById('rp-anestesico-'+S.anestesico)?.classList.add('sel');
+  // kit
   S.kit.forEach(k=>{ document.getElementById('mk-'+k)?.classList.add('ck'); });
   // técnica
   if(S.tecnica) selTecnica(S.tecnica);
-  // volumen
-  if(S.volumenDrenado){
-    document.getElementById('inputVolumen').value = S.volumenDrenado;
-    calcAlbumina();
-  }
   updateProgress();
+}
+
+/* ── RESET ANÁLISIS (solo limpia datos del análisis, no el procedimiento) ── */
+function resetAnalisis(){
+  // Limpiar estado del análisis
+  S.algColor=null; S.algLeuco=null; S.algPmn=null; S.algPctPmn=null;
+  S.algGasa=null; S.algGasaCalc=null; S.algProt=null; S.algGlucLdh=null;
+  save();
+
+  // Resetear UI del algoritmo
+  document.querySelectorAll('[id^="alg-color-"],[id^="alg-leuco-"],[id^="alg-pmn-"],'+
+    '[id^="alg-pct-"],[id^="alg-gasa-"],[id^="alg-prot-"],[id^="alg-glucldh-"]')
+    .forEach(el=>el.classList.remove('sel'));
+
+  ['alg-hematico-note','alg-step2','alg-step3','alg-step4-pct','alg-step4-gasa',
+   'alg-step5-prot','alg-step5-glucldh','alg-dx-final','alg-dx-lechoso','alg-dx-marron']
+    .forEach(id=>document.getElementById(id)?.classList.add('hidden'));
+
+  document.getElementById('gasaSerica').value='';
+  document.getElementById('gasaLiquido').value='';
+  document.getElementById('gasaResult').style.display='none';
+  document.getElementById('alg-dx-content').innerHTML='';
+
+  goTo('analisis');
 }
 
 /* ── INIT ── */
 (function init(){
-  const hadData = loadState();
-  if(hadData && S.indicacion){
-    document.getElementById('sessionBanner').classList.remove('hidden');
-  }
+  loadState();
   renderAll();
-  goTo('preproc');
+  goTo('hub');
 })();
 </script>
 </body>
