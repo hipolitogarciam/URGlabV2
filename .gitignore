@@ -9,3 +9,6 @@
 
 # macOS app bundles
 *.app/
+
+# Documentos de referencia interna (no forman parte de la app)
+Referencia/
