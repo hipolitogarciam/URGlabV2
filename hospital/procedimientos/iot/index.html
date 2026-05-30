@@ -352,6 +352,12 @@ header{background:linear-gradient(135deg,#1a7fc8 0%,#1a6fad 100%);border-bottom:
   color:var(--text);transition:all .15s;-webkit-user-select:none;user-select:none}
 .tet-sz.sel{background:var(--blue);border-color:var(--blue);color:white}
 
+/* MARCAR TODO */
+.btn-mark-all{font-size:.7rem;padding:3px 10px;border-radius:20px;
+  border:1.5px solid var(--teal);color:var(--teal);background:white;
+  cursor:pointer;font-weight:700;font-family:var(--body);flex-shrink:0}
+.btn-mark-all:active{background:var(--teal-s)}
+
 /* UTILS */
 .sep{height:1px;background:var(--border);margin:4px 0 12px}
 .spacer{height:24px}
@@ -552,7 +558,10 @@ header{background:linear-gradient(135deg,#1a7fc8 0%,#1a6fad 100%);border-bottom:
 
     <div class="scard">
       <div style="padding:13px 16px 12px">
-        <div class="ci-lbl" style="font-weight:600;margin-bottom:8px">Material de vía aérea</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div class="ci-lbl" style="font-weight:600">Material de vía aérea</div>
+          <button class="btn-mark-all" onclick="markAllMaterial()">Marcar todo</button>
+        </div>
         <div class="mck-grid" id="matGrid">
           <div class="mck" data-val="bvm"           onclick="toggleMat(this)"><div class="mck-dot"></div>BVM</div>
           <div class="mck" data-val="dsg"           onclick="toggleMat(this)"><div class="mck-dot"></div>DSG</div>
@@ -1276,6 +1285,15 @@ function selPreox(el){
 }
 
 // ── MATERIAL ────────────────────────────────────────────────────────
+const MAT_KEYS=['bvm','dsg','videoLaringo','laringDirecta','frova','guia','bisturi','tet'];
+function markAllMaterial(){
+  MAT_KEYS.forEach(k=>{
+    if(!S.material.includes(k)) S.material.push(k);
+    const el=document.querySelector(`#matGrid [data-val="${k}"]`);
+    if(el) el.classList.add('ck');
+  });
+  save(); updateProgress();
+}
 function toggleMat(el){
   el.classList.toggle('ck');
   const v=el.dataset.val;
