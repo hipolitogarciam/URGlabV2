@@ -992,10 +992,13 @@ textarea.reg-input{min-height:80px;resize:vertical;line-height:1.5}
         </div>
         <div class="calc-result" id="gasaResult" style="display:none">
           <div class="calc-result-label">GASA = Alb sérica − Alb líquido</div>
-          <div class="calc-result-val" id="gasaVal">—</div>
+          <div class="calc-result-val" id="gasaVal" style="font-size:.95rem;text-align:right;line-height:1.3">—</div>
         </div>
       </div>
-      <div class="rpill-col" style="padding-top:4px">
+      <div style="padding:0 16px 6px;font-size:.72rem;color:var(--muted)">
+        Se selecciona automáticamente al calcular · puedes ajustarlo manualmente
+      </div>
+      <div class="rpill-col" style="padding-top:0">
         <div class="rpill" id="alg-gasa-alto" onclick="selGasa('alto')">
           <div class="rdot"></div>
           <span class="rpill-label">GASA ≥ 1,1 g/dL (hipertensión portal)</span>
@@ -1622,11 +1625,15 @@ function calcGASA(){
   const res = document.getElementById('gasaResult');
   const val = document.getElementById('gasaVal');
   if(!isNaN(s) && !isNaN(l)){
-    const gasa = (s-l).toFixed(2);
-    val.textContent = gasa + ' g/dL';
+    const gasa = +(s-l).toFixed(2);
+    S.algGasaCalc = gasa;
+    const portal = gasa >= 1.1;
+    val.textContent = gasa.toFixed(2)+' g/dL · '+(portal?'≥1,1 (HTP)':'<1,1 (no portal)');
+    val.style.color = portal ? 'var(--teal)' : 'var(--warn)';
     res.style.display='flex';
-    S.algGasaCalc = parseFloat(gasa);
     save();
+    // Autoseleccionar la rama y avanzar — evita marcado redundante
+    selGasa(portal ? 'alto' : 'bajo');
   } else {
     res.style.display='none';
   }

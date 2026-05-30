@@ -7,16 +7,27 @@
 <link rel="stylesheet" href="../../../fonts.css">
 <style>
     :root {
-        --bg: #f4f6f9; --surface: #ffffff; --border: rgba(0,0,0,0.09);
-        --text: #1a2636; --text-muted: #8898aa;
-        --display: 'Barlow Condensed', sans-serif; --body: 'IBM Plex Sans', sans-serif;
+        --blue:       #1a6fad;
+        --blue-light: #e8f3fb;
+        --teal:       #09c797;
+        --teal-light: #e6faf5;
+        --black:      #111111;
+        --bg:         #f4f6f9;
+        --surface:    #ffffff;
+        --border:     rgba(0,0,0,0.09);
+        --text:       #1a2636;
+        --text-muted: #8898aa;
+        --display: 'Barlow Condensed', sans-serif;
+        --body:    'IBM Plex Sans', sans-serif;
+        --mono:    'IBM Plex Mono', monospace;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    body { background: var(--bg); font-family: var(--body); min-height: 100svh; }
+    body { background: var(--bg); font-family: var(--body); min-height: 100svh; padding-bottom: 40px; }
+
     header {
         background: linear-gradient(135deg, #1a7fc8 0%, #1a6fad 100%);
-        border-bottom: 3px solid #09c797; padding: 12px 18px;
-        position: sticky; top: 0; z-index: 1000;
+        border-bottom: 3px solid #09c797;
+        padding: 12px 18px; position: sticky; top: 0; z-index: 1000;
         display: grid; grid-template-columns: 48px 1fr 48px;
         align-items: center; gap: 8px; min-height: 68px;
     }
@@ -24,23 +35,60 @@
         display: flex; align-items: center; justify-content: center;
         width: 38px; height: 38px; border-radius: 10px;
         background: rgba(255,255,255,0.15); border: none;
-        cursor: pointer; color: white; transition: background 0.15s; text-decoration: none;
+        cursor: pointer; color: white; transition: background 0.15s;
+        text-decoration: none;
     }
     .back-btn:active { background: rgba(255,255,255,0.28); }
     .header-center { text-align: center; }
-    .header-label { font-family: var(--body); font-size: 0.58rem; font-weight: 600; color: #09c797; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 2px; }
-    .header-title { font-family: var(--display); font-size: 1.4rem; font-weight: 800; color: #fff; letter-spacing: 0.04em; text-transform: uppercase; line-height: 1; }
+    .header-label {
+        font-family: var(--body); font-size: 0.58rem; font-weight: 600;
+        color: #09c797; letter-spacing: 0.12em;
+        text-transform: uppercase; margin-bottom: 2px;
+    }
+    .header-title {
+        font-family: var(--display); font-size: 1.4rem; font-weight: 800;
+        color: #fff; letter-spacing: 0.04em; text-transform: uppercase; line-height: 1;
+    }
     .header-right { display: flex; align-items: center; justify-content: flex-end; opacity: 0.7; }
-    .wip { max-width: 480px; margin: 60px auto; padding: 0 20px; text-align: center; }
-    .wip-icon { font-size: 2.8rem; margin-bottom: 16px; }
-    .wip-title { font-family: var(--display); font-size: 1.8rem; font-weight: 800; text-transform: uppercase; color: var(--text); margin-bottom: 8px; }
-    .wip-sub { color: var(--text-muted); font-size: 0.9rem; }
+
+    .menu-grid { display: flex; flex-direction: column; gap: 12px; }
+
+    .cat-card {
+        background: var(--surface); border: 1px solid var(--border);
+        border-radius: 14px; padding: 20px 18px;
+        display: flex; align-items: center; gap: 16px;
+        cursor: pointer; box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+        transition: transform 0.13s, box-shadow 0.13s;
+        -webkit-user-select: none; user-select: none;
+        text-decoration: none; color: var(--text);
+    }
+    .cat-card:active { transform: scale(0.982); box-shadow: 0 1px 3px rgba(0,0,0,0.07); }
+
+    .cat-icon {
+        width: 52px; height: 52px; border-radius: 13px;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+    }
+    .cat-icon.red     { background: rgba(239,68,68,0.08); }
+
+    .cat-text { flex: 1; }
+    .cat-name {
+        font-family: var(--display); font-size: 1.2rem;
+        font-weight: 700; color: var(--black);
+        letter-spacing: 0.02em; text-transform: uppercase;
+        line-height: 1.1;
+    }
+    .cat-arrow { color: var(--text-muted); flex-shrink: 0; }
 </style>
 </head>
 <body>
+
 <header>
     <a class="back-btn" href="../index.html" aria-label="Volver">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+             fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"/>
+        </svg>
     </a>
     <div class="header-center">
         <div class="header-label">Hospital Universitari Joan XXIII</div>
@@ -50,10 +98,30 @@
         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6v6a3 3 0 0 1-3 3 3 3 0 0 1-3-3V6"/><path d="M12 18v3"/><path d="M9 3h6"/><path d="M9 21h6"/></svg>
     </div>
 </header>
-<div class="wip">
-    <div class="wip-icon">🚧</div>
-    <div class="wip-title">En desarrollo</div>
-    <div class="wip-sub">Los algoritmos metabólicos se están construyendo.</div>
+
+<div style="max-width:480px; margin:0 auto; padding:20px;">
+    <div class="menu-grid">
+
+        <a class="cat-card" href="anafilaxia/index.html">
+            <div class="cat-icon red">
+                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24"
+                     fill="none" stroke="#ef4444" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/>
+                </svg>
+            </div>
+            <div class="cat-text">
+                <div class="cat-name">Anafilaxia</div>
+            </div>
+            <div class="cat-arrow">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"/>
+                </svg>
+            </div>
+        </a>
+
+    </div>
 </div>
+
 </body>
 </html>

@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Anafilaxia — URGlab</title>
+<link rel="stylesheet" href="../../../../fonts.css">
+<style>
+:root{
+  --bg:#f4f6f9;--surface:#fff;--border:rgba(0,0,0,0.09);--border-mid:rgba(0,0,0,0.18);
+  --text:#1a2636;--muted:#8898aa;
+  --blue:#1a7fc8;--blue-dark:#1a6fad;--blue-s:#e8f3fb;
+  --teal:#09c797;--teal-s:#e6faf5;
+  --epi:#c41520;--epi-s:#fdecec;--epi-border:#f3b4b7;
+  --amber:#f0a500;--amber-s:#fff7e6;
+  --display:'Barlow Condensed',sans-serif;--body:'IBM Plex Sans',sans-serif;--mono:'IBM Plex Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);font-family:var(--body);color:var(--text);min-height:100svh;padding-bottom:48px}
+
+/* ── HEADER reglamentario ── */
+header{
+  background:linear-gradient(135deg,#1a7fc8 0%,#1a6fad 100%);
+  border-bottom:3px solid var(--teal);
+  padding:12px 18px;position:sticky;top:0;z-index:1000;
+  display:grid;grid-template-columns:48px 1fr 48px;align-items:center;gap:8px;min-height:68px;
+}
+.back-btn{display:flex;align-items:center;justify-content:center;width:38px;height:38px;
+  border-radius:10px;background:rgba(255,255,255,0.15);border:none;cursor:pointer;color:#fff;transition:background .15s}
+.back-btn:active{background:rgba(255,255,255,0.28)}
+.hdr-center{text-align:center;overflow:hidden}
+.hdr-label{font-family:var(--body);font-size:.58rem;font-weight:600;color:#09c797;
+  letter-spacing:.12em;text-transform:uppercase;margin-bottom:2px}
+.hdr-title{font-family:var(--display);font-size:1.4rem;font-weight:800;color:#fff;
+  letter-spacing:.04em;text-transform:uppercase;line-height:1}
+.reset-btn{display:flex;align-items:center;justify-content:center;width:38px;height:38px;
+  border-radius:10px;background:rgba(255,255,255,0.12);border:none;cursor:pointer;color:#fff}
+.reset-btn:active{background:rgba(255,255,255,0.26)}
+
+/* ── BREADCRUMB ── */
+.crumbbar{position:sticky;top:68px;z-index:900;background:#fff;border-bottom:1px solid var(--border);
+  padding:8px 14px;display:flex;align-items:center;gap:5px;overflow-x:auto;white-space:nowrap;
+  -webkit-overflow-scrolling:touch}
+.crumbbar::-webkit-scrollbar{display:none}
+.crumb{font-family:var(--mono);font-size:.62rem;font-weight:600;text-transform:uppercase;
+  letter-spacing:.04em;color:var(--muted);flex-shrink:0}
+.crumb.cur{color:var(--blue-dark);font-weight:700}
+.crumb-sep{color:var(--border-mid);font-size:.62rem;flex-shrink:0}
+
+/* ── CONTENEDOR ── */
+.cnt{max-width:480px;margin:0 auto;padding:16px 16px 20px}
+
+/* ── NODO COLAPSADO (historial) ── */
+.nsum{background:#fff;border:1px solid var(--border);border-left:3px solid var(--teal);
+  border-radius:10px;padding:10px 12px;margin-bottom:9px;cursor:pointer}
+.nsum-top{display:flex;align-items:center;gap:9px}
+.nsum-check{width:18px;height:18px;border-radius:50%;background:var(--teal);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center}
+.nsum-check svg{width:10px;height:10px;stroke:#fff;stroke-width:3.5;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.nsum-body{flex:1;min-width:0}
+.nsum-title{font-family:var(--display);font-size:.95rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.02em;color:var(--text);line-height:1.05}
+.nsum-dec{font-size:.68rem;color:var(--muted);margin-top:1px;overflow:hidden;text-overflow:ellipsis}
+.nsum-dec b{color:var(--blue-dark);font-weight:600}
+.nsum-chev{color:var(--muted);flex-shrink:0;transition:transform .15s}
+.nsum.open .nsum-chev{transform:rotate(90deg)}
+.nsum-recap{margin:9px 0 2px;padding-left:27px;display:none}
+.nsum.open .nsum-recap{display:block}
+.nsum-recap li{font-size:.76rem;color:var(--text);line-height:1.5;list-style:none;position:relative;padding-left:13px}
+.nsum-recap li::before{content:'›';position:absolute;left:0;color:var(--teal);font-weight:800}
+
+/* ── NODO ACTIVO ── */
+.nactive{background:transparent}
+.nhead{display:flex;align-items:center;gap:10px;margin:6px 0 13px}
+.nhead-num{width:32px;height:32px;border-radius:9px;background:var(--epi);color:#fff;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:800;font-size:1.15rem}
+.nhead-num.blue{background:var(--blue)}.nhead-num.teal{background:var(--teal)}
+.nhead-ttl{font-family:var(--display);font-size:1.5rem;font-weight:800;text-transform:uppercase;
+  letter-spacing:.02em;line-height:1;color:var(--text)}
+
+/* ── SCARD ── */
+.scard{background:var(--surface);border:1px solid var(--border);border-radius:14px;
+  padding:14px 15px;margin-bottom:12px;box-shadow:0 1px 5px rgba(0,0,0,0.05)}
+.scard.epi{border:1.5px solid var(--epi-border)}
+.scard-hdr{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.scard-icon{font-size:1.05rem}
+.scard-title{font-family:var(--display);font-size:1.05rem;font-weight:700;color:var(--text);
+  text-transform:uppercase;letter-spacing:.03em}
+
+/* texto */
+.lead{font-size:.85rem;line-height:1.45}
+.lead strong{font-weight:700}
+.muted-note{font-size:.74rem;line-height:1.4;color:var(--muted);margin-top:8px}
+.kv{display:flex;justify-content:space-between;align-items:baseline;gap:10px;
+  padding:7px 0;border-bottom:1px dashed var(--border);font-size:.82rem}
+.kv:last-child{border-bottom:none}
+.kv-k{color:var(--muted);font-weight:500}
+.kv-v{font-family:var(--mono);font-weight:600;text-align:right}
+.kv-v.hi{color:var(--blue-dark);font-size:.98rem}
+.kv-v.epi{color:var(--epi);font-size:1.05rem}
+.tag{display:inline-block;font-family:var(--mono);font-size:.6rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:2px 7px;border-radius:6px;vertical-align:middle}
+.tag.a{background:var(--blue-s);color:var(--blue-dark)}
+
+/* criterios */
+.crit-block{border:1.5px solid var(--border-mid);border-radius:12px;padding:13px 14px;margin-bottom:11px}
+.crit-block.c1{border-color:#a8cceb;background:#f5fafe}
+.crit-block.c2{border-color:#f3b4b7;background:#fffafa}
+.crit-head{font-family:var(--display);font-size:1rem;font-weight:800;text-transform:uppercase;
+  letter-spacing:.03em;margin-bottom:7px;display:flex;align-items:center;gap:7px}
+.crit-num{width:22px;height:22px;border-radius:7px;background:var(--blue);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0}
+.crit-block.c2 .crit-num{background:var(--epi)}
+.crit-li{display:flex;gap:8px;font-size:.82rem;line-height:1.4;padding:4px 0}
+.crit-li .dot{color:var(--blue);font-weight:800;flex-shrink:0}
+.crit-and{font-family:var(--display);font-size:.78rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.08em;color:var(--muted);text-align:center;margin:6px 0}
+
+/* banners */
+.banner{border-radius:12px;padding:11px 13px;font-size:.8rem;line-height:1.4;margin-bottom:12px}
+.b-info{background:var(--blue-s);border:1.5px solid #a8cceb}
+.b-warn{background:var(--amber-s);border:1.5px solid #f0cd7a}
+.b-epi{background:var(--epi-s);border:1.5px solid var(--epi-border)}
+.banner b{font-weight:700}
+
+/* no-patient / peso */
+.wbar{display:flex;justify-content:space-between;align-items:center;background:var(--blue-s);
+  border:1px solid #a8cceb;border-radius:10px;padding:8px 12px;margin-bottom:12px}
+.wbar-lbl{font-size:.72rem;color:var(--blue-dark);font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+.wbar-val{font-family:var(--mono);font-size:1rem;font-weight:700;color:var(--blue-dark)}
+.wpanel{background:var(--amber-s);border:1.5px solid #f0cd7a;border-radius:10px;padding:11px 13px;margin-bottom:12px}
+.wpanel-lbl{font-size:.72rem;font-weight:700;color:#9a6500;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.wpanel-row{display:flex;gap:8px}
+.wpanel-row input{flex:1;border:1.5px solid #e3b95e;border-radius:9px;padding:9px 12px;background:#fff;
+  font-family:var(--mono);font-size:1.1rem;font-weight:700;color:var(--text);outline:none;min-width:0}
+.wpanel-row input:focus{border-color:var(--amber)}
+.wpanel-btn{font-family:var(--display);font-size:1rem;font-weight:800;text-transform:uppercase;letter-spacing:.03em;
+  color:#fff;background:var(--amber);border:none;border-radius:9px;padding:0 18px;cursor:pointer;white-space:nowrap}
+.wpanel-btn:active{opacity:.85}
+
+/* perfusión calc */
+.perf{background:var(--surface);border:1.5px solid var(--epi-border);border-radius:14px;padding:14px 15px;margin-bottom:12px}
+.perf.blue{border-color:#a8cceb}
+.perf-name{font-family:var(--display);font-size:1.1rem;font-weight:800;text-transform:uppercase;letter-spacing:.03em}
+.perf-dil{font-size:.67rem;color:var(--muted);font-family:var(--mono);margin:1px 0 10px}
+.perf-row{display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;
+  border-bottom:1px dashed var(--border);font-size:.82rem}
+.perf-row:last-of-type{border-bottom:none}
+.perf-key{color:var(--muted)}
+.perf-val{font-family:var(--mono);font-weight:600}
+.perf-val.hi{color:var(--epi);font-size:1.15rem;font-weight:700}
+.perf.blue .perf-val.hi{color:var(--blue-dark)}
+.range-wrap{margin:11px 0 4px}
+.range-bg{height:8px;border-radius:5px;background:#e6ebf1;overflow:hidden}
+.range-fill{height:100%;background:var(--blue);border-radius:5px;width:0;transition:width .2s}
+.range-fill.warn{background:var(--epi)}
+.range-lbls{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.62rem;color:var(--muted);margin-top:5px}
+.range-cur{color:var(--blue-dark);font-weight:700}
+.calc2{display:flex;align-items:stretch;gap:8px;margin-top:11px}
+.calc-fld{flex:1;border:1.5px solid var(--border-mid);border-radius:10px;padding:8px 10px;background:#fafbfc}
+.calc-fld.act{border-color:var(--blue);background:var(--blue-s)}
+.calc-fld-lbl{font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+.calc-fld input{width:100%;border:none;background:transparent;font-family:var(--mono);font-size:1.25rem;font-weight:700;color:var(--text);padding:1px 0;outline:none}
+.calc-fld input:read-only{color:var(--blue-dark)}
+.calc-fld-unit{font-size:.6rem;color:var(--muted);font-family:var(--mono)}
+.calc-swap{display:flex;align-items:center;justify-content:center;width:34px;background:var(--blue);color:#fff;border:none;border-radius:10px;font-size:1rem;cursor:pointer;flex-shrink:0}
+.warnmsg{display:none;font-size:.7rem;color:var(--epi);font-weight:600;margin-top:6px}
+.warnmsg.show{display:block}
+
+/* pills (pulso / gravedad) */
+.pill-row{display:flex;gap:10px;margin-bottom:12px}
+.opt-pill{flex:1;border:2px solid var(--border-mid);border-radius:12px;padding:13px 8px;text-align:center;cursor:pointer;transition:all .12s;background:var(--surface)}
+.opt-pill .op-name{font-family:var(--display);font-size:1.1rem;font-weight:800;text-transform:uppercase;letter-spacing:.02em}
+.opt-pill .op-sub{font-size:.65rem;color:var(--muted);margin-top:1px}
+.opt-pill.sel-blue{border-color:var(--blue);background:var(--blue-s)}
+.opt-pill.sel-blue .op-name{color:var(--blue-dark)}
+.opt-pill.sel-epi{border-color:var(--epi);background:var(--epi-s)}
+.opt-pill.sel-epi .op-name{color:var(--epi)}
+.opt-pill.sel-teal{border-color:var(--teal);background:var(--teal-s)}
+.opt-pill.sel-teal .op-name{color:#0a8c6a}
+.branch{display:none}.branch.show{display:block}
+
+/* checklist mini */
+.ci{display:flex;align-items:center;gap:11px;background:var(--surface);border:1.5px solid var(--border);
+  border-radius:11px;padding:10px 12px;margin-bottom:8px;cursor:pointer;transition:all .12s}
+.ci.ck{background:var(--teal-s);border-color:var(--teal)}
+.cibox{width:21px;height:21px;border-radius:6px;border:2px solid var(--border-mid);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .12s}
+.ci.ck .cibox{background:var(--teal);border-color:var(--teal)}
+.ck-svg{width:12px;height:12px;stroke:#fff;stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round;display:none}
+.ci.ck .ck-svg{display:block}
+.ci-lbl{font-size:.83rem;font-weight:500;line-height:1.3}
+.ci-sub{font-size:.69rem;color:var(--muted);margin-top:1px}
+
+/* VMI (estilo IOT) */
+.vmi-card{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:12px}
+.vmi-cap{padding:12px 16px 4px;font-family:var(--display);font-size:1.05rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.03em;color:var(--text)}
+.vmi-tbl{width:100%;border-collapse:collapse}
+.vmi-tbl th{font-family:var(--mono);font-size:.58rem;font-weight:600;text-transform:uppercase;
+  letter-spacing:.08em;color:var(--muted);padding:8px 16px;text-align:left;
+  border-bottom:1px solid var(--border);border-top:1px solid var(--border)}
+.vmi-tbl td{padding:9px 16px;font-size:.87rem;color:var(--text);border-bottom:1px solid var(--border)}
+.vmi-tbl tr:last-child td{border-bottom:none}
+.vmi-tbl td:first-child{font-size:.75rem;font-weight:600;color:var(--muted)}
+.vt-val{font-family:var(--mono) !important;font-weight:700 !important;color:var(--blue) !important;font-size:1rem !important}
+
+/* divisores y decisiones */
+.sec-divider{font-family:var(--display);font-size:.7rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.12em;color:var(--muted);margin:16px 0 9px;padding-left:2px}
+.decide-lbl{font-family:var(--display);font-size:.92rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.04em;color:var(--text);text-align:center;margin:16px 0 10px}
+.btn{display:block;width:100%;padding:15px;border-radius:13px;font-family:var(--display);
+  font-size:1.18rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;cursor:pointer;
+  border:none;margin-bottom:9px;transition:transform .1s,opacity .15s}
+.btn:active{transform:scale(.985)}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-teal{background:var(--teal);color:#fff}
+.btn-epi{background:var(--epi);color:#fff;box-shadow:0 2px 10px rgba(196,21,32,0.22)}
+.btn-sub{font-family:var(--body);font-size:.66rem;font-weight:500;text-transform:none;
+  letter-spacing:0;opacity:.85;display:block;margin-top:2px}
+.terminal-tag{text-align:center;font-family:var(--display);font-size:.8rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-top:14px}
+</style>
+</head>
+<body>
+
+<header>
+  <button class="back-btn" onclick="undo()" aria-label="Atrás / deshacer">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+         fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+  </button>
+  <div class="hdr-center">
+    <div class="hdr-label">Hospital Universitari Joan XXIII</div>
+    <div class="hdr-title">Anafilaxia</div>
+  </div>
+  <button class="reset-btn" onclick="restart()" aria-label="Reiniciar caso" title="Reiniciar caso">
+    <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24"
+         fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 2v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L3 8"/>
+    </svg>
+  </button>
+</header>
+
+<div class="crumbbar" id="crumbbar"></div>
+
+<div class="cnt"><div id="flow"></div></div>
+
+<script>
+// ═══ PESO COMPARTIDO ═══
+let patient=null;
+try{ const r=localStorage.getItem('hj23_patient'); if(r) patient=JSON.parse(r); }catch(e){}
+function getW(){ return (patient&&patient.weight&&+patient.weight>0)? +patient.weight : null; }
+
+function wbarHTML(){
+  const w=getW();
+  if(w) return '<div class="wbar"><span class="wbar-lbl">Peso en uso</span><span class="wbar-val">'+w+' kg</span></div>';
+  return '<div class="wpanel">'+
+    '<div class="wpanel-lbl">⚠️ Introduce el peso del paciente</div>'+
+    '<div class="wpanel-row">'+
+      '<input type="number" id="wIn" inputmode="decimal" min="1" placeholder="kg" '+
+        'onkeydown="if(event.key===\'Enter\')setWeightInline()">'+
+      '<button class="wpanel-btn" onclick="setWeightInline()">Guardar</button>'+
+    '</div></div>';
+}
+function setWeightInline(){
+  const v=parseFloat(document.getElementById('wIn').value);
+  if(!v||v<=0) return;
+  patient=Object.assign({},patient||{},{weight:v});
+  try{ localStorage.setItem('hj23_patient',JSON.stringify(patient)); }catch(e){}
+  render();
+}
+
+// ═══ DEFINICIÓN DEL ÁRBOL ═══
+const NODES={
+  sospecha:{
+    crumb:'Sospecha', num:'1', numCls:'blue', title:'Sospecha · Diagnóstico',
+    recap:['Criterios WAO cumplidos (o tratada ante la duda)','Triptasa sérica seriada solicitada'],
+    body:`
+      <div class="banner b-info"><b>Anafilaxia altamente probable</b> si se cumple <b>1 de 2 criterios</b> (WAO). Ante la sospecha, no demorar la adrenalina.</div>
+      <div class="crit-block c1">
+        <div class="crit-head"><span class="crit-num">1</span> Piel/mucosas + 1 sistema</div>
+        <div class="lead" style="margin-bottom:6px">Inicio agudo (min–horas) de afectación de <strong>piel y/o mucosas</strong> (urticaria, prurito, flushing, edema labios/úvula/lengua)…</div>
+        <div class="crit-and">— y al menos uno de —</div>
+        <div class="crit-li"><span class="dot">›</span><span><span class="tag a">A</span> <b>Respiratorio:</b> disnea, broncoespasmo, estridor, hipoxemia</span></div>
+        <div class="crit-li"><span class="dot">›</span><span><span class="tag a">B</span> <b>Circulatorio:</b> hipotensión o disfunción orgánica (síncope, hipotonía, incontinencia)</span></div>
+        <div class="crit-li"><span class="dot">›</span><span><span class="tag a">C</span> <b>GI severo:</b> dolor abdominal intenso, vómitos repetitivos (sobre todo alérgenos NO alimentarios)</span></div>
+      </div>
+      <div class="crit-and" style="margin:2px 0 9px">— o bien —</div>
+      <div class="crit-block c2">
+        <div class="crit-head"><span class="crit-num">2</span> Hipotensión/vía aérea tras alérgeno</div>
+        <div class="lead"><strong>Hipotensión, broncoespasmo o afectación laríngea</strong> de aparición aguda tras exposición a alérgeno conocido/probable, <strong>incluso sin clínica cutánea</strong>.</div>
+      </div>
+      <div class="scard">
+        <div class="scard-hdr"><span class="scard-icon">🧪</span><span class="scard-title">Triptasa · hipoTA adulto</span></div>
+        <div class="kv"><span class="kv-k">Hipotensión (adulto)</span><span class="kv-v">TAS &lt;90 o ↓&gt;30%</span></div>
+        <div class="kv"><span class="kv-k">Triptasa seriada</span><span class="kv-v">tto · ~2 h · 24 h</span></div>
+        <div class="muted-note">Triptasa significativa: ↑ ≥20% <b>y</b> ≥2 mcg/L sobre basal.</div>
+      </div>`,
+    decisions:[ {label:'Cumple criterios · tratar', sub:'también ante la duda', cls:'epi', to:'inicial'} ]
+  },
+
+  inicial:{
+    crumb:'Adrenalina IM', num:'2', numCls:'epi', title:'Tratamiento inicial',
+    recap:['ABCDE · O₂ alto flujo · 2 vías · monitorización','Adrenalina IM 0,5 mg en muslo','Fluidos según TA','Adyuvantes: dexclorfeniramina + metilprednisolona'],
+    body:`
+      <div class="sec-divider">Medidas inmediatas · ABCDE</div>
+      <div class="ci" onclick="toggleCk(this)"><div class="cibox"><svg class="ck-svg" viewBox="0 0 13 13"><polyline points="2,6.5 5.5,10 11,3"/></svg></div><div><div class="ci-lbl">Retirar el alérgeno</div><div class="ci-sub">sin retrasar la adrenalina</div></div></div>
+      <div class="ci" onclick="toggleCk(this)"><div class="cibox"><svg class="ck-svg" viewBox="0 0 13 13"><polyline points="2,6.5 5.5,10 11,3"/></svg></div><div><div class="ci-lbl">Decúbito supino, piernas elevadas</div><div class="ci-sub">semisentado si distrés · lateral si vómitos/embarazo</div></div></div>
+      <div class="ci" onclick="toggleCk(this)"><div class="cibox"><svg class="ck-svg" viewBox="0 0 13 13"><polyline points="2,6.5 5.5,10 11,3"/></svg></div><div><div class="ci-lbl">O₂ alto flujo 10–15 L/min · SatO₂ ≥94%</div></div></div>
+      <div class="ci" onclick="toggleCk(this)"><div class="cibox"><svg class="ck-svg" viewBox="0 0 13 13"><polyline points="2,6.5 5.5,10 11,3"/></svg></div><div><div class="ci-lbl">2 vías periféricas + monitorización</div><div class="ci-sub">ECG · FC · TA · SatO₂</div></div></div>
+
+      <div class="sec-divider">1 · Adrenalina IM — sin demora</div>
+      <div class="scard epi">
+        <div class="banner b-epi" style="margin-bottom:10px"><b>0,5 mg IM</b> en cara anterolateral del muslo</div>
+        <div class="kv"><span class="kv-k">Dosis adulto (fija)</span><span class="kv-v epi">0,5 mg</span></div>
+        <div class="kv"><span class="kv-k">Volumen (precargada 1 mg/ml)</span><span class="kv-v">0,5 ml</span></div>
+        <div class="muted-note">La administración precoz mejora la supervivencia.</div>
+      </div>
+
+      <div class="sec-divider">2 · Fluidoterapia</div>
+      <div class="scard">
+        <div class="kv"><span class="kv-k">Normotenso</span><span class="kv-v">SF 0,9% · 125 ml/h</span></div>
+        <div class="kv"><span class="kv-k">Hipotensión / shock</span><span class="kv-v hi">1–2 L en carga</span></div>
+      </div>
+
+      <div class="sec-divider">3 · Adyuvantes — nunca en monoterapia</div>
+      <div class="scard">
+        <div class="kv"><span class="kv-k">Dexclorfeniramina IV</span><span class="kv-v">5 mg c/8 h</span></div>
+        <div class="kv"><span class="kv-k">Metilprednisolona IV</span><span class="kv-v hi" id="metilDose">1–2 mg/kg</span></div>
+        <div class="kv"><span class="kv-k">Salbutamol ± ipratropio neb.</span><span class="kv-v">si broncoespasmo</span></div>
+      </div>`,
+    init(){ const w=getW(); const e=document.getElementById('metilDose'); if(e) e.textContent = w?(1*w)+'–'+(2*w)+' mg':'1–2 mg/kg'; },
+    decideLabel:'Reevaluar a los 5–15 min',
+    decisions:[
+      {label:'Mejora', sub:'respuesta clínica', cls:'teal', to:'observacion'},
+      {label:'No responde', sub:'persisten síntomas', cls:'primary', to:'segunda'}
+    ]
+  },
+
+  segunda:{
+    crumb:'2ª dosis IM', num:'3', numCls:'epi', title:'Segunda dosis IM',
+    recap:['2ª dosis de adrenalina IM 0,5 mg','Optimización de fluidos 1–2 L'],
+    body:`
+      <div class="banner b-epi"><b>Repetir adrenalina IM 0,5 mg</b> (intervalo 5–15 min desde la 1ª). La mayoría responde a la 1ª–2ª dosis.</div>
+      <div class="scard">
+        <div class="kv"><span class="kv-k">2ª dosis adrenalina IM</span><span class="kv-v epi">0,5 mg (0,5 ml)</span></div>
+        <div class="kv"><span class="kv-k">Optimizar fluidos si hipoTA</span><span class="kv-v hi">1–2 L en carga</span></div>
+        <div class="kv"><span class="kv-k">Reevaluar A·B·C</span><span class="kv-v">vía aérea / SatO₂ / TA</span></div>
+      </div>`,
+    decideLabel:'¿Respuesta tras la 2ª dosis?',
+    decisions:[
+      {label:'Mejora', sub:'respuesta clínica', cls:'teal', to:'observacion'},
+      {label:'Refractaria', sub:'≥2 dosis IM sin respuesta', cls:'epi', to:'refractaria'}
+    ]
+  },
+
+  refractaria:{
+    crumb:'Refractaria', num:'4', numCls:'epi', title:'Anafilaxia refractaria',
+    recap:['Perfusión de adrenalina IV iniciada','± Noradrenalina / glucagón / atropina / MgSO₄','Valorar UCI'],
+    body:`
+      <div class="banner b-warn"><b>Refractaria</b> — sin respuesta tras ≥2 dosis IM. Iniciar perfusión IV.</div>
+      <div id="wbarRefr"></div>
+      <div class="sec-divider">Perfusión de adrenalina IV</div>
+      <div class="perf blue">
+        <div class="perf-name">Adrenalina IV</div>
+        <div class="perf-dil">1 mg/100 ml SF · 10 mcg/ml · proteger de la luz · peso real</div>
+        <div class="perf-row"><span class="perf-key">Dosis de inicio</span><span class="perf-val">0,1 mcg/kg/min</span></div>
+        <div class="perf-row"><span class="perf-key">Velocidad de inicio</span><span class="perf-val hi" id="adrMlhInicio">— ml/h</span></div>
+        <div class="perf-row"><span class="perf-key">Rango habitual</span><span class="perf-val">0,05 – 0,2 mcg/kg/min</span></div>
+        <div class="perf-row"><span class="perf-key">Máximo</span><span class="perf-val">1 mcg/kg/min</span></div>
+        <div class="range-wrap"><div class="range-bg"><div class="range-fill" id="adrBar"></div></div>
+          <div class="range-lbls"><span>0,05</span><span class="range-cur" id="adrCur">—</span><span>1</span></div></div>
+        <div class="calc2">
+          <div class="calc-fld act" id="adrFldDose" onclick="adrMode('dose')">
+            <div class="calc-fld-lbl">Dosis objetivo</div>
+            <input type="number" id="adrDose" step="0.01" inputmode="decimal" min="0" oninput="adrFromDose()">
+            <div class="calc-fld-unit">mcg/kg/min</div></div>
+          <button class="calc-swap" onclick="adrToggle()">⇄</button>
+          <div class="calc-fld" id="adrFldMlh" onclick="adrMode('mlh')">
+            <div class="calc-fld-lbl">Velocidad</div>
+            <input type="number" id="adrMlh" step="0.5" inputmode="decimal" min="0" readonly oninput="adrFromMlh()">
+            <div class="calc-fld-unit">ml/h</div></div>
+        </div>
+        <div class="warnmsg" id="adrWarn">⚠ Fuera de rango (máx 1 mcg/kg/min)</div>
+        <div class="muted-note">Necrosante si extravasa (antídoto fentolamina). Vía periférica gruesa o intraósea.</div>
+      </div>
+      <div class="sec-divider">Otros refractarios</div>
+      <div class="scard">
+        <div class="kv"><span class="kv-k">Glucagón (si betabloqueantes)</span><span class="kv-v">1 mg en 5 min IV</span></div>
+        <div class="kv"><span class="kv-k">Atropina (si bradicardia)</span><span class="kv-v">1 mg IV</span></div>
+        <div class="kv"><span class="kv-k">MgSO₄ (broncoespasmo persistente)</span><span class="kv-v">2 g en 20 min</span></div>
+      </div>
+      <div class="sec-divider">Noradrenalina — hipotensión refractaria</div>
+      <div class="perf blue">
+        <div class="perf-name">Noradrenalina</div>
+        <div class="perf-dil">20 mg/250 ml SG 5% · 80 mcg/ml · peso real</div>
+        <div class="perf-row"><span class="perf-key">Dosis de inicio</span><span class="perf-val">0,1 mcg/kg/min</span></div>
+        <div class="perf-row"><span class="perf-key">Velocidad de inicio</span><span class="perf-val hi" id="neMlhInicio">— ml/h</span></div>
+        <div class="perf-row"><span class="perf-key">Rango</span><span class="perf-val">0,05 – 1 mcg/kg/min</span></div>
+      </div>
+      <div class="banner b-info" style="margin-top:4px">Valorar derivación a UCI.</div>`,
+    init(){ renderRefractaria(); },
+    decideLabel:'¿Evolución?',
+    decisions:[
+      {label:'Estabiliza', sub:'mejoría hemodinámica', cls:'teal', to:'observacion'},
+      {label:'Deterioro · inconsciente', sub:'insuf. resp. severa / ↓ consciencia', cls:'epi', to:'amax4'}
+    ]
+  },
+
+  amax4:{
+    crumb:'AMAX4', num:'6', numCls:'epi', title:'AMAX4 · Inconsciente',
+    recap:['AMAX4 — soporte vital avanzado en anafilaxia'],
+    body:`
+      <div class="banner b-epi"><b>AMAX4.</b> Gatillo: ≥2 adrenalina IM + insuf. respiratoria hipoxémica severa + ↓ consciencia. <b>4 min</b> hasta lesión cerebral hipóxica.</div>
+      <div id="wbarAmax"></div>
+      <div class="decide-lbl">¿Pulso?</div>
+      <div class="pill-row">
+        <div class="opt-pill" id="pulsoSi" onclick="selPulso('si')"><div class="op-name">Sí</div><div class="op-sub">bolus titulado</div></div>
+        <div class="opt-pill" id="pulsoNo" onclick="selPulso('no')"><div class="op-name">No · PCR</div><div class="op-sub">algoritmo RCP</div></div>
+      </div>
+      <div class="branch" id="branchSi">
+        <div class="perf">
+          <div class="perf-name">Adrenalina bolus</div>
+          <div class="perf-dil">1 mg/9 ml → 100 mcg/ml; de ahí 1 ml/9 ml → 10 mcg/ml</div>
+          <div class="perf-row"><span class="perf-key">Dosis (1 mcg/kg c/1–3 min)</span><span class="perf-val hi" id="pushMcg">— mcg</span></div>
+          <div class="perf-row"><span class="perf-key">Volumen (a 10 mcg/ml)</span><span class="perf-val" id="pushMl">— ml</span></div>
+        </div>
+      </div>
+      <div class="branch" id="branchNo">
+        <div class="banner b-epi"><b>Parada cardiaca.</b> Iniciar <b>SVA</b>: RCP de calidad + adrenalina <b>1 mg c/3 min</b> IV/IO. Mantener la causa anafiláctica en mente (adrenalina, vía aérea, atrapamiento aéreo).</div>
+        <a class="btn btn-epi" href="../../../rcp/index.html" style="text-decoration:none;text-align:center">Iniciar SVA · RCP-PCR médica →</a>
+      </div>
+      <div class="sec-divider">Vía aérea — secuencia rápida</div>
+      <div class="scard">
+        <div class="kv"><span class="kv-k">1 · Ketamina (inducción)</span><span class="kv-v hi" id="ketaDose">1 mg/kg</span></div>
+        <div class="kv"><span class="kv-k">2 · Rocuronio (relajante)</span><span class="kv-v hi" id="rocuDose">1,2 mg/kg</span></div>
+        <div class="kv"><span class="kv-k">3 · Intubación · mejor intubador · tubo grueso/balón</span><span class="kv-v"></span></div>
+        <div class="kv"><span class="kv-k">Imposibilidad de IOT</span><span class="kv-v epi">cricotiroidotomía temprana</span></div>
+        <div class="muted-note">Cricotiroidotomía temprana ante imposibilidad de intubar, para evitar la lesión cerebral hipóxica.</div>
+      </div>
+      <div class="sec-divider">Ventilación</div>
+      <div class="vmi-card">
+        <div class="vmi-cap">Parámetros VMI</div>
+        <table class="vmi-tbl">
+          <tr><th>Parámetro</th><th>Valor</th></tr>
+          <tr><td>Modo</td><td>AC/VC</td></tr>
+          <tr><td>VT (6 ml/kg)</td><td class="vt-val" id="vtMl">6 ml/kg</td></tr>
+          <tr><td>FR</td><td>10 rpm</td></tr>
+          <tr><td>PEEP</td><td>0 cmH₂O</td></tr>
+          <tr><td>FiO₂</td><td>100%</td></tr>
+          <tr><td>Flujo</td><td>80–100 L/min</td></tr>
+          <tr><td>I:E</td><td>1:5</td></tr>
+        </table>
+      </div>
+      <div class="sec-divider">Broncoespasmo severo · atrapamiento aéreo</div>
+      <div class="scard">
+        <div class="kv"><span class="kv-k">Nebulización continua (salbutamol)</span><span class="kv-v"></span></div>
+        <div class="kv"><span class="kv-k">MgSO₄</span><span class="kv-v">2 g en 20 min</span></div>
+        <div class="kv"><span class="kv-k">Compresión torácica lateral</span><span class="kv-v">si atrapamiento aéreo</span></div>
+        <div class="muted-note">Compresión torácica lateral ante broncoespasmo severo con sospecha de atrapamiento aéreo (auto-PEEP), para favorecer la espiración.</div>
+      </div>
+
+      <div class="sec-divider">Otros</div>
+      <div class="scard">
+        <div class="kv"><span class="kv-k">Accesos rápidos IV/IO</span><span class="kv-v"></span></div>
+        <div class="kv"><span class="kv-k">Si persiste hipoxia</span><span class="kv-v">eco clínica / Rx tórax</span></div>
+        <div class="muted-note">Si persiste la hipoxia: ecografía clínica o Rx de tórax para descartar neumotórax. Si se confirma → descompresión torácica.</div>
+      </div>`,
+    init(){ renderAmax4(); },
+    decisions:[], terminal:'Soporte vital avanzado'
+  },
+
+  observacion:{
+    crumb:'Observación', num:'5', numCls:'teal', title:'Observación y alta',
+    recap:['Observación según gravedad','Criterios de alta + tto domiciliario','2 autoinyectores · derivación a Alergología'],
+    body:`
+      <div class="decide-lbl">Gravedad del episodio</div>
+      <div class="pill-row">
+        <div class="opt-pill" id="gravLeve" onclick="selGrav('leve')"><div class="op-name">Leve–mod.</div></div>
+        <div class="opt-pill" id="gravGrave" onclick="selGrav('grave')"><div class="op-name">Grave/bifásica</div></div>
+      </div>
+      <div class="banner b-info" id="obsTime"><b>Observación mínima:</b> selecciona la gravedad para ver el tiempo.</div>
+
+      <div class="sec-divider">Criterios de alta</div>
+      <div class="ci" onclick="toggleCk(this)"><div class="cibox"><svg class="ck-svg" viewBox="0 0 13 13"><polyline points="2,6.5 5.5,10 11,3"/></svg></div><div><div class="ci-lbl">Estabilidad hemodinámica sostenida</div></div></div>
+      <div class="ci" onclick="toggleCk(this)"><div class="cibox"><svg class="ck-svg" viewBox="0 0 13 13"><polyline points="2,6.5 5.5,10 11,3"/></svg></div><div><div class="ci-lbl">Ausencia de compromiso respiratorio</div></div></div>
+      <div class="ci" onclick="toggleCk(this)"><div class="cibox"><svg class="ck-svg" viewBox="0 0 13 13"><polyline points="2,6.5 5.5,10 11,3"/></svg></div><div><div class="ci-lbl">Sin recurrencia de síntomas</div></div></div>
+
+      <div class="sec-divider">Tratamiento al alta</div>
+      <div class="scard">
+        <div class="kv"><span class="kv-k">antiH1 + corticoides orales</span><span class="kv-v hi">3–5 días</span></div>
+        <div class="kv"><span class="kv-k">Autoinyector de adrenalina</span><span class="kv-v hi">2 unidades</span></div>
+        <div class="kv"><span class="kv-k">Derivación</span><span class="kv-v">Alergología (preferente)</span></div>
+        <div class="muted-note">Volver a urgencias si reinician los síntomas. Plan de evitación del alérgeno.</div>
+      </div>
+      <div class="banner b-warn"><b>Asma + alérgeno:</b> primero la adrenalina, después el broncodilatador.</div>
+      <div class="sec-divider">Autoinyector — uso</div>
+      <div class="scard">
+        <div class="kv"><span class="kv-k">Altellus / Jext 300 mcg</span><span class="kv-v">adultos &gt;20 kg</span></div>
+        <div class="lead" style="margin-top:9px"><b>Uso:</b> retirar tapa de seguridad · aplicar en <b>cara externa del muslo</b> en ángulo recto (90°) · presionar con firmeza hasta el <b>«clic»</b> · mantener <b>10 s</b>.</div>
+        <div class="muted-note">2ª dosis si en 5 min no mejora. Ante la duda, administrar adrenalina.</div>
+      </div>`,
+    decisions:[], terminal:'Episodio resuelto'
+  }
+};
+const START='sospecha';
+
+// ═══ ESTADO DEL ÁRBOL ═══
+let path=[START];
+let taken={};          // {nodeId: decisionLabel}
+let openSet=new Set(); // nodos colapsados expandidos
+
+function render(){
+  // breadcrumb
+  const cb=document.getElementById('crumbbar'); cb.innerHTML='';
+  path.forEach((id,i)=>{
+    if(i>0) cb.insertAdjacentHTML('beforeend','<span class="crumb-sep">›</span>');
+    cb.insertAdjacentHTML('beforeend','<span class="crumb'+(i===path.length-1?' cur':'')+'">'+NODES[id].crumb+'</span>');
+  });
+  // flujo
+  const flow=document.getElementById('flow'); let h='';
+  path.forEach((id,i)=>{
+    const n=NODES[id], cur=(i===path.length-1);
+    if(!cur){
+      const isOpen=openSet.has(id);
+      h+='<div class="nsum'+(isOpen?' open':'')+'" onclick="toggleSum(\''+id+'\')">'+
+           '<div class="nsum-top">'+
+             '<div class="nsum-check"><svg viewBox="0 0 13 13"><polyline points="2,6.5 5.5,10 11,3"/></svg></div>'+
+             '<div class="nsum-body"><div class="nsum-title">'+n.title+'</div>'+
+               (taken[id]?'<div class="nsum-dec">Decisión: <b>'+taken[id]+'</b></div>':'')+'</div>'+
+             '<svg class="nsum-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>'+
+           '</div>'+
+           '<ul class="nsum-recap">'+n.recap.map(r=>'<li>'+r+'</li>').join('')+'</ul>'+
+         '</div>';
+    } else {
+      h+='<div class="nactive" id="activeNode">'+
+           '<div class="nhead"><div class="nhead-num '+(n.numCls||'')+'">'+n.num+'</div><div class="nhead-ttl">'+n.title+'</div></div>'+
+           n.body;
+      if(n.decisions && n.decisions.length){
+        if(n.decideLabel) h+='<div class="decide-lbl">'+n.decideLabel+'</div>';
+        n.decisions.forEach((d,di)=>{
+          h+='<button class="btn btn-'+d.cls+'" onclick="choose('+di+')">'+d.label+
+             (d.sub?'<span class="btn-sub">'+d.sub+'</span>':'')+'</button>';
+        });
+      }
+      if(n.terminal) h+='<div class="terminal-tag">— '+n.terminal+' —</div>';
+      h+='</div>';
+    }
+  });
+  flow.innerHTML=h;
+  const cn=NODES[path[path.length-1]]; if(cn.init) cn.init();
+  const an=document.getElementById('activeNode');
+  if(path.length>1 && an) an.scrollIntoView({block:'start',behavior:'smooth'});
+  else window.scrollTo(0,0);
+}
+
+function choose(di){
+  const id=path[path.length-1], n=NODES[id], d=n.decisions[di];
+  taken[id]=d.label;
+  path.push(d.to);
+  render();
+}
+function toggleSum(id){ if(openSet.has(id)) openSet.delete(id); else openSet.add(id); render(); }
+function undo(){
+  if(path.length>1){ const removed=path.pop(); delete taken[path[path.length-1]]; openSet.delete(removed); render(); }
+  else window.location.href='../index.html';
+}
+function restart(){ path=[START]; taken={}; openSet.clear(); render(); }
+function toggleCk(el){ el.classList.toggle('ck'); }
+
+// ═══ CALCULADORAS ═══
+const ADR_CONC=10, NE_CONC=80;
+let adrEdit='dose';
+function doseToMlh(dose,conc,w){ return (dose*w*60)/conc; }
+function mlhToDose(mlh,conc,w){ return (mlh*conc)/(w*60); }
+
+function renderRefractaria(){
+  const wb=document.getElementById('wbarRefr'); if(wb) wb.innerHTML=wbarHTML();
+  const w=getW();
+  const ai=document.getElementById('adrMlhInicio'); if(ai) ai.textContent=w?doseToMlh(0.1,ADR_CONC,w).toFixed(1)+' ml/h':'— ml/h';
+  const ni=document.getElementById('neMlhInicio'); if(ni) ni.textContent=w?doseToMlh(0.1,NE_CONC,w).toFixed(1)+' ml/h':'— ml/h';
+  adrEdit='dose'; adrMode('dose');
+  const d=document.getElementById('adrDose'), m=document.getElementById('adrMlh');
+  if(d&&m){ if(w){ d.value=0.1; adrFromDose(); } else { d.value=''; m.value=''; updateAdrBar(0); } }
+}
+function adrMode(mode){
+  adrEdit=mode;
+  const fd=document.getElementById('adrFldDose'), fm=document.getElementById('adrFldMlh');
+  const id=document.getElementById('adrDose'), im=document.getElementById('adrMlh');
+  if(!fd) return;
+  fd.classList.toggle('act',mode==='dose'); fm.classList.toggle('act',mode==='mlh');
+  id.readOnly=(mode!=='dose'); im.readOnly=(mode!=='mlh');
+}
+function adrToggle(){ adrMode(adrEdit==='dose'?'mlh':'dose'); }
+function adrFromDose(){
+  const w=getW(); if(!w){updateAdrBar(0);return;}
+  const dose=parseFloat(document.getElementById('adrDose').value)||0;
+  document.getElementById('adrMlh').value=dose>0?doseToMlh(dose,ADR_CONC,w).toFixed(1):'';
+  updateAdrBar(dose);
+}
+function adrFromMlh(){
+  const w=getW(); if(!w){updateAdrBar(0);return;}
+  const mlh=parseFloat(document.getElementById('adrMlh').value)||0;
+  const dose=mlhToDose(mlh,ADR_CONC,w);
+  document.getElementById('adrDose').value=dose>0?+dose.toFixed(3):'';
+  updateAdrBar(dose);
+}
+function updateAdrBar(dose){
+  const min=0.05,max=1, out=dose>0&&dose>max;
+  const pct=Math.min(100,Math.max(0,((dose-min)/(max-min))*100));
+  const bar=document.getElementById('adrBar'); if(!bar) return;
+  bar.style.width=(out?100:pct)+'%'; bar.classList.toggle('warn',out);
+  document.getElementById('adrCur').textContent=dose>0?(+dose.toFixed(3)):'—';
+  document.getElementById('adrWarn').classList.toggle('show',out);
+}
+
+function renderAmax4(){
+  const wb=document.getElementById('wbarAmax'); if(wb) wb.innerHTML=wbarHTML();
+  const w=getW();
+  const set=(id,v)=>{const e=document.getElementById(id); if(e) e.textContent=v;};
+  set('rocuDose', w?(1.2*w).toFixed(0)+' mg':'1,2 mg/kg');
+  set('ketaDose', w?(1*w).toFixed(0)+' mg':'1 mg/kg');
+  set('vtMl',     w?(6*w).toFixed(0)+' ml':'6 ml/kg');
+  set('pushMcg',  w?(1*w).toFixed(0)+' mcg':'— mcg');
+  set('pushMl',   w?((1*w)/10).toFixed(1)+' ml':'— ml');
+}
+function selPulso(v){
+  document.getElementById('pulsoSi').classList.toggle('sel-blue',v==='si');
+  document.getElementById('pulsoNo').classList.toggle('sel-epi',v==='no');
+  document.getElementById('branchSi').classList.toggle('show',v==='si');
+  document.getElementById('branchNo').classList.toggle('show',v==='no');
+}
+function selGrav(v){
+  document.getElementById('gravLeve').classList.toggle('sel-teal',v==='leve');
+  document.getElementById('gravGrave').classList.toggle('sel-epi',v==='grave');
+  const b=document.getElementById('obsTime');
+  if(v==='leve') b.innerHTML='<b>Observación mínima: 6–8 h</b> · anafilaxia leve–moderada.';
+  else b.innerHTML='<b>Observación mínima: 12–24 h</b> · grave, reacción bifásica o comorbilidades.';
+}
+
+render();
+</script>
+</body>
+</html>
