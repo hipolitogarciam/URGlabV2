@@ -496,16 +496,23 @@
         return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
+    // Normaliza: quita tildes/diacríticos y pasa a minúsculas
+    const norm = s => String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+
     function render(query = "") {
         directoryDiv.innerHTML = "";
-        const q = query.toLowerCase().trim();
-        clearBtn.style.display = q ? "flex" : "none";
+        const tokens = norm(query).split(/\s+/).filter(Boolean);
+        clearBtn.style.display = tokens.length ? "flex" : "none";
         let totalResults = 0;
 
         directoryData.forEach(cat => {
-            const filtered = cat.contacts.filter(c =>
-                c.s.toLowerCase().includes(q) || c.n.includes(q)
-            );
+            const catNorm = norm(cat.category);
+            const filtered = cat.contacts.filter(c => {
+                // Cada palabra de la búsqueda puede estar en nombre, número o categoría,
+                // en cualquier orden y sin importar tildes.
+                const hay = norm(c.s) + ' ' + norm(c.n) + ' ' + catNorm;
+                return tokens.every(t => hay.includes(t));
+            });
             if (filtered.length === 0) return;
             totalResults += filtered.length;
 
