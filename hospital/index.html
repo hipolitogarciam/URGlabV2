@@ -648,6 +648,9 @@
 
     // Sesión fresca → limpiar. Retorno desde submódulo (#menu) → restaurar con aviso.
     (function init() {
+        // Vista inicial = menú principal (home): ocultar "volver".
+        var backBtn = document.getElementById('back-btn');
+        if (backBtn) backBtn.style.visibility = 'hidden';
         if (location.hash.includes('menu')) {
             const saved = localStorage.getItem('hj23_patient');
             if (saved) {
@@ -699,7 +702,8 @@ function updateBadge(p) {
         if (active && active.id === 'view-patient') {
             showView('view-menu');
         } else {
-            window.location.href = '../index.html';
+            // Fallback a la pantalla de hospitales ICS (conservada para el escalado).
+            window.location.href = '../hospitales.html';
         }
     }
 
@@ -707,6 +711,9 @@ function updateBadge(p) {
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
         document.getElementById(id).classList.add('active');
         document.getElementById('header-title').textContent = id === 'view-menu' ? 'URGLab' : 'Paciente';
+        // En el menú principal (home del piloto) no hay nivel superior: ocultar "volver".
+        var backBtn = document.getElementById('back-btn');
+        if (backBtn) backBtn.style.visibility = id === 'view-menu' ? 'hidden' : 'visible';
         window.scrollTo(0, 0);
     }
 

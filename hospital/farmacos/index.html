@@ -133,6 +133,51 @@
     }
     .no-patient-btn:active { background: #d4a800; }
 
+    /* ─── BANNER PACIENTE EXPANDIBLE ─────────────────────────────────────── */
+    #noPatientBanner { cursor: pointer; flex-direction: column; align-items: stretch; gap: 0; padding: 0; }
+    .npb-header { display: flex; align-items: flex-start; gap: 10px; padding: 12px 16px; }
+    .npb-header .no-patient-icon { flex-shrink: 0; margin-top: 1px; }
+    .npb-header .no-patient-body { flex: 1; }
+    .npb-chevron { font-size: 0.9rem; color: #7a5800; transition: transform 0.2s; flex-shrink: 0; margin-top: 1px; }
+    #noPatientBanner.expanded .npb-chevron { transform: rotate(180deg); }
+    .npb-form { display: none; padding: 0 16px 14px; border-top: 1px solid rgba(240,192,64,0.4); }
+    #noPatientBanner.expanded .npb-form { display: block; }
+    .npf-sex { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 10px; }
+    .npf-sex-btn {
+        padding: 8px; border-radius: 8px; border: 1.5px solid rgba(240,192,64,0.5);
+        background: rgba(255,255,255,0.5); font-family: var(--mono); font-size: 0.82rem;
+        font-weight: 600; color: #7a5800; cursor: pointer; transition: all 0.15s; text-align: center;
+    }
+    .npf-sex-btn.sel { background: #f0c040; border-color: #f0c040; color: #3a2000; }
+    .npf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+    .npf-field { display: flex; flex-direction: column; gap: 4px; }
+    .npf-label { font-size: 0.65rem; font-weight: 700; color: #7a5800; text-transform: uppercase; letter-spacing: 0.06em; }
+    .npf-input {
+        border: 1.5px solid rgba(240,192,64,0.6); border-radius: 9px; padding: 9px 11px;
+        font-family: var(--mono); font-size: 1.1rem; font-weight: 600; color: var(--text);
+        background: rgba(255,255,255,0.7); outline: none; width: 100%; transition: border-color 0.15s;
+    }
+    .npf-input:focus { border-color: #f0c040; background: #fff; }
+    .npf-ibw {
+        margin-top: 8px; background: rgba(255,255,255,0.6); border: 1px solid rgba(240,192,64,0.4);
+        border-radius: 8px; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center;
+    }
+    .npf-ibw-label { font-size: 0.68rem; font-weight: 600; color: #7a5800; text-transform: uppercase; letter-spacing: 0.04em; }
+    .npf-ibw-val { font-family: var(--mono); font-size: 1rem; font-weight: 700; color: var(--text); }
+    .npf-save {
+        width: 100%; margin-top: 10px; padding: 11px; border-radius: 10px; background: #f0c040;
+        border: none; font-family: var(--display); font-size: 1.1rem; font-weight: 800;
+        text-transform: uppercase; letter-spacing: 0.04em; color: #3a2000; cursor: pointer; transition: opacity 0.15s;
+    }
+    .npf-save:active { opacity: 0.85; }
+    .pat-ok {
+        margin: 12px 0 4px; background: #f0fdf9; border: 1.5px solid var(--teal);
+        border-radius: 12px; padding: 12px 16px; display: none; align-items: center; gap: 10px;
+    }
+    .pat-ok-icon { font-size: 1.1rem; color: var(--teal); flex-shrink: 0; }
+    .pat-ok-text { font-size: 0.8rem; color: #0a6b53; line-height: 1.4; }
+    .pat-ok-text strong { display: block; margin-bottom: 2px; }
+
     /* ─── DETAIL VIEW ────────────────────────────────────────────────────── */
     .detail-header {
         padding: 18px 16px 14px;
@@ -308,15 +353,45 @@
     </div>
 
     <div class="container">
-        <div id="noPatientBanner" class="no-patient" style="display:none">
-            <span class="no-patient-icon">⚠️</span>
-            <div class="no-patient-body">
-                <div class="no-patient-text">
-                    <strong>Datos del paciente no configurados</strong>
-                    Los cálculos de dosis requieren el peso del paciente.
+        <div id="noPatientBanner" class="no-patient" style="display:none" onclick="toggleNoPatForm(event)">
+            <div class="npb-header">
+                <span class="no-patient-icon">⚠️</span>
+                <div class="no-patient-body">
+                    <div class="no-patient-text">
+                        <strong>Sin datos del paciente</strong>
+                        Pulsa para introducir peso y talla aquí.
+                    </div>
                 </div>
-                <a class="no-patient-btn" href="../index.html">Configurar paciente →</a>
+                <span class="npb-chevron">▾</span>
             </div>
+            <div class="npb-form" onclick="event.stopPropagation()">
+                <div class="npf-sex">
+                    <button class="npf-sex-btn sel" id="npf-btnM" onclick="npfSetSex('M')">♂ Hombre</button>
+                    <button class="npf-sex-btn"     id="npf-btnF" onclick="npfSetSex('F')">♀ Mujer</button>
+                </div>
+                <div class="npf-row">
+                    <div class="npf-field">
+                        <label class="npf-label">Peso real (kg)</label>
+                        <input class="npf-input" id="npf-weight" type="number" inputmode="decimal"
+                               placeholder="80" min="1" oninput="npfCalcIBW()">
+                    </div>
+                    <div class="npf-field">
+                        <label class="npf-label">Talla (cm)</label>
+                        <input class="npf-input" id="npf-height" type="number" inputmode="decimal"
+                               placeholder="170" min="100" oninput="npfCalcIBW()">
+                    </div>
+                </div>
+                <div class="npf-ibw">
+                    <span class="npf-ibw-label">Peso ideal (Devine)</span>
+                    <span class="npf-ibw-val" id="npf-ibw">— kg</span>
+                </div>
+                <button class="npf-save" onclick="npfSave()">Guardar y calcular dosis</button>
+            </div>
+        </div>
+
+        <div id="patOkBanner" class="pat-ok">
+            <span class="pat-ok-icon">✓</span>
+            <div class="pat-ok-text" id="patOkText"><strong>Paciente guardado</strong></div>
         </div>
 
         <div class="drug-list" id="drugList"></div>
@@ -493,6 +568,54 @@ function clearSearch() {
     inp.focus();
     document.getElementById('clearBtn').classList.remove('visible');
     renderList(drugs);
+}
+
+// ─── FORMULARIO INLINE PACIENTE ─────────────────────────────────────────────
+let _npfSex = 'M';
+
+function toggleNoPatForm(e) {
+    const banner = document.getElementById('noPatientBanner');
+    banner.classList.toggle('expanded');
+    if (banner.classList.contains('expanded')) {
+        setTimeout(() => document.getElementById('npf-weight').focus(), 150);
+    }
+}
+
+function npfSetSex(s) {
+    _npfSex = s;
+    document.getElementById('npf-btnM').classList.toggle('sel', s === 'M');
+    document.getElementById('npf-btnF').classList.toggle('sel', s === 'F');
+    npfCalcIBW();
+}
+
+function npfCalcIBW() {
+    const h  = parseFloat(document.getElementById('npf-height').value);
+    const el = document.getElementById('npf-ibw');
+    if (h > 100) {
+        const base = _npfSex === 'M' ? 50 : 45.5;
+        const ibw  = Math.round(base + 0.91 * (h - 152.4));
+        el.textContent = (ibw > 0 ? ibw : '—') + ' kg';
+    } else {
+        el.textContent = '— kg';
+    }
+}
+
+function npfSave() {
+    const w = parseFloat(document.getElementById('npf-weight').value);
+    const h = parseFloat(document.getElementById('npf-height').value);
+    if (!w || w <= 0) { document.getElementById('npf-weight').focus(); return; }
+    const base = _npfSex === 'M' ? 50 : 45.5;
+    const ibw  = h > 100 ? Math.max(1, Math.round(base + 0.91 * (h - 152.4))) : w;
+    patient = { sex: _npfSex, weight: w, height: h || 0, ibw };
+    localStorage.setItem('hj23_patient', JSON.stringify(patient));
+    // Ocultar banner y mostrar confirmación
+    document.getElementById('noPatientBanner').style.display = 'none';
+    const ok = document.getElementById('patOkBanner');
+    document.getElementById('patOkText').innerHTML =
+        `<strong>Paciente guardado</strong>Peso: ${w} kg · Talla: ${h || '—'} cm · IBW: ${ibw} kg`;
+    ok.style.display = 'flex';
+    // Refrescar dosis si hay un fármaco abierto
+    if (current) openDetail(current);
 }
 
 // ─── DETALLE ──────────────────────────────────────────────────────────────
