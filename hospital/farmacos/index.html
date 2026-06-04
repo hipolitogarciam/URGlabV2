@@ -438,6 +438,21 @@ let filtered  = drugs.slice();
     }
 
     renderList(drugs);
+
+    // Deep-link desde el buscador global del hub: farmacos/index.html#q=adrenalina
+    const m = location.hash.match(/q=([^&]+)/);
+    if (m) {
+        const term = decodeURIComponent(m[1]).trim();
+        const norm = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+        const exact = drugs.find(d => norm(d.name) === norm(term));
+        if (exact) {
+            openDetail(exact);
+        } else {
+            const inp = document.getElementById('searchInput');
+            inp.value = term;
+            filterDrugs(inp);
+        }
+    }
 })();
 
 // ─── LISTA ────────────────────────────────────────────────────────────────

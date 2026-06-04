@@ -318,6 +318,67 @@
             font-family: var(--body); font-size: 0.72rem;
             color: #92400e; white-space: nowrap; flex-shrink: 0;
         }
+
+        /* ─── BUSCADOR GLOBAL ────────────────────────────────────────── */
+        .search-wrap { position: relative; margin-bottom: 18px; }
+        .search-box {
+            position: relative; display: flex; align-items: center;
+            background: var(--surface); border: 1.5px solid var(--border-mid);
+            border-radius: 12px; padding: 0 12px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        }
+        .search-box:focus-within {
+            border-color: var(--blue);
+            box-shadow: 0 0 0 3px rgba(26,111,173,0.1);
+        }
+        .search-box svg { flex-shrink: 0; color: var(--text-muted); }
+        .search-input {
+            flex: 1; border: none; outline: none; background: none;
+            padding: 14px 8px; font-family: var(--body); font-size: 0.95rem;
+            color: var(--text); -webkit-appearance: none;
+        }
+        .search-input::placeholder { color: var(--text-muted); }
+        .search-clear {
+            display: none; align-items: center; justify-content: center;
+            width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+            background: var(--surface2); border: none; cursor: pointer;
+            color: var(--text-muted); font-size: 0.9rem; line-height: 1;
+        }
+        .search-clear.visible { display: flex; }
+
+        .search-results {
+            display: none; position: absolute; top: calc(100% + 6px);
+            left: 0; right: 0; z-index: 900;
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            max-height: 320px; overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .search-results.visible { display: block; }
+        .search-result {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px 14px; cursor: pointer;
+            border-bottom: 1px solid var(--border);
+            text-decoration: none; color: var(--text);
+            -webkit-user-select: none; user-select: none;
+        }
+        .search-result:last-child { border-bottom: none; }
+        .search-result.active, .search-result:active { background: var(--blue-light); }
+        .search-result-label {
+            flex: 1; font-family: var(--body); font-size: 0.9rem;
+            font-weight: 500; color: var(--black); line-height: 1.2;
+        }
+        .search-result-chip {
+            font-family: var(--mono); font-size: 0.58rem; font-weight: 500;
+            letter-spacing: 0.06em; text-transform: uppercase;
+            color: var(--text-muted); background: var(--surface2);
+            border-radius: 6px; padding: 3px 7px; flex-shrink: 0;
+        }
+        .search-empty {
+            padding: 16px 14px; text-align: center;
+            font-family: var(--body); font-size: 0.85rem; color: var(--text-muted);
+        }
     </style>
     <link rel="stylesheet" href="../fonts.css">
 </head>
@@ -393,6 +454,21 @@
 
     <!-- ══════════════ PANTALLA 2: MENÚ CATEGORÍAS ══════════════ -->
     <section id="view-menu" class="view active">
+
+        <!-- Buscador global -->
+        <div class="search-wrap">
+            <div class="search-box">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <input class="search-input" id="searchInput" type="text" autocomplete="off"
+                       placeholder="Buscar herramienta, fármaco, algoritmo…"
+                       oninput="runSearch()" onkeydown="searchKey(event)">
+                <button class="search-clear" id="searchClear" onclick="clearGlobalSearch()" aria-label="Limpiar">✕</button>
+            </div>
+            <div class="search-results" id="searchResults"></div>
+        </div>
 
         <!-- Badge resumen datos paciente -->
         <div class="patient-badge">
@@ -633,6 +709,125 @@ function updateBadge(p) {
         document.getElementById('header-title').textContent = id === 'view-menu' ? 'URGLab' : 'Paciente';
         window.scrollTo(0, 0);
     }
+
+    /* ─── BUSCADOR GLOBAL ──────────────────────────────────────────────
+       MANTENER ACTUALIZADO al añadir herramientas: una entrada por destino.
+       href siempre con index.html explícito. Los fármacos abren la página
+       de fármacos con deep-link #q= (leído en farmacos/index.html).        */
+    const SEARCH_INDEX = [
+        // Categorías
+        { label: 'RCP', keywords: ['rcp','parada','reanimacion','cardiopulmonar','soporte vital','svca'], category: 'Categoría', href: 'rcp/index.html' },
+        { label: 'Patología', keywords: ['patologia','algoritmos','enfermedades'], category: 'Categoría', href: 'patologia/index.html' },
+        { label: 'Procedimientos', keywords: ['procedimientos','tecnicas'], category: 'Categoría', href: 'procedimientos/index.html' },
+        { label: 'Fármacos', keywords: ['farmacos','medicacion','perfusiones','drogas','bombas'], category: 'Categoría', href: 'farmacos/index.html' },
+        { label: 'Recursos', keywords: ['recursos','utilidades','enlaces'], category: 'Categoría', href: 'recursos/index.html' },
+
+        // Procedimientos
+        { label: 'Intubación (IOT)', keywords: ['intubacion','iot','via aerea','tubo','laringoscopia','secuencia rapida','isr'], category: 'Procedimiento', href: 'procedimientos/iot/index.html' },
+        { label: 'Paracentesis', keywords: ['paracentesis','ascitis','liquido ascitico','puncion abdominal'], category: 'Procedimiento', href: 'procedimientos/paracentesis/index.html' },
+
+        // Patología — subcategorías
+        { label: 'Patología Neurológica', keywords: ['neurologicas','neurologia','ictus','convulsiones','coma'], category: 'Patología', href: 'patologia/neurologicas/index.html' },
+        { label: 'Patología Cardiológica', keywords: ['cardiologicas','cardiologia','corazon','arritmias','sca','iam'], category: 'Patología', href: 'patologia/cardiologicas/index.html' },
+        { label: 'Patología Neumológica', keywords: ['neumologicas','respiratorio','pulmon','epoc','asma','tep'], category: 'Patología', href: 'patologia/neumologicas/index.html' },
+        { label: 'Patología Digestiva', keywords: ['digestivas','digestivo','hemorragia digestiva','abdomen'], category: 'Patología', href: 'patologia/digestivas/index.html' },
+        { label: 'Patología Infecciosa', keywords: ['infecciosas','infeccion','sepsis','antibioticos'], category: 'Patología', href: 'patologia/infecciosas/index.html' },
+        { label: 'Patología Metabólica', keywords: ['metabolicas','metabolico','electrolitos','hiperpotasemia','cetoacidosis'], category: 'Patología', href: 'patologia/metabolicas/index.html' },
+        { label: 'Patología Toxicológica', keywords: ['toxicologicas','toxicologia','intoxicacion','antidotos','sobredosis'], category: 'Patología', href: 'patologia/toxicologicas/index.html' },
+        { label: 'Patología Trauma', keywords: ['trauma','politraumatismo','tce','hemorragia'], category: 'Patología', href: 'patologia/trauma/index.html' },
+        // Patología — algoritmos
+        { label: 'Anafilaxia', keywords: ['anafilaxia','alergia','shock anafilactico','reaccion alergica','adrenalina im'], category: 'Algoritmo', href: 'patologia/metabolicas/anafilaxia/index.html' },
+
+        // Recursos
+        { label: 'Agenda', keywords: ['agenda','contactos','telefonos','directorio'], category: 'Recurso', href: 'recursos/agenda/index.html' },
+
+        // Fármacos (perfusiones) — abren farmacos con deep-link
+        ...['Adrenalina','Amiodarona','Dobutamina','Fentanilo','Flumazenilo','Furosemida',
+            'Insulina Actrapid','Isoprenalina','Labetalol','Midazolam','Morfina','Nimodipino',
+            'Nitroglicerina','Nitroprusiato','Noradrenalina','Omeprazol','Propofol',
+            'Somatostatina','Urapidilo']
+            .map(n => ({ label: n, keywords: [], category: 'Fármaco',
+                         href: 'farmacos/index.html#q=' + encodeURIComponent(n) })),
+    ];
+    // Sinónimos extra de fármacos
+    SEARCH_INDEX.find(e => e.label === 'Adrenalina').keywords = ['epinefrina'];
+    SEARCH_INDEX.find(e => e.label === 'Noradrenalina').keywords = ['norepinefrina','nora'];
+
+    const norm = s => (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+
+    function scoreEntry(e, q) {
+        const label = norm(e.label);
+        if (label.startsWith(q)) return 3;
+        if (label.includes(q)) return 2;
+        if (e.keywords.some(k => norm(k).includes(q))) return 1;
+        return 0;
+    }
+
+    let searchActiveIdx = -1;
+
+    function runSearch() {
+        const inp = document.getElementById('searchInput');
+        const box = document.getElementById('searchResults');
+        const clearBtn = document.getElementById('searchClear');
+        const q = norm(inp.value);
+        clearBtn.classList.toggle('visible', inp.value.length > 0);
+        searchActiveIdx = -1;
+
+        if (!q) { box.classList.remove('visible'); box.innerHTML = ''; return; }
+
+        const matches = SEARCH_INDEX
+            .map(e => ({ e, s: scoreEntry(e, q) }))
+            .filter(x => x.s > 0)
+            .sort((a, b) => b.s - a.s || a.e.label.localeCompare(b.e.label))
+            .slice(0, 8);
+
+        if (matches.length === 0) {
+            box.innerHTML = '<div class="search-empty">Sin resultados</div>';
+        } else {
+            box.innerHTML = matches.map(({ e }) =>
+                `<a class="search-result" href="${e.href}">
+                    <span class="search-result-label">${e.label}</span>
+                    <span class="search-result-chip">${e.category}</span>
+                </a>`).join('');
+        }
+        box.classList.add('visible');
+    }
+
+    function searchKey(ev) {
+        const box = document.getElementById('searchResults');
+        const items = box.querySelectorAll('.search-result');
+        if (ev.key === 'Escape') { clearGlobalSearch(); return; }
+        if (!items.length) return;
+        if (ev.key === 'ArrowDown') {
+            ev.preventDefault();
+            searchActiveIdx = Math.min(searchActiveIdx + 1, items.length - 1);
+        } else if (ev.key === 'ArrowUp') {
+            ev.preventDefault();
+            searchActiveIdx = Math.max(searchActiveIdx - 1, 0);
+        } else if (ev.key === 'Enter') {
+            ev.preventDefault();
+            const target = searchActiveIdx >= 0 ? items[searchActiveIdx] : items[0];
+            if (target) window.location.href = target.getAttribute('href');
+            return;
+        } else { return; }
+        items.forEach((el, i) => el.classList.toggle('active', i === searchActiveIdx));
+    }
+
+    function clearGlobalSearch() {
+        const inp = document.getElementById('searchInput');
+        inp.value = '';
+        document.getElementById('searchClear').classList.remove('visible');
+        const box = document.getElementById('searchResults');
+        box.classList.remove('visible'); box.innerHTML = '';
+        searchActiveIdx = -1;
+    }
+
+    // Cerrar resultados al tocar fuera del buscador
+    document.addEventListener('click', (ev) => {
+        if (!ev.target.closest('.search-wrap')) {
+            document.getElementById('searchResults').classList.remove('visible');
+        }
+    });
 </script>
 
 </body>
