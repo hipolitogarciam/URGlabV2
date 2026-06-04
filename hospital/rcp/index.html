@@ -70,7 +70,8 @@ header {
 .btn-start:active { transform:scale(0.97); opacity:0.9; }
 
 /* ════════════ ACTIVE ════════════ */
-#view-active { width:100%; height:calc(100svh - 68px); display:flex; flex-direction:column; }
+#view-active { width:100%; height:calc(100svh - 68px); }
+#view-active.visible { display:flex; flex-direction:column; }
 .active-split { display:flex; flex:1; overflow:hidden; max-width:640px; width:100%; margin:0 auto; }
 .active-main { flex:1; min-width:0; max-width:480px; overflow-y:auto; display:flex; flex-direction:column; }
 .active-sidebar { width:0; min-width:0; overflow:hidden; flex-shrink:0; transition:width .22s cubic-bezier(.4,0,.2,1); }
@@ -111,20 +112,22 @@ header {
 .btn-interv:active { opacity:.85; }
 .btn-ht {
   display:flex; align-items:center; justify-content:center;
-  background:var(--info); border:none;
-  border-radius:8px; padding:8px 13px;
+  background:transparent; border:1.5px solid rgba(26,127,200,0.35);
+  border-radius:8px; padding:7px 13px;
   font-family:var(--display); font-size:0.95rem; font-weight:800;
-  color:#fff; cursor:pointer; letter-spacing:0.04em;
+  color:var(--info); cursor:pointer; letter-spacing:0.04em;
+  transition:background .15s,color .15s,border-color .15s;
 }
-.btn-ht:active { background:#1669a8; }
+.btn-ht.open { background:var(--info); color:#fff; border-color:var(--info); }
+.btn-ht:active { opacity:.85; }
 .btn-log {
   display:flex; align-items:center; gap:5px;
-  background:var(--surface); border:1px solid rgba(26,127,200,0.25);
-  border-radius:8px; padding:8px 12px;
+  background:transparent; border:1.5px solid rgba(26,127,200,0.35);
+  border-radius:8px; padding:7px 12px;
   font-family:var(--body); font-size:0.75rem; font-weight:600;
-  color:var(--info); cursor:pointer;
+  color:var(--info); cursor:pointer; transition:background .15s;
 }
-.btn-log:active { background:#e5eef8; }
+.btn-log:active { opacity:.85; }
 .log-badge { background:var(--info); color:white; border-radius:9px; padding:1px 6px; font-size:0.65rem; font-weight:700; }
 .interv-count-badge { font-family:var(--mono); font-size:.65rem; font-weight:700; }
 
@@ -391,9 +394,7 @@ header {
 .pr-save-btn:active { opacity:.85; }
 .pr-edit-btn { font-size:.72rem; color:var(--info); font-weight:600; cursor:pointer; background:none; border:none; padding:0; text-decoration:underline; }
 /* Actions */
-.pr-actions { display:grid; grid-template-columns:1fr 1.6fr; gap:10px; margin-top:4px; }
-.pr-btn-skip { padding:16px; border-radius:14px; background:var(--bg); border:1.5px solid var(--border); color:var(--muted); font-family:var(--display); font-size:1rem; font-weight:700; text-transform:uppercase; cursor:pointer; }
-.pr-btn-skip:active { opacity:.7; }
+.pr-actions { display:grid; grid-template-columns:1fr; gap:10px; margin-top:4px; }
 .pr-btn-report { padding:16px; border-radius:14px; background:var(--info); color:#fff; border:none; font-family:var(--display); font-size:1.1rem; font-weight:800; text-transform:uppercase; letter-spacing:.04em; cursor:pointer; }
 .pr-btn-report:active { opacity:.85; }
 /* VMI post-ROSC */
@@ -454,9 +455,9 @@ header {
         <span class="total-value" id="total-display">00:00</span>
       </div>
       <div class="status-right">
-        <button class="btn-interv" id="btn-interv" onclick="toggleSidebar()">INTERV.<span class="interv-count-badge" id="interv-count"></span></button>
-        <button class="btn-ht" onclick="showHT()">H&amp;T</button>
         <button class="btn-log" onclick="showLog()">LOG <span class="log-badge" id="log-badge">0</span></button>
+        <button class="btn-ht" id="btn-ht" onclick="showHT()">H&amp;T</button>
+        <button class="btn-interv" id="btn-interv" onclick="toggleSidebar()">INTERV.<span class="interv-count-badge" id="interv-count"></span></button>
       </div>
     </div>
   </div>
@@ -661,6 +662,7 @@ header {
     </div>
   </div><!-- /active-sidebar -->
 </div><!-- /active-split -->
+</div><!-- /view-active -->
 
 <!-- ═══ FINISH MODAL ═══ -->
 <div id="modal-finish">
@@ -943,10 +945,14 @@ function hideInterventions(){
   const sb=document.getElementById('active-sidebar');
   if(sb.classList.contains('open')) toggleSidebar();
 }
+function closeSidebar(){
+  const sb=document.getElementById('active-sidebar'); if(sb) sb.classList.remove('open');
+  const btn=document.getElementById('btn-interv'); if(btn) btn.classList.remove('open');
+}
 function showLog() { renderLog(); document.getElementById('panel-log').classList.add('visible'); }
 function hideLog() { document.getElementById('panel-log').classList.remove('visible'); }
-function showHT()  { document.getElementById('modal-ht').classList.add('visible'); }
-function hideHT()  { document.getElementById('modal-ht').classList.remove('visible'); }
+function showHT()  { document.getElementById('modal-ht').classList.add('visible'); document.getElementById('btn-ht').classList.add('open'); }
+function hideHT()  { document.getElementById('modal-ht').classList.remove('visible'); document.getElementById('btn-ht').classList.remove('open'); }
 
 function setCycleMode(mode){
   document.getElementById('cycle-zone').className='cycle-zone mode-'+mode;
@@ -1006,7 +1012,7 @@ function checkSavedSession(){
     } else if(snap.status === 'finished'){
       document.getElementById('restore-banner-title').textContent = '📋 Informe pendiente';
       document.getElementById('restore-banner-sub').innerHTML =
-        'Hay un informe de reanimación sin guardar — duración: <strong>' + fmtMs(snap.roscTs ? snap.roscTs - snap.startTime : Date.now() - snap.startTime) + '</strong>';
+        'Hay un informe de reanimación sin guardar — duración: <strong>' + fmtMs((snap.roscTs || snap._finishTs || snap._rcpEndTs || Date.now()) - snap.startTime) + '</strong>';
       document.getElementById('btn-restore').textContent  = 'VER INFORME';
       document.getElementById('btn-restore').onclick = restoreFinishedSession;
       document.getElementById('btn-discard').textContent = 'NUEVA RCP';
@@ -1106,6 +1112,7 @@ function startRCP(){
   document.getElementById('btn-defib-action').classList.remove('highlight');
   document.getElementById('btn-cycle').classList.remove('highlight');
   document.getElementById('btn-epi').classList.remove('highlight');
+  closeSidebar();
   addEvent('start','Inicio de reanimación',now);
   setCycleMode('normal');
   document.getElementById('cycle-label').textContent='CICLO 1';
@@ -1349,8 +1356,10 @@ function showPostRCP(){
   S.status='finished'; S._finishTs=S._rcpEndTs;
   saveSessionNow(); // si se cierra el navegador aquí, al volver irá a view-finished directamente
   ['panel-log','modal-ht','modal-finish'].forEach(id=>document.getElementById(id).classList.remove('visible'));
+  closeSidebar();
   if(!S.postRoscChecks) S.postRoscChecks={};
   if(!S.drugDoses) S.drugDoses={};
+  window._prPatConfirmed=false;
   _renderPostRCP();
   showView('view-post-rcp');
 }
@@ -1396,7 +1405,6 @@ function _renderPostRCP(){
 
   // ── Acciones ──
   h+=`<div class="pr-actions">
-    <button class="pr-btn-skip" onclick="goToReport(false)">Saltar →</button>
     <button class="pr-btn-report" onclick="goToReport(true)">VER INFORME →</button>
   </div>`;
 
@@ -1408,9 +1416,21 @@ function _renderPatientHTML(){
   const editing=window._prEditing;
   if(pat&&pat.weight&&!editing){
     const ibw=pat.ibw||(pat.height&&pat.sex?calcIBW(pat.sex,pat.height):null);
-    const vt=ibw?(6*ibw).toFixed(0)+' ml':'—';
+    const confirmed=!!window._prPatConfirmed;
+    const warn=confirmed?'':`<div style="display:flex;gap:8px;align-items:flex-start;background:#fff8e6;border:1.5px solid #f0a500;border-radius:10px;padding:10px 12px;margin:12px 16px 0">
+        <span style="font-size:1rem;line-height:1">⚠</span>
+        <div style="font-family:var(--body);font-size:.74rem;color:#7a4f00;line-height:1.35">Verifica que estos datos corresponden al <strong>paciente actual</strong>. Las perfusiones se calculan con este peso.</div>
+      </div>`;
+    const actions=confirmed
+      ? `<button class="pr-edit-btn" onclick="prEditPat()">Editar</button>`
+      : '';
+    const footer=confirmed?'':`<div style="display:flex;gap:8px;padding:0 16px 14px">
+        <button class="pr-sex-btn" style="flex:1" onclick="prEditPat()">Editar</button>
+        <button class="pr-save-btn" style="flex:1;margin:0" onclick="prConfirmPat()">Confirmar datos</button>
+      </div>`;
     return `<div class="pr-sec">
-      <div class="pr-sec-hdr">Datos del paciente <button class="pr-edit-btn" onclick="prEditPat()">Editar</button></div>
+      <div class="pr-sec-hdr">Datos del paciente ${actions}</div>
+      ${warn}
       <div style="padding:12px 16px 14px">
         <div style="display:flex;flex-wrap:wrap;gap:10px 16px">
           <div><div style="font-size:.64rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px">Sexo</div><div style="font-family:var(--mono);font-size:.9rem;font-weight:700">${pat.sex==='F'?'Mujer':'Hombre'}</div></div>
@@ -1419,6 +1439,7 @@ function _renderPatientHTML(){
           ${ibw?`<div><div style="font-size:.64rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px">IBW</div><div style="font-family:var(--mono);font-size:.9rem;font-weight:700;color:#09915a">${ibw} kg</div></div>`:''}
         </div>
       </div>
+      ${footer}
     </div>`;
   }
   const tmp=window._prSex||(pat&&pat.sex)||null;
@@ -1649,12 +1670,15 @@ function prSavePat(){
   if(!sex||!w){ alert('Introduce al menos sexo y peso'); return; }
   const ibw=ht?calcIBW(sex,ht):null;
   try{ localStorage.setItem('hj23_patient',JSON.stringify({sex,weight:w,height:ht||null,ibw})); }catch(e){}
-  window._prEditing=false; window._prSex=null;
+  window._prEditing=false; window._prSex=null; window._prPatConfirmed=true;
   _renderPostRCP();
 }
 function prEditPat(){
   const pat=getPatient(); if(pat) window._prSex=pat.sex||null;
   window._prEditing=true; _renderPostRCP();
+}
+function prConfirmPat(){
+  window._prPatConfirmed=true; _renderPostRCP();
 }
 
 // ── Post-RCP interactions ────────────────────────────────────────────
@@ -1691,6 +1715,8 @@ function goToReport(save){
     });
   } else {
     S.postRoscChecks={}; S.drugDoses={};
+    S.postRoscVMI=null; S.postRoscFentanilo=false; S.postRoscSedante=null;
+    S.postRoscNora=false; S.postRoscDobu=false;
   }
   window._prEditing=false; window._prSex=null;
   finishRCP();
@@ -1823,7 +1849,7 @@ function buildReportText(){
       }
     }
     if(S.postRoscFentanilo||S.postRoscSedante){
-      txt+=`  Sedoanalgesia:\n`;
+      txt+=`  Analgo-sedación:\n`;
       if(S.postRoscFentanilo){
         const fMlh=ribw?((0.5*ribw)/9).toFixed(1):null;
         txt+=`    ✓ Fentanilo: inicio ${fMlh?fMlh+' ml/hr':'—'} (0,5 mcg/kg/h · 900 mcg/100 ml SF · 9 mcg/ml)\n`;
@@ -1876,6 +1902,9 @@ function resetRCP(){
   document.querySelectorAll('[id^="time-"]').forEach(el=>el.textContent='');
   document.getElementById('int-amiodarona2').style.display='none';
   document.getElementById('btn-defib-action').classList.remove('highlight');
+  document.getElementById('btn-cycle').classList.remove('highlight');
+  document.getElementById('btn-epi').classList.remove('highlight');
+  document.getElementById('total-display').textContent='00:00';
   showView('view-idle');
 }
 

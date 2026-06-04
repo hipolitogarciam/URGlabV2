@@ -123,13 +123,15 @@ header{background:linear-gradient(135deg,#1a7fc8 0%,#1a6fad 100%);border-bottom:
 .prog-wrap{background:var(--surface);border-bottom:1px solid var(--border);
   padding:10px 0 6px;position:sticky;top:71px;z-index:90}
 .prog-segs{max-width:480px;margin:0 auto;padding:0 16px;display:flex;gap:5px}
-.pseg{flex:1;height:5px;border-radius:3px;background:#e0e6ed;transition:background .3s}
+.pseg{flex:1;height:5px;border-radius:3px;background:#e0e6ed;transition:background .3s;cursor:pointer}
 .pseg.done{background:var(--teal)}.pseg.act{background:var(--blue)}
-.prog-labels{max-width:480px;margin:4px auto 0;padding:0 16px;display:flex;justify-content:space-between}
-.plbl{font-family:var(--mono);font-size:.5rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.prog-labels{max-width:480px;margin:4px auto 0;padding:0 16px;display:flex;gap:5px}
+.plbl{flex:1;text-align:center;font-family:var(--mono);font-size:.5rem;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.04em;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.plbl:active{opacity:.6}
 
 /* PHASE */
-.phase{margin-bottom:8px}
+.phase{margin-bottom:8px;scroll-margin-top:112px}
 .phase-hdr{display:flex;align-items:center;gap:10px;padding:16px 16px 8px}
 .phase-num{width:28px;height:28px;border-radius:8px;background:var(--blue);color:white;
   font-family:var(--display);font-size:1.1rem;font-weight:800;
@@ -382,6 +384,21 @@ header{background:linear-gradient(135deg,#1a7fc8 0%,#1a6fad 100%);border-bottom:
   <div></div>
 </header>
 
+<div class="prog-wrap" id="progbar" style="display:none">
+  <div class="prog-segs">
+    <div class="pseg" id="ps1" onclick="navStage(1)"></div><div class="pseg" id="ps2" onclick="navStage(2)"></div>
+    <div class="pseg" id="ps3" onclick="navStage(3)"></div><div class="pseg" id="ps4" onclick="navStage(4)"></div>
+    <div class="pseg" id="ps5" onclick="navStage(5)"></div><div class="pseg" id="ps6" onclick="navStage(6)"></div>
+    <div class="pseg" id="ps7" onclick="navStage(7)"></div><div class="pseg" id="ps8" onclick="navStage(8)"></div>
+  </div>
+  <div class="prog-labels">
+    <span class="plbl" onclick="navStage(1)">Prep.</span><span class="plbl" onclick="navStage(2)">Preox.</span>
+    <span class="plbl" onclick="navStage(3)">Fisiol.</span><span class="plbl" onclick="navStage(4)">Medic.</span>
+    <span class="plbl" onclick="navStage(5)">Plan</span><span class="plbl" onclick="navStage(6)">SIR</span>
+    <span class="plbl" onclick="navStage(7)">Post-IOT</span><span class="plbl" onclick="navStage(8)">Registro</span>
+  </div>
+</div>
+
 <!-- ═══════════════════════ VALORACIÓN ══════════════════════════════ -->
 <div id="view-val" class="view active">
 <div class="cnt" style="padding-top:16px">
@@ -521,20 +538,6 @@ header{background:linear-gradient(135deg,#1a7fc8 0%,#1a6fad 100%);border-bottom:
 
 <!-- ═══════════════════════ CHECKLIST ═══════════════════════════════ -->
 <div id="view-checklist" class="view">
-  <div class="prog-wrap">
-    <div class="prog-segs">
-      <div class="pseg" id="ps1"></div><div class="pseg" id="ps2"></div>
-      <div class="pseg" id="ps3"></div><div class="pseg" id="ps4"></div>
-      <div class="pseg" id="ps5"></div><div class="pseg" id="ps6"></div>
-      <div class="pseg" id="ps7"></div>
-    </div>
-    <div class="prog-labels">
-      <span class="plbl">Prep.</span><span class="plbl">Preox.</span>
-      <span class="plbl">Fisiol.</span><span class="plbl">Medic.</span>
-      <span class="plbl">Plan</span><span class="plbl">Confirm.</span><span class="plbl">Post-IOT</span>
-    </div>
-  </div>
-
 <div class="cnt" style="padding-top:12px">
 
   <!-- FASE 1: PREPARACIÓN -->
@@ -702,7 +705,45 @@ header{background:linear-gradient(135deg,#1a7fc8 0%,#1a6fad 100%);border-bottom:
           <div class="plan-letter pl-a" style="flex-shrink:0">A</div>
           <div>
             <div style="font-family:var(--display);font-size:1rem;font-weight:800;color:var(--text);text-transform:uppercase">Intubación traqueal</div>
-            <div style="font-size:.74rem;color:var(--muted);margin-top:3px;line-height:1.4">(Video)Laringoscopio · máx. 3+1<br>Optimizar: CCMRL · Frova · guía</div>
+            <div style="font-size:.74rem;color:var(--muted);margin-top:3px;line-height:1.4">Videolaringoscopia + Adyuvantes · 3+1</div>
+          </div>
+        </div>
+
+        <!-- CCMRL desplegable -->
+        <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:12px;overflow:hidden">
+          <div onclick="const b=document.getElementById('ccmrlBody');const c=document.getElementById('ccmrlChevron');const open=b.style.display==='flex';b.style.display=open?'none':'flex';c.style.transform=open?'rotate(0deg)':'rotate(180deg)';"
+               style="padding:11px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;-webkit-user-select:none;user-select:none">
+            <div style="font-family:var(--display);font-size:1rem;font-weight:800;color:var(--warn);text-transform:uppercase;letter-spacing:.03em">
+              Si IOT no exitosa → optimizar con CCMRL
+            </div>
+            <svg id="ccmrlChevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                 fill="none" stroke="var(--warn)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"
+                 style="flex-shrink:0;transition:transform .2s">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </div>
+          <div id="ccmrlBody" style="display:none;flex-direction:column;gap:9px;padding:0 14px 13px;border-top:1px solid var(--border)">
+            <div style="height:8px"></div>
+            <div style="display:flex;align-items:flex-start;gap:10px">
+              <div style="width:26px;height:26px;border-radius:7px;background:var(--blue);color:white;font-family:var(--display);font-size:1.1rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">C</div>
+              <div><div style="font-size:.85rem;font-weight:600;color:var(--text)">Cabeza</div><div style="font-size:.73rem;color:var(--muted);margin-top:2px;line-height:1.4">Si la vista es mala, eleva la cabeza hasta que mejore. Una vez visualizadas las cuerdas, coloca soporte.</div></div>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:10px">
+              <div style="width:26px;height:26px;border-radius:7px;background:#7b5ea7;color:white;font-family:var(--display);font-size:1.1rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">C</div>
+              <div><div style="font-size:.85rem;font-weight:600;color:var(--text)">Cuello</div><div style="font-size:.73rem;color:var(--muted);margin-top:2px;line-height:1.4">Manipulación laríngea externa: moviliza la laringe hacia la línea de visión del operador.</div></div>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:10px">
+              <div style="width:26px;height:26px;border-radius:7px;background:#e07b00;color:white;font-family:var(--display);font-size:1.1rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">M</div>
+              <div><div style="font-size:.85rem;font-weight:600;color:var(--text)">Manos</div><div style="font-size:.73rem;color:var(--muted);margin-top:2px;line-height:1.4">Si la fuerza no es suficiente, usa las dos manos y bloquea el codo con el tórax para mantener la posición.</div></div>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:10px">
+              <div style="width:26px;height:26px;border-radius:7px;background:var(--warn);color:white;font-family:var(--display);font-size:1.1rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">R</div>
+              <div><div style="font-size:.85rem;font-weight:600;color:var(--text)">Retira</div><div style="font-size:.73rem;color:var(--muted);margin-top:2px;line-height:1.4">Sin visualización, retira la pala poco a poco — puedes estar colapsando la epiglotis.</div></div>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:10px">
+              <div style="width:26px;height:26px;border-radius:7px;background:var(--teal);color:white;font-family:var(--display);font-size:1.1rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">L</div>
+              <div><div style="font-size:.85rem;font-weight:600;color:var(--text)">Levanta</div><div style="font-size:.73rem;color:var(--muted);margin-top:2px;line-height:1.4">Si la epiglotis bloquea la visión de las cuerdas → levántala directamente con la pala.</div></div>
+            </div>
           </div>
         </div>
 
@@ -754,6 +795,11 @@ header{background:linear-gradient(135deg,#1a7fc8 0%,#1a6fad 100%);border-bottom:
         </div>
 
       </div>
+    </div>
+
+    <div class="ci" id="ci-planVerbalizado" onclick="toggleCI('planVerbalizado')" style="margin-top:10px">
+      <div class="cibox"><svg class="ck-svg" width="13" height="13" viewBox="0 0 13 13" fill="none"><polyline points="2,6.5 5.5,10 11,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div><div class="ci-lbl">Plan verbalizado al equipo</div></div>
     </div>
   </div><div class="sep"></div>
 
@@ -812,6 +858,44 @@ header{background:linear-gradient(135deg,#1a7fc8 0%,#1a6fad 100%);border-bottom:
         </div>
       </div>
       <div id="vmiTable"><div class="vmi-ph">Selecciona estrategia ventilatoria</div></div>
+    </div>
+
+    <!-- DOPES desplegable -->
+    <div style="background:var(--surface);border:1.5px solid var(--blue-s);border-radius:14px;margin-top:10px;overflow:hidden">
+      <div onclick="const b=document.getElementById('dopeBody');const c=document.getElementById('dopeChevron');const open=b.style.display==='flex';b.style.display=open?'none':'flex';c.style.transform=open?'rotate(0deg)':'rotate(180deg)';"
+           style="padding:13px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;-webkit-user-select:none;user-select:none">
+        <div style="font-family:var(--display);font-size:1.1rem;font-weight:800;color:var(--warn);text-transform:uppercase;letter-spacing:.04em">
+          Si hipoxemia persistente tras IOT
+        </div>
+        <svg id="dopeChevron" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+             fill="none" stroke="var(--warn)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"
+             style="flex-shrink:0;transition:transform .2s">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </div>
+      <div id="dopeBody" style="display:none;flex-direction:column;gap:9px;padding:0 16px 14px;border-top:1px solid var(--border)">
+        <div style="height:10px"></div>
+        <div style="display:flex;align-items:flex-start;gap:10px">
+          <div style="width:26px;height:26px;border-radius:7px;background:var(--blue);color:white;font-family:var(--display);font-size:1.1rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">D</div>
+          <div><div style="font-size:.87rem;font-weight:600;color:var(--text)">Desplazamiento del tubo</div><div style="font-size:.74rem;color:var(--muted);margin-top:2px">Comprobar posición</div></div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px">
+          <div style="width:26px;height:26px;border-radius:7px;background:#7b5ea7;color:white;font-family:var(--display);font-size:1.1rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">O</div>
+          <div><div style="font-size:.87rem;font-weight:600;color:var(--text)">Obstrucción del tubo</div><div style="font-size:.74rem;color:var(--muted);margin-top:2px">Aspirar secreciones</div></div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px">
+          <div style="width:26px;height:26px;border-radius:7px;background:#e07b00;color:white;font-family:var(--display);font-size:1.1rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">P</div>
+          <div><div style="font-size:.87rem;font-weight:600;color:var(--text)">Neumotórax <span style="font-weight:400;font-size:.74rem;color:var(--muted)">(Pneumothorax)</span></div><div style="font-size:.74rem;color:var(--muted);margin-top:2px">Eco / Rx → descompresión torácica</div></div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px">
+          <div style="width:26px;height:26px;border-radius:7px;background:var(--teal);color:white;font-family:var(--display);font-size:1.1rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">E</div>
+          <div><div style="font-size:.87rem;font-weight:600;color:var(--text)">Equipo</div><div style="font-size:.74rem;color:var(--muted);margin-top:2px">Descartar fallo ventilador / O₂</div></div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px">
+          <div style="width:26px;height:26px;border-radius:7px;background:#c41520;color:white;font-family:var(--display);font-size:1.1rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">S</div>
+          <div><div style="font-size:.87rem;font-weight:600;color:var(--text)">Stacking <span style="font-weight:400;font-size:.74rem;color:var(--muted)">(atrapamiento aéreo · auto-PEEP)</span></div><div style="font-size:.74rem;color:var(--muted);margin-top:2px">Desconectar del respirador + compresión torácica lateral para espirar</div></div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1017,7 +1101,7 @@ function mkState() {
     preoxTecnica:null, preoxTiempo:false,
     cristaloides:false, hemoderivados:false, noradrenalina:false, vasoBolus:false,
     fentPre:false, inductores:[], bnm:null,
-    dsi:false, planA:null, planB:null, planC:null, planD:null,
+    dsi:false, planA:null, planB:null, planC:null, planD:null, planVerbalizado:false,
     sirIniciado:false, tsInicio:null,
     tsFentPre:null, tsInductor:null, tsBNM:null,
     tsInicioIOT:null, tsCapno:null, tsFinalizacion:null,
@@ -1081,8 +1165,11 @@ function goTo(v){
   const labels={val:'Valoración',checklist:'Checklist RSI',registro:'Registro',informe:'Informe',despierto:'Intubación despierto'};
   if(labels[v]){sub.textContent=labels[v];sub.style.display='block';}
   else{sub.style.display='none';}
+  const pb=document.getElementById('progbar');
+  if(pb) pb.style.display=(v==='checklist'||v==='registro')?'block':'none';
   if(v==='checklist') renderAll();
   if(v==='registro')  restoreRegistro();
+  updateProgress();
 }
 function handleBack(){
   const idx=VIEWS.indexOf(currentView);
@@ -1369,6 +1456,14 @@ function fmtElapsed(e){const h=Math.floor(e/3600).toString().padStart(2,'0');con
 function initSIR(){
   S.sirIniciado=true; S.tsInicio=Date.now(); save(); renderSIR();
 }
+function resetSIR(){
+  if(sirTimer){clearInterval(sirTimer);sirTimer=null;}
+  S.sirIniciado=false; S.tsInicio=null;
+  S.tsFentPre=null; S.tsInductor=null; S.tsBNM=null;
+  S.tsInicioIOT=null; S.tsCapno=null; S.tsFinalizacion=null;
+  S.profTET=''; S.tamanoTET=null;
+  save(); renderSIR(); updateProgress();
+}
 
 function markSirEvent(key){
   if(S[key]) return;
@@ -1426,7 +1521,7 @@ function renderSIR(){
     return;
   }
   const w=getW();
-  let html=`<div class="sir-clock-wrap"><div class="sir-clock" id="sirClock">00:00:00</div><div class="sir-clock-lbl">Tiempo desde inicio SIR</div></div>`;
+  let html=`<div class="sir-clock-wrap"><div class="sir-clock" id="sirClock">00:00:00</div><div class="sir-clock-lbl">Tiempo desde inicio SIR</div><div style="margin-top:8px"><button onclick="resetSIR()" style="font-size:.7rem;padding:3px 10px;border-radius:20px;border:1.5px solid var(--warn);color:var(--warn);background:white;cursor:pointer;font-weight:700;font-family:var(--body)">Reiniciar</button></div></div>`;
   html+=`<div class="sir-sec-lbl">Medicación administrada</div>`;
   const hasDrugs=S.fentPre||S.inductores.length>0||S.bnm;
   if(!hasDrugs){
@@ -1557,7 +1652,7 @@ function phaseOk(n){
     case 2: return !!S.preoxTecnica&&S.preoxTiempo;
     case 3: return !!(S.cristaloides||S.hemoderivados||S.noradrenalina||S.vasoBolus);
     case 4: return S.inductores.length>0&&!!S.bnm;
-    case 5: return true;
+    case 5: return !!S.planVerbalizado;
     case 6: return !!S.tsCapno&&S.profTET!==''&&!!S.tamanoTET;
     case 7: return S.perfFentanilo&&!!S.sedacion&&!!S.vmiEstrategia;
   }
@@ -1568,12 +1663,19 @@ function updateProgress(){
     const seg=document.getElementById('ps'+i); if(seg) seg.className='pseg'+(done?' done':'');
     const ph=document.getElementById('phase'+i); if(ph) ph.classList.toggle('done',done);
   }
+  const seg8=document.getElementById('ps8'); if(seg8) seg8.className='pseg'+(currentView==='registro'?' act':'');
+}
+function navStage(n){
+  if(n===8){ goTo('registro'); return; }
+  if(currentView!=='checklist') goTo('checklist');
+  const el=document.getElementById('phase'+n);
+  if(el) el.scrollIntoView({block:'start'});
 }
 
 // ── RENDER ALL ──────────────────────────────────────────────────────
 function renderAll(){
   // CI básicos
-  ['succion','monitor','via2acc','preoxTiempo','cristaloides','hemoderivados','vasoBolus'].forEach(k=>{
+  ['succion','monitor','via2acc','preoxTiempo','cristaloides','hemoderivados','vasoBolus','planVerbalizado'].forEach(k=>{
     const el=document.getElementById('ci-'+k); if(el) el.classList.toggle('ck',!!S[k]);
   });
   renderNE(); syncNEBox();
