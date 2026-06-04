@@ -266,16 +266,34 @@
         .tag-guard { background: var(--teal-light); color: var(--teal-dark); }
         .tag-log   { background: var(--blue-light); color: var(--blue-dark); }
 
-        .contact-number {
-            font-family: var(--mono);
-            font-size: 1.3rem;
-            font-weight: 500;
-            color: var(--blue-dark);
-            white-space: nowrap;
-            text-align: right;
+        .number-chips {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 5px;
         }
 
-        .t-crit .contact-number { color: var(--red); }
+        .number-chip {
+            font-family: var(--mono);
+            font-size: 1.15rem;
+            font-weight: 500;
+            color: var(--blue-dark);
+            background: var(--blue-light);
+            padding: 3px 10px;
+            border-radius: 7px;
+            white-space: nowrap;
+            letter-spacing: 0.02em;
+        }
+
+        .t-crit .number-chip  { color: var(--red);       background: var(--red-light);  }
+        .t-guard .number-chip { color: var(--teal-dark);  background: var(--teal-light); }
+
+        mark {
+            background: rgba(9, 199, 151, 0.28);
+            color: inherit;
+            border-radius: 2px;
+            padding: 0 1px;
+        }
 
         /* ─── NO RESULTS ─────────────────────────────────────────────── */
         .no-results {
@@ -375,7 +393,7 @@
                 { s: "Maxilofacial",                     n: "79553",         t: "guard" },
                 { s: "Medicina Interna – Residente",     n: "79698 · 79619", t: "guard" },
                 { s: "Medicina Interna – Adjunto",       n: "79622",         t: "guard" },
-                { s: "Nefrología",                       n: "79556 · 79557", t: "guard" },
+                { s: "Nefrología",                       n: "79556",         t: "guard" },
                 { s: "Neurología",                       n: "79557",         t: "guard" },
                 { s: "Neurología no ICTUS",              n: "79765",         t: "guard" },
                 { s: "Oftalmología",                     n: "79558",         t: "guard" },
@@ -499,6 +517,25 @@
     // Normaliza: quita tildes/diacríticos y pasa a minúsculas
     const norm = s => String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 
+    // Resalta tokens en texto (escapa HTML primero, luego aplica <mark>)
+    function hl(text, tokens) {
+        let out = escHTML(String(text));
+        if (!tokens.length) return out;
+        tokens.forEach(t => {
+            const re = new RegExp(t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+            out = out.replace(re, '<mark>$&</mark>');
+        });
+        return out;
+    }
+
+    // Convierte el campo n (string con "·") en chips HTML
+    function chipsHTML(n, tokens) {
+        const parts = String(n).split('·').map(x => x.trim()).filter(Boolean);
+        return '<div class="number-chips">' +
+            parts.map(p => `<span class="number-chip">${hl(p, tokens)}</span>`).join('') +
+            '</div>';
+    }
+
     function render(query = "") {
         directoryDiv.innerHTML = "";
         const tokens = norm(query).split(/\s+/).filter(Boolean);
@@ -508,8 +545,6 @@
         directoryData.forEach(cat => {
             const catNorm = norm(cat.category);
             const filtered = cat.contacts.filter(c => {
-                // Cada palabra de la búsqueda puede estar en nombre, número o categoría,
-                // en cualquier orden y sin importar tildes.
                 const hay = norm(c.s) + ' ' + norm(c.n) + ' ' + catNorm;
                 return tokens.every(t => hay.includes(t));
             });
@@ -532,10 +567,10 @@
                 const tagLabel = c.t === 'crit' ? 'Crítico' : c.t === 'guard' ? 'Guardia' : 'Logística';
                 card.innerHTML = `
                     <div class="contact-info">
-                        <div class="contact-name">${c.s}</div>
+                        <div class="contact-name">${hl(c.s, tokens)}</div>
                         <span class="contact-tag tag-${c.t}">${tagLabel}</span>
                     </div>
-                    <div class="contact-number">${c.n}</div>`;
+                    ${chipsHTML(c.n, tokens)}`;
                 section.appendChild(card);
             });
 
