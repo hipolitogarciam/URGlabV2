@@ -33,7 +33,7 @@
     }
     .back-btn {
         display: flex; align-items: center; justify-content: center;
-        width: 38px; height: 38px; border-radius: 10px;
+        width: 44px; height: 44px; border-radius: 10px;
         background: rgba(255,255,255,0.15); border: none;
         cursor: pointer; color: white; transition: background 0.15s;
         text-decoration: none;
@@ -601,8 +601,24 @@ function mlhToDose(mlh) {
     }
 }
 
+function _needsWeight() {
+    return current && current.unit.includes('/kg/');
+}
+
+function _warnNoWeight() {
+    document.getElementById('inputMlh').value  = '';
+    document.getElementById('inputDose').value = '';
+    const w = document.getElementById('doseWarning');
+    w.textContent = '⚠ Introduce el peso del paciente para calcular esta dosis';
+    w.style.display = 'block';
+    document.getElementById('rangeLabelCurrent').textContent = '—';
+    document.getElementById('rangeBar').style.width = '0%';
+    document.getElementById('rangeBar').className  = 'range-fill';
+}
+
 function calcFromDose() {
     if (!current) return;
+    if (_needsWeight() && effectiveWeight(current) === null) { _warnNoWeight(); return; }
     const dose = parseFloat(document.getElementById('inputDose').value) || 0;
     const mlh  = doseToMlh(dose);
     document.getElementById('inputMlh').value = mlh > 0 ? mlh.toFixed(1) : '';
@@ -611,6 +627,7 @@ function calcFromDose() {
 
 function calcFromMlh() {
     if (!current) return;
+    if (_needsWeight() && effectiveWeight(current) === null) { _warnNoWeight(); return; }
     const mlh  = parseFloat(document.getElementById('inputMlh').value) || 0;
     const dose = mlhToDose(mlh);
     document.getElementById('inputDose').value =
@@ -629,8 +646,13 @@ function updateRangeBar(dose) {
     bar.className   = `range-fill${outOfRange ? ' warning' : ''}`;
     document.getElementById('rangeLabelCurrent').textContent =
         dose > 0 ? dose.toFixed(2) : '—';
-    document.getElementById('doseWarning').style.display =
-        outOfRange ? 'block' : 'none';
+    const dw = document.getElementById('doseWarning');
+    if (outOfRange) {
+        dw.textContent = '⚠ DOSIS FUERA DE RANGO TERAPÉUTICO';
+        dw.style.display = 'block';
+    } else {
+        dw.style.display = 'none';
+    }
 }
 
 function setEditMode(mode) {

@@ -34,7 +34,7 @@ header {
   display: grid; grid-template-columns: 48px 1fr 48px;
   align-items: center; gap: 8px; min-height: 68px;
 }
-.back-btn { display:flex; align-items:center; justify-content:center; width:38px; height:38px; border-radius:10px; background:rgba(255,255,255,0.15); border:none; cursor:pointer; text-decoration:none; }
+.back-btn { display:flex; align-items:center; justify-content:center; width:44px; height:44px; border-radius:10px; background:rgba(255,255,255,0.15); border:none; cursor:pointer; text-decoration:none; }
 .back-btn:active { background:rgba(255,255,255,0.28); }
 .header-center { text-align:center; }
 .header-label { font-family:var(--body); font-size:0.58rem; font-weight:600; color:#09c797; letter-spacing:0.12em; text-transform:uppercase; margin-bottom:2px; }
@@ -174,8 +174,9 @@ header {
 .actions-zone { margin:0 16px 10px; background:var(--surface); border:1px solid var(--border); border-radius:14px; overflow:hidden; flex-shrink:0; }
 .action-row { display:flex; align-items:center; gap:10px; padding:10px 14px; }
 .action-row + .action-row { border-top:1px solid var(--border); }
-.btn-epi { flex-shrink:0; padding:10px 12px; border-radius:10px; background:var(--epi); color:white; border:none; font-family:var(--display); font-size:.95rem; font-weight:800; text-transform:uppercase; letter-spacing:.04em; cursor:pointer; min-height:48px; min-width:116px; transition:transform .1s,opacity .15s; }
+.btn-epi { flex-shrink:0; padding:10px 12px; border-radius:10px; background:var(--epi); color:white; border:none; font-family:var(--display); font-size:.95rem; font-weight:800; text-transform:uppercase; letter-spacing:.04em; cursor:pointer; min-height:48px; min-width:116px; transition:transform .1s,opacity .15s; display:flex; flex-direction:column; align-items:center; justify-content:center; }
 .btn-epi:active { transform:scale(.96); opacity:.9; }
+.btn-epi-dose { font-size:.62rem; font-weight:600; opacity:.82; letter-spacing:.06em; margin-top:2px; line-height:1; text-transform:uppercase; }
 .btn-defib-action { flex-shrink:0; padding:10px 12px; border-radius:10px; background:#f5c518; color:#1a1000; border:none; font-family:var(--display); font-size:.95rem; font-weight:800; text-transform:uppercase; letter-spacing:.04em; cursor:pointer; min-height:48px; min-width:116px; display:flex; align-items:center; justify-content:center; gap:5px; transition:transform .1s,opacity .15s,box-shadow .3s; }
 .btn-defib-action:active { transform:scale(.96); opacity:.9; }
 .btn-defib-action.highlight { background:var(--defib) !important; color:white !important; animation:defib-glow .65s ease-in-out infinite; }
@@ -199,6 +200,18 @@ header {
 .btn-finish { background:rgba(229,62,62,.08); border:1px solid rgba(229,62,62,.25); color:var(--defib); }
 
 /* ── Modal Finalizar ── */
+/* ── Timer flotante (siempre encima de modales) ── */
+#rcp-live-timer {
+  display:none; position:fixed; top:14px; right:14px; z-index:9999;
+  background:rgba(14,26,39,.82); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+  border:1px solid rgba(9,199,151,.35); border-radius:20px;
+  padding:5px 11px; pointer-events:none;
+  font-family:var(--mono); font-size:.82rem; font-weight:700; color:#09c797;
+  letter-spacing:.04em; line-height:1;
+}
+#rcp-live-timer.active { display:flex; align-items:center; gap:5px; }
+#rcp-live-timer::before { content:'▶'; font-size:.55rem; opacity:.7; }
+
 #modal-finish { display:none; position:fixed; inset:0; z-index:1500; }
 #modal-finish.visible { display:block; }
 .finish-sheet { position:absolute; bottom:0; left:50%; transform:translateX(-50%); width:100%; max-width:480px; background:var(--surface); border-radius:20px 20px 0 0; padding:12px 16px calc(28px + env(safe-area-inset-bottom,0px)); }
@@ -413,6 +426,7 @@ header {
 </head>
 <body>
 <div class="rosc-flash" id="rosc-flash"></div>
+<div id="rcp-live-timer">00:00</div>
 
 <header>
   <a class="back-btn" href="../index.html#menu" onclick="handleBackBtn(event)" aria-label="Volver">
@@ -510,7 +524,10 @@ header {
       </div>
     </div>
     <div class="action-row">
-      <button class="btn-epi" id="btn-epi" onclick="registerEpi()">ADRENALINA</button>
+      <button class="btn-epi" id="btn-epi" onclick="registerEpi()">
+        ADRENALINA
+        <span class="btn-epi-dose">1 mg · IV / IO</span>
+      </button>
       <div class="action-info">
         <span class="action-count" id="epi-count">0 dosis</span>
         <span class="epi-since" id="epi-since">—</span>
@@ -1028,6 +1045,7 @@ function restoreSession(){
   hideRestoreBanner();
   Object.assign(S, snap);
   S._rafId = null; S._intervalId = null;
+  document.getElementById('rcp-live-timer').classList.add('active');
   // Restaurar estado visual
   _restoreInterventionsUI();
   // Modo del ciclo
@@ -1061,21 +1079,16 @@ function restoreSession(){
 
 function _restoreInterventionsUI(){
   Object.keys(S.interventions).forEach(key => {
-    const btn = document.getElementById('int-' + key);
-    const te  = document.getElementById('time-' + key);
-    if(btn) btn.classList.add('done');
-    if(te && S.interventions[key]) te.textContent = relTime(S.interventions[key].ts);
+    document.querySelectorAll('#int-' + key).forEach(btn => btn.classList.add('done'));
+    document.querySelectorAll('#time-' + key).forEach(te => te.textContent = relTime(S.interventions[key].ts));
   });
   // Amiodarona: lógica de dosis
   if(S.interventions['amiodarona']){
-    const b300 = document.getElementById('int-amiodarona');
-    if(b300) b300.disabled = true;
-    const b150 = document.getElementById('int-amiodarona2');
-    if(b150) b150.style.display = '';
+    document.querySelectorAll('#int-amiodarona').forEach(b => b.disabled = true);
+    document.querySelectorAll('#int-amiodarona2').forEach(b => b.style.display = '');
   }
   if(S.interventions['amiodarona2']){
-    const b150 = document.getElementById('int-amiodarona2');
-    if(b150) b150.disabled = true;
+    document.querySelectorAll('#int-amiodarona2').forEach(b => b.disabled = true);
   }
   // Badge de intervenciones
   const count = Object.keys(S.interventions).length;
@@ -1105,10 +1118,11 @@ function hideRestoreBanner(){ document.getElementById('restore-banner').classLis
 
 function startRCP(){
   const now=Date.now();
+  document.getElementById('rcp-live-timer').classList.add('active');
   Object.assign(S,{status:'active',startTime:now,cycleStartTime:null,cycleEndTime:null,rhythmMode:null,currentCycle:0,cycles:[],epiTimes:[],defibTimes:[],interventions:{},events:[],roscTs:null,finishReason:null,alertFired:false,zeroFired:false});
   document.querySelectorAll('.intervention-btn,.drug-btn').forEach(b=>{ b.classList.remove('done'); b.disabled=false; });
   document.querySelectorAll('[id^="time-"]').forEach(el=>el.textContent='');
-  document.getElementById('int-amiodarona2').style.display='none';
+  document.querySelectorAll('#int-amiodarona2').forEach(b=>b.style.display='none');
   document.getElementById('btn-defib-action').classList.remove('highlight');
   document.getElementById('btn-cycle').classList.remove('highlight');
   document.getElementById('btn-epi').classList.remove('highlight');
@@ -1213,7 +1227,9 @@ function registerRhythm(rhythm){
 
 function updateDisplays(){
   const now=Date.now();
-  document.getElementById('total-display').textContent=fmtMs(now-S.startTime);
+  const elapsed=fmtMs(now-S.startTime);
+  document.getElementById('total-display').textContent=elapsed;
+  document.getElementById('rcp-live-timer').textContent=elapsed;
   if(S.rhythmMode==='overtime'){
     document.getElementById('cycle-display').textContent=fmtOT(now-S.cycleEndTime);
   } else if(S.rhythmMode==='analysis'){
@@ -1232,7 +1248,7 @@ function updateDisplays(){
 }
 
 function updateEpiDisplay(){
-  const c=S.epiTimes.length; document.getElementById('epi-count').textContent=c===1?'1 dosis':`${c} dosis`;
+  const c=S.epiTimes.length; document.getElementById('epi-count').textContent=c===1?'1 dosis · 1 mg':`${c} dosis · ${c} mg`;
   const el=document.getElementById('epi-since');
   if(!c||!S.startTime){el.textContent='—';el.className='epi-since';return;}
   const ms=Date.now()-S.epiTimes[c-1]; el.textContent=`Hace ${fmtMs(ms)}`;
@@ -1262,18 +1278,18 @@ function checkRefractoryBanner(){
 }
 function registerAmiodarona300(){
   registerIntervention('amiodarona','Amiodarona 300 mg');
-  document.getElementById('int-amiodarona').disabled = true;
-  document.getElementById('int-amiodarona2').style.display = '';
+  document.querySelectorAll('#int-amiodarona').forEach(b => b.disabled = true);
+  document.querySelectorAll('#int-amiodarona2').forEach(b => b.style.display = '');
 }
 function registerAmiodarona150(){
   registerIntervention('amiodarona2','Amiodarona 150 mg');
-  document.getElementById('int-amiodarona2').disabled = true;
+  document.querySelectorAll('#int-amiodarona2').forEach(b => b.disabled = true);
 }
 
 function registerIntervention(key,label){
   const now=Date.now(), isNew=!S.interventions[key]; S.interventions[key]={label,ts:now};
-  const btn=document.getElementById('int-'+key), te=document.getElementById('time-'+key);
-  if(btn) btn.classList.add('done'); if(te) te.textContent=relTime(now);
+  document.querySelectorAll('#int-'+key).forEach(btn=>btn.classList.add('done'));
+  document.querySelectorAll('#time-'+key).forEach(te=>te.textContent=relTime(now));
   const count=Object.keys(S.interventions).length;
   const badge=document.getElementById('interv-count'); if(badge) badge.textContent=count>0?`${count} reg.`:'';
   addEvent('interv',isNew?label:`${label} (repetido)`,now); vib(80);
@@ -1900,11 +1916,12 @@ function resetRCP(){
   document.getElementById('refractory-banner').style.display='none';
   document.querySelectorAll('.intervention-btn,.drug-btn').forEach(b=>{ b.classList.remove('done'); b.disabled=false; });
   document.querySelectorAll('[id^="time-"]').forEach(el=>el.textContent='');
-  document.getElementById('int-amiodarona2').style.display='none';
+  document.querySelectorAll('#int-amiodarona2').forEach(b=>b.style.display='none');
   document.getElementById('btn-defib-action').classList.remove('highlight');
   document.getElementById('btn-cycle').classList.remove('highlight');
   document.getElementById('btn-epi').classList.remove('highlight');
   document.getElementById('total-display').textContent='00:00';
+  document.getElementById('rcp-live-timer').classList.remove('active');
   showView('view-idle');
 }
 

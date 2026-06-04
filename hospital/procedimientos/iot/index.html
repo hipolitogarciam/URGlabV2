@@ -21,7 +21,7 @@ body{background:var(--bg);font-family:var(--body);min-height:100svh;padding-bott
 header{background:linear-gradient(135deg,#1a7fc8 0%,#1a6fad 100%);border-bottom:3px solid #09c797;
   padding:12px 18px;position:sticky;top:0;z-index:100;
   display:grid;grid-template-columns:48px 1fr 48px;align-items:center;gap:8px;min-height:68px}
-.back-btn{display:flex;align-items:center;justify-content:center;width:38px;height:38px;
+.back-btn{display:flex;align-items:center;justify-content:center;width:44px;height:44px;
   border-radius:10px;background:rgba(255,255,255,0.15);border:none;cursor:pointer;
   color:white;transition:background .15s;text-decoration:none}
 .back-btn:active{background:rgba(255,255,255,0.28)}
@@ -364,6 +364,73 @@ header{background:linear-gradient(135deg,#1a7fc8 0%,#1a6fad 100%);border-bottom:
 .sep{height:1px;background:var(--border);margin:4px 0 12px}
 .spacer{height:24px}
 .ck-svg{pointer-events:none}
+
+/* ── VISTA RÁPIDA URGENTE ──────────────────────────────── */
+.urg-wrap{max-width:480px;margin:0 auto;padding:16px 16px 80px;display:flex;flex-direction:column;gap:10px}
+.urg-alert{background:#fff3cd;border:2px solid var(--yellow);border-radius:12px;padding:11px 14px;
+  font-size:.8rem;font-weight:700;color:#7a5800;line-height:1.4;text-align:center}
+.urg-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.urg-card-title{font-family:var(--mono);font-size:.6rem;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--muted);padding:9px 14px 7px;border-bottom:1px solid var(--border)}
+.urg-drug-row{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:11px 14px;border-bottom:1px solid var(--border)}
+.urg-drug-row:last-child{border-bottom:none}
+.urg-drug-left{flex:1;min-width:0}
+.urg-drug-name{font-family:var(--display);font-size:1.05rem;font-weight:800;
+  text-transform:uppercase;letter-spacing:.02em;color:var(--text)}
+.urg-drug-hint{font-size:.72rem;color:var(--muted);margin-top:2px;line-height:1.3}
+.urg-drug-warn{font-size:.68rem;color:var(--warn);font-weight:700;margin-top:2px}
+.urg-dose{font-family:var(--mono);font-size:1.1rem;font-weight:700;color:var(--blue);
+  white-space:nowrap;text-align:right}
+.urg-dose.no-pat{color:var(--muted);font-size:.85rem}
+.urg-tet-row{display:flex;justify-content:space-between;align-items:baseline;
+  padding:11px 14px;border-bottom:1px solid var(--border)}
+.urg-tet-row:last-child{border-bottom:none}
+.urg-tet-label{font-size:.78rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.urg-tet-val{font-family:var(--mono);font-size:1.1rem;font-weight:700;color:var(--text)}
+.urg-vortex-row{display:flex;align-items:flex-start;gap:11px;padding:10px 14px;
+  border-bottom:1px solid var(--border)}
+.urg-vortex-row:last-child{border-bottom:none}
+.urg-vortex-badge{width:28px;height:28px;border-radius:8px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--display);font-size:1.1rem;font-weight:800;color:white}
+.urg-vortex-body{flex:1}
+.urg-vortex-name{font-family:var(--display);font-size:.95rem;font-weight:800;
+  text-transform:uppercase;letter-spacing:.02em;color:var(--text)}
+.urg-vortex-sub{font-size:.73rem;color:var(--muted);margin-top:2px;line-height:1.3}
+.urg-cta{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+
+/* ── BANNER PACIENTE EXPANDIBLE ── */
+#noPatBanner{cursor:pointer;flex-direction:column;align-items:stretch;gap:0;padding:0}
+.npb-header{display:flex;align-items:flex-start;gap:10px;padding:12px 14px}
+.npb-header .b-icon{flex-shrink:0;margin-top:1px}
+.npb-header .b-text{flex:1}
+.npb-chevron{font-size:.9rem;color:#7a5800;transition:transform .2s;flex-shrink:0;margin-top:1px}
+#noPatBanner.expanded .npb-chevron{transform:rotate(180deg)}
+.npb-form{display:none;padding:0 14px 14px;border-top:1px solid rgba(240,192,64,.4)}
+#noPatBanner.expanded .npb-form{display:block}
+.npf-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.npf-field{display:flex;flex-direction:column;gap:4px}
+.npf-label{font-size:.65rem;font-weight:700;color:#7a5800;text-transform:uppercase;letter-spacing:.06em}
+.npf-input{border:1.5px solid rgba(240,192,64,.6);border-radius:9px;padding:9px 11px;
+  font-family:var(--mono);font-size:1.1rem;font-weight:600;color:var(--text);
+  background:rgba(255,255,255,.7);outline:none;width:100%;
+  transition:border-color .15s}
+.npf-input:focus{border-color:var(--yellow);background:#fff}
+.npf-sex{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px}
+.npf-sex-btn{padding:8px;border-radius:8px;border:1.5px solid rgba(240,192,64,.5);
+  background:rgba(255,255,255,.5);font-family:var(--mono);font-size:.82rem;font-weight:600;
+  color:#7a5800;cursor:pointer;transition:all .15s;text-align:center}
+.npf-sex-btn.sel{background:var(--yellow);border-color:var(--yellow);color:#3a2000}
+.npf-ibw{margin-top:8px;background:rgba(255,255,255,.6);border:1px solid rgba(240,192,64,.4);
+  border-radius:8px;padding:8px 12px;display:flex;justify-content:space-between;align-items:center}
+.npf-ibw-label{font-size:.68rem;font-weight:600;color:#7a5800;text-transform:uppercase;letter-spacing:.04em}
+.npf-ibw-val{font-family:var(--mono);font-size:1rem;font-weight:700;color:var(--text)}
+.npf-save{width:100%;margin-top:10px;padding:11px;border-radius:10px;
+  background:var(--yellow);border:none;font-family:var(--display);
+  font-size:1.1rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;
+  color:#3a2000;cursor:pointer;transition:opacity .15s}
+.npf-save:active{opacity:.85}
 </style>
 </head>
 <body>
@@ -403,14 +470,45 @@ header{background:linear-gradient(135deg,#1a7fc8 0%,#1a6fad 100%);border-bottom:
 <div id="view-val" class="view active">
 <div class="cnt" style="padding-top:16px">
 
-  <!-- Banner: sin datos de paciente -->
-  <div id="noPatBanner" class="banner b-warn" style="display:none">
-    <span class="b-icon">⚠️</span>
-    <div class="b-text">
-      <strong>Sin datos del paciente</strong>
-      Sin peso/talla las dosis no se calculan automáticamente.
-      <a class="b-link" href="../../index.html">Configurar paciente →</a>
+  <!-- Banner: sin datos de paciente — expandible -->
+  <div id="noPatBanner" class="banner b-warn" style="display:none" onclick="toggleNoPatForm(event)">
+    <div class="npb-header">
+      <span class="b-icon">⚠️</span>
+      <div class="b-text">
+        <strong>Sin datos del paciente</strong>
+        Pulsa para introducir peso y talla aquí.
+      </div>
+      <span class="npb-chevron">▾</span>
     </div>
+    <div class="npb-form" onclick="event.stopPropagation()">
+      <div class="npf-sex">
+        <button class="npf-sex-btn sel" id="npf-btnM" onclick="npfSetSex('M')">♂ Hombre</button>
+        <button class="npf-sex-btn"     id="npf-btnF" onclick="npfSetSex('F')">♀ Mujer</button>
+      </div>
+      <div class="npf-row">
+        <div class="npf-field">
+          <label class="npf-label">Peso real (kg)</label>
+          <input class="npf-input" id="npf-weight" type="number" inputmode="decimal"
+                 placeholder="75" min="1" oninput="npfCalcIBW()">
+        </div>
+        <div class="npf-field">
+          <label class="npf-label">Talla (cm)</label>
+          <input class="npf-input" id="npf-height" type="number" inputmode="decimal"
+                 placeholder="170" min="100" oninput="npfCalcIBW()">
+        </div>
+      </div>
+      <div class="npf-ibw">
+        <span class="npf-ibw-label">Peso ideal (Devine)</span>
+        <span class="npf-ibw-val" id="npf-ibw">— kg</span>
+      </div>
+      <button class="npf-save" onclick="npfSave()">Guardar y calcular dosis</button>
+    </div>
+  </div>
+
+  <!-- Banner: paciente guardado inline -->
+  <div id="patInlineBanner" class="banner b-ok" style="display:none">
+    <span class="b-icon">✓</span>
+    <div class="b-text"><strong>Paciente guardado</strong></div>
   </div>
 
   <!-- Banner: sesión anterior guardada -->
@@ -421,6 +519,10 @@ header{background:linear-gradient(135deg,#1a7fc8 0%,#1a6fad 100%);border-bottom:
       <button class="b-link" style="border:none;cursor:pointer" onclick="startNew()">Iniciar nuevo checklist →</button>
     </div>
   </div>
+
+  <button class="btn-ghost" onclick="goTo('urgente')" style="border-color:var(--yellow);color:#7a5800;background:#fffbef;margin-bottom:4px">
+    ⚡ Vista rápida — dosis y plan
+  </button>
 
   <div class="scard">
     <div class="scard-title">Indicación IOT</div>
@@ -1028,6 +1130,13 @@ header{background:linear-gradient(135deg,#1a7fc8 0%,#1a6fad 100%);border-bottom:
 </div>
 </div>
 
+<!-- ═══════════════════════ VISTA RÁPIDA URGENTE ════════════════════ -->
+<div id="view-urgente" class="view">
+<div class="urg-wrap" id="urgContent">
+  <!-- renderizado por openUrgente() -->
+</div>
+</div>
+
 <!-- ═══════════════════════ JAVASCRIPT ══════════════════════════════ -->
 <script>
 // ── DATOS CLÍNICOS ──────────────────────────────────────────────────
@@ -1155,9 +1264,194 @@ function renderHomePatient(){
   document.getElementById('patOkTxt').innerHTML='<strong>Paciente cargado</strong>Peso real: '+patient.weight+' kg'+ibwTxt;
 }
 
+// ── FORMULARIO INLINE PACIENTE ──────────────────────────────────────
+let _npfSex = 'M';
+
+function toggleNoPatForm(e){
+  const banner = document.getElementById('noPatBanner');
+  banner.classList.toggle('expanded');
+  if(banner.classList.contains('expanded')){
+    setTimeout(()=>document.getElementById('npf-weight').focus(), 150);
+  }
+}
+
+function npfSetSex(s){
+  _npfSex = s;
+  document.getElementById('npf-btnM').classList.toggle('sel', s==='M');
+  document.getElementById('npf-btnF').classList.toggle('sel', s==='F');
+  npfCalcIBW();
+}
+
+function npfCalcIBW(){
+  const h = parseFloat(document.getElementById('npf-height').value);
+  const el = document.getElementById('npf-ibw');
+  if(h > 100){
+    const base = _npfSex === 'M' ? 50 : 45.5;
+    const ibw = Math.round(base + 0.91*(h - 152.4));
+    el.textContent = (ibw > 0 ? ibw : '—') + ' kg';
+  } else {
+    el.textContent = '— kg';
+  }
+}
+
+function npfSave(){
+  const w = parseFloat(document.getElementById('npf-weight').value);
+  const h = parseFloat(document.getElementById('npf-height').value);
+  if(!w || w <= 0){ document.getElementById('npf-weight').focus(); return; }
+  const base = _npfSex === 'M' ? 50 : 45.5;
+  const ibw = h > 100 ? Math.max(1, Math.round(base + 0.91*(h - 152.4))) : w;
+  patient = { sex: _npfSex, weight: w, height: h || 0, ibw };
+  localStorage.setItem('hj23_patient', JSON.stringify(patient));
+  // Ocultar banner y mostrar confirmación
+  const banner = document.getElementById('noPatBanner');
+  banner.style.display = 'none';
+  // Mostrar banner de confirmación
+  const ok = document.getElementById('patInlineBanner');
+  if(ok){
+    ok.querySelector('.b-text').innerHTML =
+      `<strong>Paciente guardado</strong>Peso: ${w} kg · Talla: ${h||'—'} cm · IBW: ${ibw} kg`;
+    ok.style.display = 'flex';
+  }
+  // Refrescar dosis en checklist si ya se abrió
+  if(typeof buildInductorGrid === 'function') buildInductorGrid();
+  if(typeof buildBNMGrid === 'function') buildBNMGrid();
+  if(typeof updateFentPreDose === 'function') updateFentPreDose();
+}
+
+// ── VISTA RÁPIDA URGENTE ─────────────────────────────────────────────
+function openUrgente(){
+  const w=getW(), h=patient&&patient.height?+patient.height:null;
+  const sex=patient&&patient.sex?patient.sex:'M';
+
+  function fmtDose(mgKgMin,mgKgMax,w,unit){
+    if(!w) return `<span class="urg-dose no-pat">${mgKgMin}–${mgKgMax} ${unit}</span>`;
+    const lo=(mgKgMin*w).toFixed(0), hi=(mgKgMax*w).toFixed(0);
+    return `<span class="urg-dose">${lo}–${hi} mg</span>`;
+  }
+  function fmtFixed(mgKg,w){
+    if(!w) return `<span class="urg-dose no-pat">${mgKg} mg/kg</span>`;
+    return `<span class="urg-dose">${(mgKg*w).toFixed(0)} mg</span>`;
+  }
+
+  // TET
+  let tetHtml='';
+  if(h){
+    const diam = sex==='F' ? '7.5' : '8.0';
+    const depth = Math.round(h/10+12);
+    tetHtml=`
+      <div class="urg-tet-row"><span class="urg-tet-label">Diámetro</span><span class="urg-tet-val">${diam} mm</span></div>
+      <div class="urg-tet-row"><span class="urg-tet-label">Profundidad en dientes</span><span class="urg-tet-val">${depth} cm</span></div>
+      <div class="urg-tet-row"><span class="urg-tet-label">Talla usada</span><span class="urg-tet-val">${h} cm · ${sex==='F'?'Mujer':'Hombre'}</span></div>`;
+  } else {
+    tetHtml=`
+      <div class="urg-tet-row"><span class="urg-tet-label">Diámetro</span><span class="urg-tet-val" style="color:var(--muted)">7.0–8.0 mm</span></div>
+      <div class="urg-tet-row" style="border-bottom:none"><span class="urg-tet-label" style="color:var(--warn)">Sin talla del paciente</span><span style="font-size:.72rem;color:var(--warn)">medidas estándar</span></div>`;
+  }
+
+  const noPat=!w;
+  document.getElementById('urgContent').innerHTML=`
+    ${noPat?'<div class="urg-alert">⚠ Sin datos del paciente — se muestran rangos en mg/kg.<br>Ve a Configurar paciente para dosis exactas.</div>':''}
+
+    <div class="urg-card">
+      <div class="urg-card-title">Fentanilo — Pre-tratamiento</div>
+      <div class="urg-drug-row">
+        <div class="urg-drug-left">
+          <div class="urg-drug-name">Fentanilo</div>
+          <div class="urg-drug-hint">1–3 mcg/kg IV · 30 seg · 3 min antes</div>
+        </div>
+        ${w?`<span class="urg-dose">${Math.round(1*w)}–${Math.round(3*w)} mcg</span>`:'<span class="urg-dose no-pat">1–3 mcg/kg</span>'}
+      </div>
+    </div>
+
+    <div class="urg-card">
+      <div class="urg-card-title">Agente de inducción</div>
+      <div class="urg-drug-row">
+        <div class="urg-drug-left">
+          <div class="urg-drug-name">Ketamina</div>
+          <div class="urg-drug-hint">0,5–2 mg/kg IV · shock, broncoespasmo, trauma</div>
+          <div class="urg-drug-warn">⚠ Evitar en HTA severa · shock cardiogénico</div>
+        </div>
+        ${fmtDose(0.5,2,w,'mg/kg')}
+      </div>
+      <div class="urg-drug-row">
+        <div class="urg-drug-left">
+          <div class="urg-drug-name">Etomidato</div>
+          <div class="urg-drug-hint">0,2–0,3 mg/kg IV · inestabilidad hemodinámica</div>
+        </div>
+        ${fmtDose(0.2,0.3,w,'mg/kg')}
+      </div>
+    </div>
+
+    <div class="urg-card">
+      <div class="urg-card-title">Bloqueo neuromuscular</div>
+      <div class="urg-drug-row">
+        <div class="urg-drug-left">
+          <div class="urg-drug-name">Succinilcolina</div>
+          <div class="urg-drug-hint">1,2 mg/kg IV · SIR estándar</div>
+          <div class="urg-drug-warn">⚠ CI: HiperK+ · quemados · denervación</div>
+        </div>
+        ${fmtFixed(1.2,w)}
+      </div>
+      <div class="urg-drug-row">
+        <div class="urg-drug-left">
+          <div class="urg-drug-name">Rocuronio</div>
+          <div class="urg-drug-hint">1,2 mg/kg IV · si CI a succinilcolina</div>
+        </div>
+        ${fmtFixed(1.2,w)}
+      </div>
+    </div>
+
+    <div class="urg-card">
+      <div class="urg-card-title">Tubo endotraqueal (TET)</div>
+      ${tetHtml}
+    </div>
+
+    <div class="urg-card">
+      <div class="urg-card-title">Plan vía aérea — Vortex</div>
+      <div class="urg-vortex-row">
+        <div class="urg-vortex-badge" style="background:var(--blue)">A</div>
+        <div class="urg-vortex-body">
+          <div class="urg-vortex-name">Videolaringoscopia</div>
+          <div class="urg-vortex-sub">3+1 intentos · CCMRL si dificultad</div>
+        </div>
+      </div>
+      <div class="urg-vortex-row">
+        <div class="urg-vortex-badge" style="background:#7b5ea7">B</div>
+        <div class="urg-vortex-body">
+          <div class="urg-vortex-name">Dispositivo supraglótico</div>
+          <div class="urg-vortex-sub">iGel / LMA Fastrach · máx. 3 intentos</div>
+        </div>
+      </div>
+      <div class="urg-vortex-row">
+        <div class="urg-vortex-badge" style="background:#e07b00">C</div>
+        <div class="urg-vortex-body">
+          <div class="urg-vortex-name">BVM 2 personas</div>
+          <div class="urg-vortex-sub">Guedel + cánula nasal · último recurso ventilación</div>
+        </div>
+      </div>
+      <div class="urg-vortex-row">
+        <div class="urg-vortex-badge" style="background:var(--warn)">D</div>
+        <div class="urg-vortex-body">
+          <div class="urg-vortex-name">Cricotiroidotomía de emergencia</div>
+          <div class="urg-vortex-sub">Bisturí nº10 · Frova · TET #6 · No intubable / No oxigenable</div>
+        </div>
+      </div>
+      <div style="padding:10px 14px;font-size:.78rem;font-weight:700;color:#077d60;
+        background:var(--teal-s);border-top:1px solid var(--border)">
+        ✓ Confirmar posición SIEMPRE con capnografía
+      </div>
+    </div>
+
+    <div class="urg-cta">
+      <button class="btn-ghost" onclick="goTo('val')">← Volver a valoración</button>
+    </div>
+  `;
+}
+
 // ── NAVEGACIÓN ──────────────────────────────────────────────────────
-const VIEWS=['val','checklist','registro','informe','despierto'];
+const VIEWS=['val','checklist','registro','informe','despierto','urgente'];
 function goTo(v){
+  if(v==='urgente') openUrgente();
   currentView=v;
   VIEWS.forEach(id=>document.getElementById('view-'+id).classList.toggle('active',id===v));
   window.scrollTo(0,0);
@@ -1172,6 +1466,7 @@ function goTo(v){
   updateProgress();
 }
 function handleBack(){
+  if(currentView==='urgente'){goTo('val');return;}
   const idx=VIEWS.indexOf(currentView);
   if(idx<=0){location.href='../index.html';return;}
   goTo(VIEWS[idx-1]);
