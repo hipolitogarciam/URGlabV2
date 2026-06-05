@@ -201,16 +201,6 @@ header {
 
 /* ── Modal Finalizar ── */
 /* ── Timer flotante (siempre encima de modales) ── */
-#rcp-live-timer {
-  display:none; position:fixed; top:14px; right:14px; z-index:9999;
-  background:rgba(14,26,39,.82); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
-  border:1px solid rgba(9,199,151,.35); border-radius:20px;
-  padding:5px 11px; pointer-events:none;
-  font-family:var(--mono); font-size:.82rem; font-weight:700; color:#09c797;
-  letter-spacing:.04em; line-height:1;
-}
-#rcp-live-timer.active { display:flex; align-items:center; gap:5px; }
-#rcp-live-timer::before { content:'▶'; font-size:.55rem; opacity:.7; }
 
 #modal-finish { display:none; position:fixed; inset:0; z-index:1500; }
 #modal-finish.visible { display:block; }
@@ -426,8 +416,6 @@ header {
 </head>
 <body>
 <div class="rosc-flash" id="rosc-flash"></div>
-<div id="rcp-live-timer">00:00</div>
-
 <header>
   <a class="back-btn" href="../index.html#menu" onclick="handleBackBtn(event)" aria-label="Volver">
     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
@@ -1045,7 +1033,6 @@ function restoreSession(){
   hideRestoreBanner();
   Object.assign(S, snap);
   S._rafId = null; S._intervalId = null;
-  document.getElementById('rcp-live-timer').classList.add('active');
   // Restaurar estado visual
   _restoreInterventionsUI();
   // Modo del ciclo
@@ -1118,7 +1105,6 @@ function hideRestoreBanner(){ document.getElementById('restore-banner').classLis
 
 function startRCP(){
   const now=Date.now();
-  document.getElementById('rcp-live-timer').classList.add('active');
   Object.assign(S,{status:'active',startTime:now,cycleStartTime:null,cycleEndTime:null,rhythmMode:null,currentCycle:0,cycles:[],epiTimes:[],defibTimes:[],interventions:{},events:[],roscTs:null,finishReason:null,alertFired:false,zeroFired:false});
   document.querySelectorAll('.intervention-btn,.drug-btn').forEach(b=>{ b.classList.remove('done'); b.disabled=false; });
   document.querySelectorAll('[id^="time-"]').forEach(el=>el.textContent='');
@@ -1228,7 +1214,6 @@ function updateDisplays(){
   const now=Date.now();
   const elapsed=fmtMs(now-S.startTime);
   document.getElementById('total-display').textContent=elapsed;
-  document.getElementById('rcp-live-timer').textContent=elapsed;
   if(S.rhythmMode==='overtime'){
     document.getElementById('cycle-display').textContent=fmtOT(now-S.cycleEndTime);
   } else if(S.rhythmMode==='analysis'){
@@ -1920,7 +1905,6 @@ function resetRCP(){
   document.getElementById('btn-cycle').classList.remove('highlight');
   document.getElementById('btn-epi').classList.remove('highlight');
   document.getElementById('total-display').textContent='00:00';
-  document.getElementById('rcp-live-timer').classList.remove('active');
   showView('view-idle');
 }
 
