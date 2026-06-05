@@ -53,4 +53,19 @@ El repositorio tiene dos remotes configurados:
 
 **Frases que activan este flujo:** "tengo nuevos cambios", "sube a Gitea", "actualiza la intranet", "push al hospital", o cualquier variante similar.
 
-> Si el usuario quiere subir también a GitHub en el mismo momento: añadir `git push origin main` al flujo.
+> `origin` está configurado con push a GitHub **y** Gitea simultáneamente. Un solo `git push origin main` sube a los dos. Verificar con `git remote -v`.
+
+### ⛔ REGLAS CRÍTICAS — NUNCA romper
+
+1. **PROHIBIDO `git push --force` (o `-f`) sobre `gitea`**, sin ninguna excepción. El informático de sistemas edita archivos directamente en la web de Gitea (sobre todo el workflow de despliegue), generando commits que NO existen en local. Un force push los destruye.
+
+2. **Si Gitea rechaza un push por "non-fast-forward" / "behind"**, NO forzar. Integrar los cambios remotos primero:
+   ```
+   git fetch gitea
+   git merge gitea/main --no-edit   # o rebase si el historial lo permite
+   git push gitea main
+   ```
+
+3. **El workflow de despliegue vive en `.gitea/workflows/ci.yaml`** y está versionado en el repo. Despliega automáticamente al portal de aplicaciones de la intranet (`/home/portalaplicacions/cube/web/urgencies`) vía rsync+SSH en cada push a `main`. **NUNCA tocar, renombrar ni borrar este archivo.** Si hay que modificarlo, hacerlo solo con instrucción explícita del informático.
+
+4. **Antes de cualquier operación que reescriba historial en Gitea**, detenerse y avisar al usuario. Ante la duda, preguntar — nunca asumir.
