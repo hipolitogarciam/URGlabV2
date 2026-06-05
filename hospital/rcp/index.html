@@ -471,7 +471,7 @@ header {
       <div class="status-right">
         <button class="btn-log" onclick="showLog()">LOG <span class="log-badge" id="log-badge">0</span></button>
         <button class="btn-ht" id="btn-ht" onclick="showHT()">H&amp;T</button>
-        <button class="btn-interv" id="btn-interv" onclick="toggleSidebar()">INTERV.<span class="interv-count-badge" id="interv-count"></span></button>
+        <button class="btn-interv" id="btn-interv" onclick="toggleSidebar()">INTERV.</button>
       </div>
     </div>
   </div>
@@ -1138,7 +1138,6 @@ function startRCP(){
   document.getElementById('btn-cycle').disabled=false;
   document.getElementById('btn-cycle').textContent='INICIAR COMPRESIONES';
   document.getElementById('log-badge').textContent='1';
-  document.getElementById('interv-count').textContent='';
   updateEpiDisplay(); updateDefibDisplay(); updateAnalyzeBtn();
   showView('view-active');
   startLoop(); startSaveInterval(); saveSession();

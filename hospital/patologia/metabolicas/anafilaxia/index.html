@@ -785,8 +785,15 @@ function render(){
   flow.innerHTML=h;
   const cn=NODES[path[activeIdx]]; if(cn.init) cn.init();
   const an=document.getElementById('activeNode');
-  if(activeIdx>0 && an) an.scrollIntoView({block:'start',behavior:'smooth'});
-  else window.scrollTo(0,0);
+  if(activeIdx>0 && an){
+    const hd=document.querySelector('header'), bar=document.getElementById('progbar');
+    const off=(hd?hd.offsetHeight:68)+(bar?bar.offsetHeight:36)+8;
+    // espaciador para que el nodo activo pueda fijarse justo bajo la barra
+    const need=Math.max(0, window.innerHeight - off - an.offsetHeight);
+    if(need>0){ const sp=document.createElement('div'); sp.style.height=need+'px'; sp.setAttribute('aria-hidden','true'); flow.appendChild(sp); }
+    const y=an.getBoundingClientRect().top + window.pageYOffset - off;
+    window.scrollTo(0, y<0?0:y);
+  } else window.scrollTo(0,0);
 }
 
 function goIdx(i){ if(i>=0 && i<path.length){ activeIdx=i; render(); } }
