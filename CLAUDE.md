@@ -51,7 +51,9 @@ El repositorio tiene dos remotes configurados:
 3. Ejecutar: `git add .` → `git commit -m "..."` → `git push gitea main`
 4. Confirmar el push exitoso con el hash del commit
 
-**Frases que activan este flujo:** "tengo nuevos cambios", "sube a Gitea", "actualiza la intranet", "push al hospital", o cualquier variante similar.
+**Frases que activan este flujo:** "tengo nuevos cambios", "sube a Gitea", "actualiza la intranet", "push al hospital", "sube las actualizaciones", o cualquier variante similar.
+
+**Mensajes de commit — NO preguntar al usuario.** Usar formato `Módulo — actualización N`, con un contador independiente por módulo/herramienta. Para saber el N: buscar en el historial el último número de ese módulo (`git log --oneline | grep -i "<módulo>"`) y sumar 1. Si varios módulos cambian a la vez, listarlos (ej. `RCP — actualización 5 · Anafilaxia — actualización 3`). Esto deja un registro del trabajo hecho en cada herramienta. Conteo de partida: RCP va por la nº5.
 
 > `origin` está configurado con push a GitHub **y** Gitea simultáneamente. Un solo `git push origin main` sube a los dos. Verificar con `git remote -v`.
 
