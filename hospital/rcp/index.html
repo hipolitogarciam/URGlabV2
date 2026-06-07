@@ -1724,15 +1724,22 @@ function goToReport(save){
 function handleBackBtn(e){
   const active=document.querySelector('.view.visible');
   if(!active) return;
-  if(active.id==='view-post-rcp'){
-    e.preventDefault();
+  if(active.id==='view-idle'){
+    // Desde la selección de tipo PCR → va al hub normalmente
+    return;
+  }
+  e.preventDefault();
+  if(active.id==='view-active'){
+    if(S.status==='active'){
+      if(!confirm('¿Abandonar la RCP en curso? Se perderán todos los datos registrados.')) return;
+    }
+    resetRCP();
+  } else if(active.id==='view-post-rcp'){
     backToActiveRCP();
   } else if(active.id==='view-finished'){
-    e.preventDefault();
     _renderPostRCP();
     showView('view-post-rcp');
   }
-  // otros: navega al hub normalmente
 }
 function backToActiveRCP(){
   S.status='active';
