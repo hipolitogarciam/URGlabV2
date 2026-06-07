@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>RCP — URGlab</title>
+<title>URGlab · RCP</title>
 <link rel="stylesheet" href="../../fonts.css">
 <style>
 :root {
@@ -1297,28 +1297,28 @@ const VMI_PARAMS = {
 };
 const POST_ROSC_CFG = [
   { group:'Vía aérea y ventilación', items:[
-    { key:'vaIOT',   label:'IOT confirmada + capnografía continua' },
+    { key:'vaIOT',   label:'Permeabilidad VA / IOT si no realizada previamente' },
     { key:'vaSpO2',  label:'SpO₂ objetivo 94–98%', sub:'Evitar hiperoxia · FiO₂ al mínimo necesario' },
-    { key:'vaEtCO2', label:'EtCO₂ objetivo 35–45 mmHg' },
+    { key:'vaEtCO2', label:'PCO₂ objetivo 35–45 mmHg' },
   ]},
   { group:'Hemodinámica', items:[
-    { key:'hdLinea', label:'Valorar línea arterial si disponible' },
+    { key:'hdTAM',   label:'TAM > 65 mmHg', sub:'TAS > 100 mmHg · Tratar hipotensión activamente' },
     { key:'hdPOCUS', label:'POCUS precoz', sub:'Función VI, derrame pericárdico, neumotórax' },
-    { key:'hdTAM',   label:'TAS > 100 mmHg / TAM > 60–65 mmHg', sub:'Tratar hipotensión activamente' },
+    { key:'hdLinea', label:'Valorar línea arterial si disponible' },
   ]},
+  { group:'Neuroprotección y temperatura', items:[
+    { key:'npFiebre',    label:'Evitar fiebre activamente', sub:'Temperatura objetivo < 37,7°C (ERC 2025)' },
+    { key:'npHipotermia',label:'Temperatura objetivo 32–36°C', sub:'No recalentar activamente si hipotermia' },
+    { key:'npGluce',     label:'Normoglucemia 120–180 mg/dL', sub:'Evitar hiper e hipoglucemia' },
+    { key:'npCabecero',  label:'Cabecero 30°', sub:'Salvo contraindicación' },
+  ]},
+  { group:'Analgo-sedación', items:[], _inject:'sdCards' },
   { group:'Diagnóstico', items:[
     { key:'dxECG',    label:'ECG 12 derivaciones' },
     { key:'dxCorona', label:'Coronariografía urgente', sub:'Si SCACEST o sospecha coronaria' },
     { key:'dxTC',     label:'AngioTC / Body TC', sub:'Si causa no coronaria probable' },
     { key:'dxGaso',   label:'Gasometría arterial post-ROSC' },
     { key:'dxAnal',   label:'Analítica completa', sub:'Troponina · Lactato · Iones · Hemograma · Coagulación' },
-  ]},
-  { group:'Analgo-sedación', items:[], _inject:'sdCards' },
-  { group:'Neuroprotección y temperatura', items:[
-    { key:'npFiebre',    label:'Temperatura ≤ 37,5°C', sub:'Prevenir fiebre activamente (ERC 2025)' },
-    { key:'npHipotermia',label:'Si hipotermia accidental (32–36°C): no recalentar activamente' },
-    { key:'npGluce',     label:'Glucemia objetivo 126–180 mg/dL', sub:'Evitar hiper e hipoglucemia' },
-    { key:'npCabecero',  label:'Cabecero 30°', sub:'Salvo contraindicación' },
   ]},
 ];
 
@@ -1829,40 +1829,61 @@ function buildReportText(){
     const ribw=rpat?(rpat.ibw||(rpat.height&&rpat.sex?calcIBW(rpat.sex,rpat.height):null)):null;
     const rwt=rpat&&rpat.weight?+rpat.weight:null;
     txt+=`\n${L}\nCUIDADOS POST-ROSC\n${L}\n`;
-    if(S.postRoscVMI){
-      const vmiLbl=S.postRoscVMI==='protectora'?'Protectora (AC/VC · 6–8 ml/kg IBW · PEEP 5 cmH₂O)':'Obstructiva (AC/VC · 6–8 ml/kg IBW · PEEP 0–5 cmH₂O)';
-      txt+=`  VMI: Estrategia ${vmiLbl}\n`;
-    }
     POST_ROSC_CFG.forEach(grp=>{
-      const checked=grp.items.filter(it=>S.postRoscChecks&&S.postRoscChecks[it.key]);
-      if(checked.length){ txt+=`  ${grp.group}:\n`; checked.forEach(it=>{ txt+=`    ✓ ${it.label}\n`; }); }
+      if(grp._inject==='sdCards'){
+        // Analgo-sedación — fármacos (integrado en su posición ABCDE)
+        if(S.postRoscFentanilo||S.postRoscSedante){
+          txt+=`  Analgo-sedación:\n`;
+          if(S.postRoscFentanilo){
+            const fMlh=ribw?((0.5*ribw)/9).toFixed(1):null;
+            txt+=`    ✓ Fentanilo: inicio ${fMlh?fMlh+' ml/hr':'—'} (0,5 mcg/kg/h · 900 mcg/100 ml SF · 9 mcg/ml)\n`;
+          }
+          if(S.postRoscSedante==='propofol'){
+            const pMlh=ribw?((0.3*ribw)/20).toFixed(1):null;
+            txt+=`    ✓ Propofol: inicio ${pMlh?pMlh+' ml/hr':'—'} (0,3 mg/kg/h · sin diluir · 20 mg/ml)\n`;
+          }
+          if(S.postRoscSedante==='midazolam'){
+            const mMlh=ribw?(0.05*ribw).toFixed(1):null;
+            txt+=`    ✓ Midazolam: inicio ${mMlh?mMlh+' ml/hr':'—'} (0,05 mg/kg/h · 100 mg/100 ml SF · 1 mg/ml)\n`;
+          }
+        }
+      } else {
+        const checked=grp.items.filter(it=>S.postRoscChecks&&S.postRoscChecks[it.key]);
+        if(grp.group==='Vía aérea y ventilación'){
+          // VMI integrado dentro del bloque A+B
+          const hasVia=checked.length||S.postRoscVMI;
+          if(hasVia) txt+=`  Vía aérea y ventilación:\n`;
+          // Iterar items en orden para insertar VMI justo después de vaIOT
+          grp.items.forEach(it=>{
+            if(S.postRoscChecks&&S.postRoscChecks[it.key]) txt+=`    ✓ ${it.label}\n`;
+            if(it.key==='vaIOT'&&S.postRoscVMI){
+              const vmiLbl=S.postRoscVMI==='protectora'?'Protectora (AC/VC · 6–8 ml/kg IBW · PEEP 5 cmH₂O)':'Obstructiva (AC/VC · 6–8 ml/kg IBW · PEEP 0–5 cmH₂O)';
+              txt+=`    ✓ VMI: Estrategia ${vmiLbl}\n`;
+            }
+          });
+        } else if(grp.group==='Hemodinámica'){
+          const hasHemo=checked.length||S.postRoscNora||S.postRoscDobu;
+          if(hasHemo) txt+=`  Hemodinámica:\n`;
+          // Iterar items en orden; insertar vasopresores justo después de hdTAM
+          grp.items.forEach(it=>{
+            if(S.postRoscChecks&&S.postRoscChecks[it.key]) txt+=`    ✓ ${it.label}\n`;
+            if(it.key==='hdTAM'&&(S.postRoscNora||S.postRoscDobu)){
+              txt+=`    — Vasopresores:\n`;
+              if(S.postRoscNora){
+                const neMlh=rwt?((0.1*rwt*60)/80).toFixed(1):null;
+                txt+=`      ✓ Noradrenalina: inicio ${neMlh?neMlh+' ml/hr':'—'} (0,1 mcg/kg/min · 20 mg/250 ml SG5% · 80 mcg/ml)\n`;
+              }
+              if(S.postRoscDobu){
+                const dobMlh=rwt?((5*rwt*60)/2000).toFixed(1):null;
+                txt+=`      ✓ Dobutamina: inicio ${dobMlh?dobMlh+' ml/hr':'—'} (5 mcg/kg/min · 500 mg/250 ml SG5% · 2000 mcg/ml)\n`;
+              }
+            }
+          });
+        } else {
+          if(checked.length){ txt+=`  ${grp.group}:\n`; checked.forEach(it=>{ txt+=`    ✓ ${it.label}\n`; }); }
+        }
+      }
     });
-    if(S.postRoscNora||S.postRoscDobu){
-      txt+=`  Hemodinámica — vasopresores:\n`;
-      if(S.postRoscNora){
-        const neMlh=rwt?((0.1*rwt*60)/80).toFixed(1):null;
-        txt+=`    ✓ Noradrenalina: inicio ${neMlh?neMlh+' ml/hr':'—'} (0,1 mcg/kg/min · 20 mg/250 ml SG5% · 80 mcg/ml)\n`;
-      }
-      if(S.postRoscDobu){
-        const dobMlh=rwt?((5*rwt*60)/2000).toFixed(1):null;
-        txt+=`    ✓ Dobutamina: inicio ${dobMlh?dobMlh+' ml/hr':'—'} (5 mcg/kg/min · 500 mg/250 ml SG5% · 2000 mcg/ml)\n`;
-      }
-    }
-    if(S.postRoscFentanilo||S.postRoscSedante){
-      txt+=`  Analgo-sedación:\n`;
-      if(S.postRoscFentanilo){
-        const fMlh=ribw?((0.5*ribw)/9).toFixed(1):null;
-        txt+=`    ✓ Fentanilo: inicio ${fMlh?fMlh+' ml/hr':'—'} (0,5 mcg/kg/h · 900 mcg/100 ml SF · 9 mcg/ml)\n`;
-      }
-      if(S.postRoscSedante==='propofol'){
-        const pMlh=ribw?((0.3*ribw)/20).toFixed(1):null;
-        txt+=`    ✓ Propofol: inicio ${pMlh?pMlh+' ml/hr':'—'} (0,3 mg/kg/h · sin diluir · 20 mg/ml)\n`;
-      }
-      if(S.postRoscSedante==='midazolam'){
-        const mMlh=ribw?(0.05*ribw).toFixed(1):null;
-        txt+=`    ✓ Midazolam: inicio ${mMlh?mMlh+' ml/hr':'—'} (0,05 mg/kg/h · 100 mg/100 ml SF · 1 mg/ml)\n`;
-      }
-    }
   }
   txt+=`\n${L}\nREGISTRO DE EVENTOS\n${L}\n`;
   S.events.forEach(e=>{ txt+=`  ${relTime(e.ts)}  ${absTime(e.ts)}  |  ${e.label}\n`; });
