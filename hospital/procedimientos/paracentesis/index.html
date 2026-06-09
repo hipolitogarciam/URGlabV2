@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>URGlab · Paracentesis</title>
+<title>URGlab · Drenaje peritoneal</title>
 <link rel="stylesheet" href="../../../fonts.css">
 <style>
 :root{
@@ -346,7 +346,7 @@ textarea.reg-input{min-height:80px;resize:vertical;line-height:1.5}
   </button>
   <div class="hdr-center">
     <div class="hdr-label">Hospital Universitari Joan XXIII</div>
-    <div class="hdr-title">Paracentesis</div>
+    <div class="hdr-title">Drenaje peritoneal</div>
     <div class="hdr-sub" id="hdrSub">Evacuadora / Diagnóstica</div>
   </div>
   <div></div>
@@ -1207,9 +1207,9 @@ textarea.reg-input{min-height:80px;resize:vertical;line-height:1.5}
   <pre class="informe-box" id="informeBox"></pre>
   <div class="inf-actions btn-row">
     <button class="btn-primary btn-outline" onclick="copyReport('informeBox')" style="flex:1">📋 Copiar</button>
-    <button class="btn-primary" onclick="downloadReport('informeBox','paracentesis')" style="flex:1">⬇️ Descargar</button>
+    <button class="btn-primary" onclick="downloadReport('informeBox','drenaje-peritoneal')" style="flex:1">⬇️ Descargar</button>
   </div>
-  <button class="btn-ghost" onclick="resetState()">Nueva paracentesis</button>
+  <button class="btn-ghost" onclick="resetState()">Nuevo drenaje peritoneal</button>
 </div>
 </div>
 
@@ -1881,7 +1881,7 @@ function generateReport(){
 
   const L = [];
   L.push('══════════════════════════════════════════════');
-  L.push('  PARACENTESIS — Hospital Universitari Joan XXIII');
+  L.push('  DRENAJE PERITONEAL (PARACENTESIS) — HJ23');
   L.push('══════════════════════════════════════════════');
   L.push(`  Fecha: ${fecha}   Hora: ${hora}`);
   L.push('──────────────────────────────────────────────');
@@ -1933,7 +1933,7 @@ function downloadReport(boxId, prefix){
   const text = document.getElementById(boxId).textContent;
   const a = document.createElement('a');
   a.href = 'data:text/plain;charset=utf-8,'+encodeURIComponent(text);
-  a.download = (prefix||'paracentesis')+'_'+new Date().toISOString().slice(0,10)+'.txt';
+  a.download = (prefix||'drenaje-peritoneal')+'_'+new Date().toISOString().slice(0,10)+'.txt';
   a.click();
 }
 
