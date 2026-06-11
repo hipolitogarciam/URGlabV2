@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>URGlab · Reversión de anticoagulantes</title>
+<link rel="stylesheet" href="../../../../fonts.css">
+<style>
+:root{
+  --bg:#f4f6f9;--surface:#fff;--border:rgba(0,0,0,0.09);--border-mid:rgba(0,0,0,0.18);
+  --text:#1a2636;--muted:#8898aa;
+  --blue:#1a7fc8;--blue-dark:#1a6fad;--blue-s:#e8f3fb;
+  --teal:#09c797;--teal-s:#e6faf5;--teal-dark:#0a8c6a;
+  --epi:#c41520;--epi-s:#fdecec;--epi-border:#f3b4b7;
+  --amber:#e08600;--amber-s:#fff7e6;--amber-border:#f0cd7a;--amber-dark:#9a6500;
+  --display:'Barlow Condensed',sans-serif;--body:'IBM Plex Sans',sans-serif;--mono:'IBM Plex Mono',monospace;
+  /* color de gravedad activo (se sobreescribe por JS) */
+  --sev:#8898aa;--sev-s:#f1f4f8;--sev-border:#d7dde5;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);font-family:var(--body);color:var(--text);min-height:100svh;padding-bottom:48px}
+
+/* ── HEADER reglamentario ── */
+header{
+  background:linear-gradient(135deg,#1a7fc8 0%,#1a6fad 100%);
+  border-bottom:3px solid var(--teal);
+  padding:12px 18px;position:sticky;top:0;z-index:1000;
+  display:grid;grid-template-columns:48px 1fr 48px;align-items:center;gap:8px;min-height:68px;
+}
+.back-btn{display:flex;align-items:center;justify-content:center;width:44px;height:44px;
+  border-radius:10px;background:rgba(255,255,255,0.15);border:none;cursor:pointer;color:#fff;transition:background .15s;text-decoration:none}
+.back-btn:active{background:rgba(255,255,255,0.28)}
+.hdr-center{text-align:center;overflow:hidden}
+.hdr-label{font-family:var(--body);font-size:.58rem;font-weight:600;color:#09c797;
+  letter-spacing:.12em;text-transform:uppercase;margin-bottom:2px}
+.hdr-title{font-family:var(--display);font-size:1.4rem;font-weight:800;color:#fff;
+  letter-spacing:.04em;text-transform:uppercase;line-height:1}
+.reset-btn{display:flex;align-items:center;justify-content:center;width:44px;height:44px;
+  border-radius:10px;background:rgba(255,255,255,0.12);border:none;cursor:pointer;color:#fff}
+.reset-btn:active{background:rgba(255,255,255,0.26)}
+
+/* ── BARRA DE CONTEXTO sticky ── */
+.ctxbar{position:sticky;top:68px;z-index:900;background:#fff;border-bottom:1px solid var(--border);
+  padding:8px 0;display:none}
+.ctxbar.show{display:block}
+.ctx-row{max-width:480px;margin:0 auto;padding:0 14px;display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.ctx-chip{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:.66rem;font-weight:700;
+  letter-spacing:.03em;padding:5px 10px;border-radius:20px;cursor:pointer;border:1.5px solid var(--border-mid);
+  background:#fafbfc;color:var(--text);text-transform:uppercase;transition:all .12s}
+.ctx-chip:active{transform:scale(.96)}
+.ctx-chip.sev{background:var(--sev-s);border-color:var(--sev-border);color:var(--sev)}
+.ctx-chip .dotc{width:8px;height:8px;border-radius:50%;background:var(--sev);flex-shrink:0}
+.ctx-chip.drug{background:var(--blue-s);border-color:#a8cceb;color:var(--blue-dark)}
+.ctx-chip.weight{background:var(--teal-s);border-color:#7ddfc5;color:var(--teal-dark)}
+.ctx-edit{font-size:.58rem;opacity:.7;font-weight:600}
+
+/* ── CONTENEDOR ── */
+.cnt{max-width:480px;margin:0 auto;padding:16px 16px 20px}
+
+/* ── SECCIÓN / TÍTULOS ── */
+.step-lbl{font-family:var(--display);font-size:1.2rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.02em;color:var(--text);margin:4px 0 11px;display:flex;align-items:center;gap:9px}
+.step-num{width:30px;height:30px;border-radius:9px;background:var(--blue);color:#fff;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:800;font-size:1.05rem}
+.sec-divider{font-family:var(--display);font-size:1rem;font-weight:800;text-transform:uppercase;
+  letter-spacing:.03em;color:#3a4d63;margin:18px 0 9px;padding-left:2px;border-left:3px solid var(--sev);padding-left:9px}
+
+/* ── TRIAJE (gravedad) ── */
+.triage{display:flex;flex-direction:column;gap:10px;margin-bottom:8px}
+.tcard{display:flex;align-items:center;gap:14px;background:var(--surface);border:2px solid var(--border-mid);
+  border-radius:14px;padding:15px 16px;cursor:pointer;transition:all .13s;box-shadow:0 1px 5px rgba(0,0,0,0.05)}
+.tcard:active{transform:scale(.985)}
+.tcard .tdot{width:18px;height:18px;border-radius:50%;flex-shrink:0}
+.tcard .tbody{flex:1;min-width:0}
+.tcard .tname{font-family:var(--display);font-size:1.25rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.02em;line-height:1.05}
+.tcard .tsub{font-size:.74rem;color:var(--muted);line-height:1.3;margin-top:2px}
+.tcard.vital  .tdot{background:var(--epi)}
+.tcard.qx     .tdot{background:var(--amber)}
+.tcard.leve   .tdot{background:var(--teal)}
+.tcard.vital.sel{border-color:var(--epi);background:var(--epi-s)}
+.tcard.vital.sel .tname{color:var(--epi)}
+.tcard.qx.sel{border-color:var(--amber);background:var(--amber-s)}
+.tcard.qx.sel .tname{color:var(--amber-dark)}
+.tcard.leve.sel{border-color:var(--teal);background:var(--teal-s)}
+.tcard.leve.sel .tname{color:var(--teal-dark)}
+
+/* ── SELECTOR DE FÁRMACO ── */
+.drug-row{display:flex;gap:9px;margin-bottom:6px}
+.drug-pill{flex:1;border:2px solid var(--border-mid);border-radius:12px;padding:12px 6px;text-align:center;
+  cursor:pointer;transition:all .12s;background:var(--surface)}
+.drug-pill:active{transform:scale(.97)}
+.drug-pill .dp-name{font-family:var(--display);font-size:1.1rem;font-weight:800;text-transform:uppercase;letter-spacing:.02em;line-height:1}
+.drug-pill .dp-sub{font-size:.6rem;color:var(--muted);margin-top:3px;line-height:1.2}
+.drug-pill.sel{border-color:var(--blue);background:var(--blue-s)}
+.drug-pill.sel .dp-name{color:var(--blue-dark)}
+
+/* ── SELECTOR DE ORIGEN (TXA) ── */
+.txa-grid{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:2px}
+.txa-chip{border:1.5px solid var(--border-mid);border-radius:9px;padding:8px 11px;font-size:.78rem;
+  font-weight:600;cursor:pointer;background:var(--surface);transition:all .12s;line-height:1.1}
+.txa-chip:active{transform:scale(.96)}
+.txa-chip.sel-ok{border-color:var(--teal);background:var(--teal-s);color:var(--teal-dark)}
+.txa-chip.sel-no{border-color:var(--epi);background:var(--epi-s);color:var(--epi)}
+.txa-dose{margin-top:10px;border-top:1px dashed var(--border);padding-top:6px}
+
+/* ── HEMOSTASIA DIRIGIDA (control de foco) ── */
+.foco-lbl{font-family:var(--mono);font-size:.6rem;font-weight:600;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.foco-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:11px}
+.foco-tile{border:1.5px solid var(--border-mid);border-left:3px solid var(--sev);
+  border-radius:11px;padding:9px 11px;background:#fafbfc}
+.foco-name{font-family:var(--display);font-size:1rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.02em;line-height:1.05;color:var(--text)}
+.foco-sub{font-size:.66rem;color:var(--muted);line-height:1.2;margin-top:2px}
+
+/* ── SCARD ── */
+.scard{background:var(--surface);border:1px solid var(--border);border-radius:14px;
+  padding:14px 15px;margin-bottom:12px;box-shadow:0 1px 5px rgba(0,0,0,0.05)}
+.scard.sev{border:1.5px solid var(--sev-border)}
+.scard-hdr{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.scard-icon{font-size:1.05rem}
+.scard-title{font-family:var(--display);font-size:1.05rem;font-weight:700;color:var(--text);
+  text-transform:uppercase;letter-spacing:.03em}
+
+b,strong{font-weight:600}
+.lead{font-size:.85rem;line-height:1.45}.lead strong{font-weight:600}
+.muted-note{font-size:.74rem;line-height:1.4;color:var(--muted);margin-top:8px}
+.kv{display:flex;justify-content:space-between;align-items:baseline;gap:10px;
+  padding:7px 0;border-bottom:1px dashed var(--border);font-size:.82rem}
+.kv:last-child{border-bottom:none}
+.kv-k{color:var(--muted);font-weight:500}
+.kv-v{font-family:var(--mono);font-weight:600;text-align:right}
+.kv-v.hi{color:var(--blue-dark);font-size:.98rem}
+.kv-v.sev{color:var(--sev);font-size:1rem}
+
+/* listas */
+.rlist{list-style:none;margin:0}
+.rlist li{font-size:.82rem;line-height:1.42;padding:8px 0;border-bottom:1px dashed var(--border);position:relative;padding-left:16px}
+.rlist li:last-child{border-bottom:none}
+.rlist li::before{content:'›';position:absolute;left:0;color:var(--sev);font-weight:800}
+.rlist li b{font-weight:600}
+
+/* banners */
+.banner{border-radius:12px;padding:11px 13px;font-size:.8rem;line-height:1.42;margin-bottom:12px}
+.b-info{background:var(--blue-s);border:1.5px solid #a8cceb}
+.b-warn{background:var(--amber-s);border:1.5px solid var(--amber-border)}
+.b-epi{background:var(--epi-s);border:1.5px solid var(--epi-border)}
+.b-teal{background:var(--teal-s);border:1.5px solid #7ddfc5}
+.banner b{font-weight:600}
+.banner.lead-action{font-size:.86rem}
+
+/* dosis grande (antídoto / acción principal) */
+.dose-hero{color:#fff;border-radius:14px;padding:16px;text-align:center;margin-bottom:12px}
+.dose-hero.epi{background:var(--epi);box-shadow:0 2px 12px rgba(196,21,32,0.22)}
+.dose-hero.blue{background:var(--blue);box-shadow:0 2px 12px rgba(26,127,200,0.2)}
+.dose-hero.amber{background:var(--amber);box-shadow:0 2px 12px rgba(224,134,0,0.2)}
+.dose-hero .dh-name{font-family:var(--display);font-size:1.55rem;font-weight:800;letter-spacing:.02em;line-height:1.02}
+.dose-hero .dh-dose{font-family:var(--mono);font-size:.92rem;font-weight:600;opacity:.95;margin-top:5px}
+
+/* peso / calculadora */
+.wbar{display:flex;justify-content:space-between;align-items:center;background:var(--teal-s);
+  border:1px solid #7ddfc5;border-radius:10px;padding:8px 12px;margin-bottom:12px}
+.wbar-lbl{font-size:.72rem;color:var(--teal-dark);font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+.wbar-val{font-family:var(--mono);font-size:1rem;font-weight:700;color:var(--teal-dark)}
+.wpanel{background:var(--amber-s);border:1.5px solid var(--amber-border);border-radius:10px;padding:11px 13px;margin-bottom:12px}
+.wpanel-lbl{font-size:.72rem;font-weight:600;color:var(--amber-dark);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.wpanel-row{display:flex;gap:8px}
+.wpanel-row input{flex:1;border:1.5px solid #e3b95e;border-radius:9px;padding:9px 12px;background:#fff;
+  font-family:var(--mono);font-size:1.1rem;font-weight:700;color:var(--text);outline:none;min-width:0}
+.wpanel-row input:focus{border-color:var(--amber)}
+.wpanel-btn{font-family:var(--display);font-size:1rem;font-weight:800;text-transform:uppercase;letter-spacing:.03em;
+  color:#fff;background:var(--amber);border:none;border-radius:9px;padding:0 18px;cursor:pointer;white-space:nowrap}
+.wpanel-btn:active{opacity:.85}
+
+/* calculadora CCP */
+.calc-card{background:var(--surface);border:1.5px solid var(--epi-border);border-radius:14px;padding:14px 15px;margin-bottom:12px}
+.calc-title{font-family:var(--display);font-size:1.1rem;font-weight:800;text-transform:uppercase;letter-spacing:.03em;color:var(--text);margin-bottom:3px}
+.calc-sub{font-size:.7rem;color:var(--muted);margin-bottom:11px;line-height:1.35}
+.inr-row{display:flex;gap:8px;align-items:stretch;margin-bottom:11px}
+.inr-fld{flex:1;border:1.5px solid var(--border-mid);border-radius:10px;padding:8px 11px;background:#fafbfc}
+.inr-fld-lbl{font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+.inr-fld input{width:100%;border:none;background:transparent;font-family:var(--mono);font-size:1.3rem;font-weight:700;color:var(--text);padding:1px 0;outline:none}
+.ccp-result{background:var(--epi-s);border:1px solid var(--epi-border);border-radius:11px;padding:12px 14px;margin-top:4px}
+.ccp-result .crk{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+.ccp-result .crv{font-family:var(--mono);font-size:1.7rem;font-weight:800;color:var(--epi);line-height:1.1}
+.ccp-result .crtier{font-size:.74rem;color:var(--text);margin-top:3px}
+.ccp-result .crtier b{font-weight:600}
+.ccp-cap{font-size:.7rem;color:var(--amber-dark);font-weight:600;margin-top:6px;display:none}
+.ccp-cap.show{display:block}
+
+/* escalera de escalado */
+.ladder{margin:6px 0 12px}
+.lstep{display:flex;gap:11px;position:relative;padding-bottom:13px}
+.lstep:last-child{padding-bottom:0}
+.lstep::before{content:'';position:absolute;left:13px;top:28px;bottom:-2px;width:2px;background:var(--sev-border)}
+.lstep:last-child::before{display:none}
+.lnum{width:28px;height:28px;border-radius:50%;background:var(--sev);color:#fff;flex-shrink:0;z-index:1;
+  display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:800;font-size:.95rem}
+.lbody{flex:1;min-width:0;padding-top:2px}
+.lttl{font-family:var(--display);font-size:1rem;font-weight:800;text-transform:uppercase;letter-spacing:.02em;line-height:1.05;color:var(--text)}
+.ldesc{font-size:.78rem;color:var(--text);line-height:1.4;margin-top:3px}
+.ldesc b{font-weight:600}.ldesc .em{color:var(--sev);font-weight:600}
+
+/* desplegable */
+.acc{border:1px solid var(--border);border-radius:11px;margin-bottom:10px;overflow:hidden;background:var(--surface)}
+.acc-head{display:flex;align-items:center;gap:9px;padding:11px 13px;cursor:pointer;font-family:var(--display);
+  font-size:.98rem;font-weight:700;text-transform:uppercase;letter-spacing:.02em;color:var(--text)}
+.acc-head .acc-chev{margin-left:auto;color:var(--muted);transition:transform .15s}
+.acc.open .acc-chev{transform:rotate(90deg)}
+.acc-body{display:none;padding:0 13px 12px;border-top:1px solid var(--border)}
+.acc.open .acc-body{display:block;padding-top:11px}
+
+/* tabla INR */
+.inr-tbl{width:100%;border-collapse:collapse;margin-bottom:12px;background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.inr-tbl th{font-family:var(--mono);font-size:.58rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;
+  color:var(--muted);padding:9px 11px;text-align:left;border-bottom:1px solid var(--border);background:#fafbfc}
+.inr-tbl td{padding:9px 11px;font-size:.78rem;color:var(--text);border-bottom:1px solid var(--border);line-height:1.35;vertical-align:top}
+.inr-tbl tr:last-child td{border-bottom:none}
+.inr-tbl td:first-child{font-family:var(--mono);font-weight:700;color:var(--epi);white-space:nowrap}
+.inr-tbl tr.hl td{background:var(--epi-s)}
+.inr-tbl tr.hl td:first-child{color:var(--epi)}
+
+/* tag */
+.tag{display:inline-block;font-family:var(--mono);font-size:.58rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.05em;padding:2px 7px;border-radius:6px;vertical-align:middle}
+.tag.warn{background:var(--amber-s);color:var(--amber-dark);border:1px solid var(--amber-border)}
+.tag.danger{background:var(--epi-s);color:var(--epi);border:1px solid var(--epi-border)}
+
+/* botones */
+.btn{display:block;width:100%;padding:14px;border-radius:13px;font-family:var(--display);
+  font-size:1.12rem;font-weight:800;text-transform:uppercase;letter-spacing:.03em;cursor:pointer;
+  border:none;margin-bottom:9px;transition:transform .1s,opacity .15s}
+.btn:active{transform:scale(.985)}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-outline{background:#fff;color:var(--blue);border:2px solid var(--blue)}
+.btn-sub{font-family:var(--body);font-size:.66rem;font-weight:500;text-transform:none;letter-spacing:0;opacity:.85;display:block;margin-top:2px}
+
+/* informe */
+.informe-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;
+  font-family:var(--mono);font-size:.76rem;line-height:1.6;white-space:pre-wrap;word-break:break-word;color:var(--text);margin-bottom:8px}
+.inf-actions{display:flex;gap:8px;margin:0 0 16px}
+.inf-actions .btn{flex:1;margin-bottom:0;font-size:1rem}
+
+.disclaimer{font-size:.68rem;color:var(--muted);line-height:1.4;text-align:center;margin-top:18px;padding:0 6px}
+.placeholder{text-align:center;color:var(--muted);font-size:.82rem;padding:26px 16px;line-height:1.5}
+.placeholder .ph-ic{font-size:1.6rem;display:block;margin-bottom:6px;opacity:.6}
+</style>
+</head>
+<body>
+
+<header>
+  <a class="back-btn" href="../index.html" aria-label="Volver">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+         fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+  </a>
+  <div class="hdr-center">
+    <div class="hdr-label">Hospital Universitari Joan XXIII</div>
+    <div class="hdr-title">Reversión ACO</div>
+  </div>
+  <button class="reset-btn" onclick="restart()" aria-label="Reiniciar" title="Reiniciar">
+    <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24"
+         fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 2v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L3 8"/>
+    </svg>
+  </button>
+</header>
+
+<div class="ctxbar" id="ctxbar"></div>
+
+<div class="cnt"><div id="flow"></div></div>
+
+<script>
+// ═══ PESO COMPARTIDO ═══
+let patient=null;
+try{ const r=localStorage.getItem('hj23_patient'); if(r) patient=JSON.parse(r); }catch(e){}
+function getW(){ return (patient&&patient.weight&&+patient.weight>0)? +patient.weight : null; }
+function wbarHTML(){
+  const w=getW();
+  if(w) return '<div class="wbar"><span class="wbar-lbl">Peso en uso</span><span class="wbar-val">'+w+' kg</span></div>';
+  return '<div class="wpanel">'+
+    '<div class="wpanel-lbl">⚠️ Introduce el peso para calcular la dosis</div>'+
+    '<div class="wpanel-row">'+
+      '<input type="number" id="wIn" inputmode="decimal" min="1" placeholder="kg" '+
+        'onkeydown="if(event.key===\'Enter\')setWeightInline()">'+
+      '<button class="wpanel-btn" onclick="setWeightInline()">Guardar</button>'+
+    '</div></div>';
+}
+function setWeightInline(){
+  const v=parseFloat(document.getElementById('wIn').value);
+  if(!v||v<=0) return;
+  patient=Object.assign({},patient||{},{weight:v});
+  try{ localStorage.setItem('hj23_patient',JSON.stringify(patient)); }catch(e){}
+  render();
+}
+
+// ═══ DEFINICIONES ═══
+const SEV={
+  vital:{name:'Hemorragia vital',short:'Vital',sub:'mayor o con compromiso vital',col:'#c41520',cs:'#fdecec',cb:'#f3b4b7'},
+  qx:{name:'Cirugía / procedimiento',short:'Cirugía urgente',sub:'urgente o emergente',col:'#e08600',cs:'#fff7e6',cb:'#f0cd7a'},
+  leve:{name:'Hemorragia leve / sin sangrado',short:'Leve',sub:'leve o INR elevado sin sangrado',col:'#0a8c6a',cs:'#e6faf5',cb:'#7ddfc5'}
+};
+const DRUG={
+  avk:{name:'AVK',sub:'acenocumarol · warfarina'},
+  dabi:{name:'Dabigatrán',sub:'anti-IIa'},
+  antixa:{name:'Anti-Xa',sub:'apixabán · rivaroxabán · edoxabán'}
+};
+
+let state={sev:null, drug:null, txaOrigin:null};
+
+// ═══ APLICAR COLOR DE GRAVEDAD ═══
+function applySevColor(){
+  const root=document.documentElement.style;
+  if(state.sev){ const s=SEV[state.sev]; root.setProperty('--sev',s.col); root.setProperty('--sev-s',s.cs); root.setProperty('--sev-border',s.cb); }
+  else { root.setProperty('--sev','#8898aa'); root.setProperty('--sev-s','#f1f4f8'); root.setProperty('--sev-border','#d7dde5'); }
+}
+
+// ═══ RENDER PRINCIPAL ═══
+function render(){
+  applySevColor();
+  renderCtxBar();
+  let h='';
+
+  // PASO 1 · TRIAJE
+  h+='<div class="step-lbl"><span class="step-num">1</span>Triaje · gravedad</div>';
+  h+='<div class="triage">';
+  for(const k in SEV){ const s=SEV[k], sel=state.sev===k?' sel':'';
+    h+='<div class="tcard '+k+sel+'" onclick="setSev(\''+k+'\')">'+
+         '<span class="tdot"></span>'+
+         '<div class="tbody"><div class="tname">'+s.name+'</div><div class="tsub">'+s.sub+'</div></div>'+
+       '</div>';
+  }
+  h+='</div>';
+
+  // PASO 2 · FÁRMACO
+  if(state.sev){
+    h+='<div class="step-lbl" id="step2"><span class="step-num">2</span>Anticoagulante</div>';
+    h+='<div class="drug-row">';
+    for(const k in DRUG){ const d=DRUG[k], sel=state.drug===k?' sel':'';
+      h+='<div class="drug-pill'+sel+'" onclick="setDrug(\''+k+'\')">'+
+           '<div class="dp-name">'+d.name+'</div><div class="dp-sub">'+d.sub+'</div>'+
+         '</div>';
+    }
+    h+='</div>';
+  }
+
+  // PASO 3 · MANEJO
+  if(state.sev && state.drug){
+    h+='<div class="step-lbl" id="step3"><span class="step-num">3</span>Manejo</div>';
+    h+=manejo(state.sev,state.drug);
+    h+=reportBlock();
+  } else if(state.sev){
+    h+='<div class="placeholder"><span class="ph-ic">💊</span>Selecciona el anticoagulante para ver el manejo.</div>';
+  }
+
+  document.getElementById('flow').innerHTML=h;
+  const cn=document.getElementById('ccpWbar'); if(cn) cn.innerHTML=wbarHTML();
+  if(typeof ccpRecalc==='function') ccpRecalc();
+  renderReport();
+}
+
+function renderCtxBar(){
+  const bar=document.getElementById('ctxbar');
+  if(!state.sev){ bar.classList.remove('show'); bar.innerHTML=''; return; }
+  let h='<div class="ctx-row">';
+  const s=SEV[state.sev];
+  h+='<span class="ctx-chip sev" onclick="scrollTop()"><span class="dotc"></span>'+s.short+' <span class="ctx-edit">cambiar</span></span>';
+  if(state.drug){ h+='<span class="ctx-chip drug" onclick="scrollStep2()">'+DRUG[state.drug].name+' <span class="ctx-edit">cambiar</span></span>'; }
+  const w=getW(); if(w){ h+='<span class="ctx-chip weight">'+w+' kg</span>'; }
+  h+='</div>';
+  bar.innerHTML=h; bar.classList.add('show');
+}
+function scrollTop(){ window.scrollTo({top:0,behavior:'smooth'}); }
+function scrollStep2(){ const e=document.getElementById('step2'); if(e){ const off=110; window.scrollTo({top:e.getBoundingClientRect().top+window.pageYOffset-off,behavior:'smooth'}); } }
+function scrollStep3(){ const e=document.getElementById('step3'); if(e){ const off=110; window.scrollTo({top:e.getBoundingClientRect().top+window.pageYOffset-off,behavior:'smooth'}); } }
+
+function setSev(k){ state.sev = (state.sev===k? null : k); render(); }
+function setDrug(k){ state.drug = (state.drug===k? null : k); render(); if(state.drug) setTimeout(scrollStep3,60); }
+function restart(){ state={sev:null,drug:null,txaOrigin:null}; window.scrollTo(0,0); render(); }
+function selTxa(k){ state.txaOrigin = (state.txaOrigin===k? null : k); render(); }
+function toggleAcc(el){ el.classList.toggle('open'); }
+
+// ═══ COMPONENTES REUTILIZABLES ═══
+function cMedidas(){
+  return '<div class="scard sev"><div class="scard-hdr"><span class="scard-icon">🩹</span><span class="scard-title">Control del foco hemorrágico</span></div>'+
+    '<div class="lead" style="margin-bottom:11px"><b>Compresión mecánica</b> del punto sangrante si es accesible — medida inmediata.</div>'+
+    '<div class="foco-lbl">Hemostasia dirigida · según localización</div>'+
+    '<div class="foco-grid">'+
+      focoTile('Quirúrgica','intervención urgente')+
+      focoTile('Endoscópica','sangrado digestivo')+
+      focoTile('Embolización','radiología interv.')+
+      focoTile('Radioterapia','hemostática · tumoral')+
+    '</div>'+
+    '<div class="muted-note">Avisar precozmente a <b>Hematología</b> y valorar <b>UCI</b> según la gravedad.</div></div>';
+}
+function focoTile(name,sub){
+  return '<div class="foco-tile"><div class="foco-name">'+name+'</div><div class="foco-sub">'+sub+'</div></div>';
+}
+function cSoporte(){
+  return '<div class="scard"><div class="scard-hdr"><span class="scard-icon">🩸</span><span class="scard-title">Soporte transfusional</span></div>'+
+    '<div class="kv"><span class="kv-k">Concentrado de hematíes</span><span class="kv-v">objetivo Hb &gt;7 g/dl</span></div>'+
+    '<div class="kv"><span class="kv-k">Plaquetas</span><span class="kv-v">&gt;50 ·10⁹/L (&gt;100 si SNC)</span></div>'+
+    '<div class="muted-note">La transfusión de plaquetas por efecto antiagregante <b>no es de rutina</b> (ensayo PATCH: peor pronóstico en HIC espontánea); reservar para <b>neurocirugía inminente</b> o <b>trombocitopenia real</b>. Corregir hipotermia, acidosis e hipocalcemia (calcio iónico).</div></div>';
+}
+const TXA_OPTS=[
+  {k:'trauma', label:'Traumática',            ok:true},
+  {k:'obst',   label:'Obstétrica / posparto', ok:true},
+  {k:'mucosa', label:'Mucosa / ginecológica', ok:true},
+  {k:'qx',     label:'Quirúrgica',            ok:true},
+  {k:'gi',     label:'Digestiva',             ok:false},
+  {k:'ic',     label:'Intracraneal',          ok:false}
+];
+function cTXA(){
+  const o=state.txaOrigin;
+  let h='<div class="scard"><div class="scard-hdr"><span class="scard-icon">💉</span><span class="scard-title">Ácido tranexámico</span></div>'+
+    '<div class="muted-note" style="margin:0 0 10px">El TXA no es un hemostático universal: su utilidad depende del origen. <b>Selecciona el origen de la hemorragia.</b></div>'+
+    '<div class="txa-grid">';
+  TXA_OPTS.forEach(op=>{ const sel=(o===op.k); const cls=sel?(op.ok?' sel-ok':' sel-no'):''; h+='<div class="txa-chip'+cls+'" onclick="selTxa(\''+op.k+'\')">'+op.label+'</div>'; });
+  h+='</div>';
+  if(o){
+    const op=TXA_OPTS.find(x=>x.k===o);
+    if(op.ok){
+      let note='';
+      if(o==='trauma') note='Reduce la mortalidad si se administra <b>&lt;3 h</b> (CRASH-2).';
+      else if(o==='obst') note='Reduce la muerte por sangrado, sobre todo <b>&lt;3 h</b> (WOMAN).';
+      else if(o==='mucosa') note='Epistaxis, sangrado oral/dental, menorragia: útil; valorar también la vía <b>tópica</b>.';
+      else if(o==='qx') note='Reduce el sangrado y la transfusión en el campo quirúrgico.';
+      h+='<div class="txa-dose">'+
+         '<div class="kv"><span class="kv-k">Bolo inicial</span><span class="kv-v hi">1 g EV en 10 min</span></div>'+
+         '<div class="kv"><span class="kv-k">Mantenimiento</span><span class="kv-v">1 g EV / 6–8 h</span></div>'+
+         '<div class="muted-note">'+note+'</div></div>';
+    } else {
+      let warn='';
+      if(o==='gi') warn='<b>Digestiva: TXA no recomendado de rutina.</b> HALT-IT (n=12.009): no reduce la mortalidad y aumenta la ETEV (RR 1,85) y las convulsiones (RR 1,73).';
+      else if(o==='ic') warn='<b>Intracraneal espontánea: sin beneficio funcional</b> (TICH-2). Reduce la expansión del hematoma pero no mejora el pronóstico. No de rutina.';
+      h+='<div class="banner b-warn" style="margin:10px 0 0">⚠ '+warn+'</div>';
+    }
+  }
+  h+='</div>';
+  return h;
+}
+function cContraCCP(){
+  return '<div class="acc" onclick="toggleAcc(this)"><div class="acc-head">⚠️ Precauciones del CCP'+
+    '<svg class="acc-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>'+
+    '<div class="acc-body"><ul class="rlist">'+
+      '<li>Precaución relativa: <b>ETEV reciente</b>, <b>CID</b>, <b>sepsis</b></li>'+
+      '<li>Precaución en <b>válvulas mecánicas</b></li>'+
+      '<li>Considerar <b>tromboprofilaxis</b> al estabilizar / tras la intervención</li>'+
+    '</ul></div></div>';
+}
+// Calculadora CCP — mode 'avk' (por INR) o 'acod' (25–50 UI/kg)
+function cCCP(mode){
+  let h='<div id="ccpWbar"></div>';
+  h+='<div class="calc-card"><div class="calc-title">Complejo protrombínico (CCP)</div>';
+  if(mode==='avk'){
+    h+='<div class="calc-sub">Dosis según INR · peso máx 100 kg (máximos por banda · ficha técnica). Introduce INR y peso.</div>'+
+       '<div class="inr-row"><div class="inr-fld"><div class="inr-fld-lbl">INR actual</div>'+
+         '<input type="number" id="inrIn" step="0.1" inputmode="decimal" min="1" placeholder="—" oninput="ccpRecalc()"></div></div>';
+  } else {
+    h+='<div class="calc-sub">Anti-Xa: 25–50 UI/kg · peso máx 100 kg (tope 5000 UI).</div>';
+  }
+  h+='<div class="ccp-result"><div class="crk">Dosis a administrar</div>'+
+       '<div class="crv" id="ccpDose">—</div>'+
+       '<div class="crtier" id="ccpTier">'+(mode==='avk'?'introduce INR':'25–50 UI/kg')+'</div>'+
+       '<div class="ccp-cap" id="ccpCap">⚠ Limitado al tope de 5000 UI</div></div>';
+  if(mode==='avk') h+='<div class="muted-note">Alternativa válida: <b>dosis fija 1000–1500 UI</b> (administración más rápida; eficacia similar). <b>Repetir según INR/sangrado a los 15–30 min.</b></div>';
+  else h+='<div class="muted-note">Administrar lo antes posible. Reevaluar respuesta clínica.</div>';
+  h+='</div>';
+  h+='<input type="hidden" id="ccpMode" value="'+mode+'">';
+  return h;
+}
+function ccpRecalc(){
+  const modeEl=document.getElementById('ccpMode'); if(!modeEl) return;
+  const mode=modeEl.value, w=getW(), CAP=5000;
+  const dEl=document.getElementById('ccpDose'), tEl=document.getElementById('ccpTier'), cEl=document.getElementById('ccpCap');
+  if(!dEl) return;
+  if(mode==='avk'){
+    const inr=parseFloat((document.getElementById('inrIn')||{}).value);
+    if(!inr){ dEl.textContent='—'; tEl.textContent=w?'introduce INR':'introduce INR y peso'; cEl.classList.remove('show'); return; }
+    let perKg, band;
+    if(inr<1.5){ perKg=0; band='INR &lt;1,5 · reversión no necesaria de rutina'; }
+    else if(inr<=3.9){ perKg=25; band='INR 1,5–3,9 · <b>25 UI/kg</b>'; }
+    else if(inr<=6){ perKg=35; band='INR 4–6 · <b>35 UI/kg</b>'; }
+    else { perKg=50; band='INR &gt;6 · <b>50 UI/kg</b>'; }
+    if(perKg===0){ dEl.textContent='—'; tEl.innerHTML=band; cEl.classList.remove('show'); return; }
+    if(!w){ dEl.textContent='introduce peso'; tEl.innerHTML=band; cEl.classList.remove('show'); return; }
+    const wd=Math.min(w,100); let dose=Math.min(perKg*wd,CAP);
+    dEl.textContent=Math.round(dose)+' UI';
+    tEl.innerHTML=band+' × '+wd+' kg';
+    if(w>100){ cEl.textContent='⚠ Peso limitado a 100 kg (máximos por banda · ficha técnica)'; cEl.classList.add('show'); }
+    else cEl.classList.remove('show');
+  } else {
+    if(!w){ dEl.textContent='introduce peso'; tEl.textContent='25–50 UI/kg'; cEl.classList.remove('show'); return; }
+    const wd=Math.min(w,100); let lo=Math.min(25*wd,CAP), hi=Math.min(50*wd,CAP);
+    dEl.textContent=Math.round(lo)+'–'+Math.round(hi)+' UI';
+    tEl.innerHTML='25–50 UI/kg × '+wd+' kg';
+    if(w>100){ cEl.textContent='⚠ Peso limitado a 100 kg (ficha técnica)'; cEl.classList.add('show'); }
+    else cEl.classList.remove('show');
+  }
+}
+
+// ═══ MATRIZ DE MANEJO ═══
+function manejo(sev,drug){
+  if(sev==='vital')  return mVital(drug);
+  if(sev==='qx')     return mQx(drug);
+  if(sev==='leve')   return mLeve(drug);
+  return '';
+}
+
+/* ---------- VITAL ---------- */
+function mVital(drug){
+  let h='<div class="banner b-epi lead-action"><b>Hemorragia con compromiso vital.</b> Medidas generales simultáneas a la reversión específica. No demorar el control del foco.</div>';
+  h+=cMedidas();
+  h+=cSoporte();
+  h+=cTXA();
+  h+='<div class="sec-divider">Reversión específica</div>';
+
+  if(drug==='avk'){
+    h+='<div class="banner b-epi"><b>El 4F-CCP es el reversor inmediato</b> (efecto en minutos): administrar sin demora. La <b>vitamina K es adyuvante</b> e imprescindible — sostiene la reversión cuando el efecto del CCP decae.</div>';
+    h+=cCCP('avk');
+    h+='<div class="scard"><div class="scard-hdr"><span class="scard-icon">💊</span><span class="scard-title">Vitamina K (adyuvante)</span></div>'+
+       '<div class="kv"><span class="kv-k">Dosis</span><span class="kv-v hi">10 mg EV · perfusión lenta 15–30 min</span></div>'+
+       '<div class="muted-note">Administrar junto al CCP. Sin vitamina K, el efecto del CCP se agota en horas.</div></div>';
+    h+='<div class="sec-divider">Si persiste el sangrado</div>';
+    h+='<div class="ladder">'+
+        lstep('1','Repetir CCP','Reevaluar INR y clínica a los <b>15–30 min</b>. Repetir CCP si persiste el sangrado o el INR sigue alto.')+
+        lstep('2','PFC solo si no hay CCP','<b>10–30 ml/kg</b> de plasma fresco congelado únicamente si el CCP no está disponible. Repetir a las 6 h según necesidad.')+
+        lstep('3','Control del foco','Reforzar hemostasia quirúrgica / radiología intervencionista. Mantener soporte transfusional dirigido.')+
+       '</div>';
+    h+=cContraCCP();
+  }
+  else if(drug==='dabi'){
+    h+='<div class="dose-hero epi"><div class="dh-name">Idarucizumab 5 g EV</div><div class="dh-dose">2 viales de 2,5 g consecutivos · efecto en 3–4 min</div></div>';
+    h+='<div class="banner b-info"><b>Idarucizumab (Praxbind)</b> es el antídoto específico del dabigatrán. Administrar sin esperar a pruebas de coagulación si el sangrado es vital.</div>';
+    h+='<div class="ladder">'+
+        lstep('1','Idarucizumab 5 g','2 × 2,5 g EV consecutivos (bolo o infusión rápida). Reversión completa e inmediata.')+
+        lstep('2','Si no disponible → CCP','CCP 25–50 UI/kg como alternativa.')+
+        lstep('3','Reevaluar a las 12–24 h','Si TT/TTPa alargado <b>y</b> persiste el sangrado o nueva intervención → <b>2ª dosis de idarucizumab 5 g.</b>')+
+       '</div>';
+    h+=cCCP('acod');
+    h+='<div class="acc" onclick="toggleAcc(this)"><div class="acc-head">💧 Otras medidas'+
+       '<svg class="acc-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>'+
+       '<div class="acc-body"><ul class="rlist"><li>El dabigatrán es <b>dializable</b>: valorar hemodiálisis si sangrado masivo sin antídoto disponible.</li><li>Carbón activado si ingesta &lt;2 h.</li></ul></div></div>';
+  }
+  else { // antixa
+    h+='<div class="banner b-warn"><b>Anti-Xa.</b> Sin reversión enzimática inmediata disponible de rutina. El <b>CCP es la 1ª línea</b> en la mayoría de centros.</div>';
+    h+='<div class="dose-hero epi"><div class="dh-name">CCP 25–50 UI/kg</div><div class="dh-dose">1ª línea · administrar lo antes posible</div></div>';
+    h+=cCCP('acod');
+    h+='<div class="acc" onclick="toggleAcc(this)"><div class="acc-head">🧬 Andexanet alfa (si disponible)'+
+       '<svg class="acc-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>'+
+       '<div class="acc-body">'+
+         '<div class="banner b-epi" style="margin-bottom:10px"><b>⚠ Seguridad (ANNEXA-I).</b> Mejora el control de la expansión del hematoma, pero aumenta los eventos trombóticos (≈10% vs 6%) e ictus isquémico, <b>sin beneficio en mortalidad ni discapacidad</b>. Valorar riesgo trombótico individual. <b>No combinar con CCP.</b></div>'+
+         '<div class="kv"><span class="kv-k">Dosis baja</span><span class="kv-v">400 mg bolo (30 mg/min) + 4 mg/min × 120 min</span></div>'+
+         '<div class="kv"><span class="kv-k">Dosis alta</span><span class="kv-v">800 mg bolo (30 mg/min) + 8 mg/min × 120 min</span></div>'+
+         '<div class="muted-note"><b>Dosis alta</b> si última toma &lt;8 h con apixabán &gt;5 mg o rivaroxabán &gt;10 mg, o si dosis/tiempo desconocidos. <b>Dosis baja</b> en el resto.</div>'+
+       '</div></div>';
+    h+=cContraCCP();
+  }
+  return h;
+}
+
+/* ---------- CIRUGÍA / PROCEDIMIENTO URGENTE ---------- */
+function mQx(drug){
+  let h='<div class="banner b-warn lead-action"><b>Cirugía / procedimiento urgente.</b> Siempre que sea posible, <b>diferir</b> hasta que disminuya el efecto anticoagulante. Solicitar hemograma, función renal (Cockcroft-Gault) y coagulación.</div>';
+
+  if(drug==='avk'){
+    h+='<div class="scard sev"><div class="scard-hdr"><span class="scard-icon">🎯</span><span class="scard-title">INR objetivo según cirugía</span></div>'+
+       '<div class="kv"><span class="kv-k">Neurocirugía / SNC</span><span class="kv-v hi">INR &lt;1,2</span></div>'+
+       '<div class="kv"><span class="kv-k">Cirugía general</span><span class="kv-v hi">INR &lt;1,5</span></div></div>';
+    h+='<div class="ladder">'+
+        lstep('1','¿Hay tiempo (≥8–10 h)?','Si se puede diferir: <b>Vitamina K 10 mg EV</b> (efecto en 8–10 h) y reevaluar INR.')+
+        lstep('2','Si no se puede esperar','<b>Vitamina K 10 mg EV + CCP</b> dosificado por INR (ver calculadora). Reevaluar INR antes de la incisión.')+
+       '</div>';
+    h+=cCCP('avk');
+    h+=cContraCCP();
+  }
+  else if(drug==='dabi'){
+    h+=cFG();
+    h+='<div class="ladder">'+
+        lstep('1','Valorar diferir','Diferir si FG &gt;30 ml/min y &gt;24 h desde la última dosis (o &gt;48 h si FG &lt;30). Idealmente ≥24 h.')+
+        lstep('2','Si no es diferible','<b>Idarucizumab 5 g</b> (2 × 2,5 g EV) para revertir antes del procedimiento.')+
+        lstep('3','Comprobar reversión','TT/TTPa o test cualitativos: <b>TT ratio &lt;1,2</b> indica ausencia de actividad anticoagulante.')+
+       '</div>';
+    h+='<div class="banner b-epi"><b>Anestesia neuroaxial contraindicada</b> mientras persista la actividad anticoagulante.</div>';
+  }
+  else { // antixa
+    h+=cFG();
+    h+='<div class="ladder">'+
+        lstep('1','Valorar diferir','Diferir 24–48 h según fármaco, FG y riesgo hemorrágico del procedimiento. Es la opción preferente.')+
+        lstep('2','Si no es diferible','<b>CCP 25–50 UI/kg.</b> Andexanet no se recomienda en cirugía (riesgo trombótico e interferencia con la heparina intraoperatoria).')+
+        lstep('3','Comprobar','Tests cualitativos de coagulación. Anti-Xa específico si disponible.')+
+       '</div>';
+    h+=cCCP('acod');
+    h+='<div class="banner b-epi"><b>Anestesia neuroaxial contraindicada</b> mientras persista la actividad anticoagulante.</div>';
+    h+=cContraCCP();
+  }
+  return h;
+}
+
+/* ---------- LEVE / SIN SANGRADO ---------- */
+function mLeve(drug){
+  let h='<div class="banner b-teal lead-action"><b>Hemorragia leve o INR elevado sin sangrado.</b> Manejo conservador. No suele requerir agentes reversores.</div>';
+  h+='<div class="scard sev"><div class="scard-hdr"><span class="scard-icon">🩹</span><span class="scard-title">Medidas locales</span></div>'+
+     '<ul class="rlist"><li><b>Hemostasia local</b> (compresión)</li><li><b>Antifibrinolíticos tópicos</b> si procede</li></ul></div>';
+
+  if(drug==='avk'){
+    h+='<div class="sec-divider">Ajuste según INR (sin sangrado)</div>';
+    h+='<table class="inr-tbl"><tr><th>INR</th><th>Conducta</th></tr>'+
+       '<tr><td>3,1–3,5</td><td>Omitir 1 dosis o reducir la dosis del día</td></tr>'+
+       '<tr><td>3,5–4</td><td>Omitir 1 dosis + reducir 0,5 mg/semana</td></tr>'+
+       '<tr><td>4–6</td><td>Omitir 1 dosis + reducir 1 mg/semana</td></tr>'+
+       '<tr><td>6–8</td><td>Omitir 1 dosis + <b>Vit K 1–2 mg VO</b> + reducir 1,5 mg/semana</td></tr>'+
+       '<tr><td>&gt;8</td><td>Omitir 1 dosis + <b>Vit K 3–5 mg VO</b> + reducir 2 mg/semana</td></tr>'+
+       '</table>';
+    h+='<div class="banner b-info"><b>Nota:</b> ASH/ACCP (warfarina) no recomiendan vitamina K hasta INR &gt;10 sin sangrado, solo suspender. Esta tabla, más conservadora, es la pauta validada para <b>acenocumarol</b> (vida media corta).</div>';
+    h+='<div class="banner b-warn"><b>Precaución en válvulas mecánicas:</b> consensuar la suspensión/reducción con Hematología/Cardiología.</div>';
+  } else {
+    h+='<div class="scard"><div class="scard-hdr"><span class="scard-icon">⏸️</span><span class="scard-title">Manejo del ACOD</span></div>'+
+       '<ul class="rlist">'+
+         '<li><b>Retrasar o suspender 1 dosis</b></li>'+
+         '<li><b>Reiniciar al día siguiente</b> una vez controlado el sangrado</li>'+
+         '<li>Revisar dosis, función renal y interacciones</li>'+
+       '</ul></div>';
+  }
+  return h;
+}
+
+// helpers
+function lstep(n,ttl,desc){
+  return '<div class="lstep"><div class="lnum">'+n+'</div><div class="lbody"><div class="lttl">'+ttl+'</div><div class="ldesc">'+desc+'</div></div></div>';
+}
+function cFG(){
+  return '<div class="scard"><div class="scard-hdr"><span class="scard-icon">🧪</span><span class="scard-title">Evaluación inicial</span></div>'+
+    '<div class="kv"><span class="kv-k">Hora de la última dosis</span><span class="kv-v">registrar</span></div>'+
+    '<div class="kv"><span class="kv-k">Hemograma + función renal</span><span class="kv-v">FG (Cockcroft-Gault)</span></div>'+
+    '<div class="kv"><span class="kv-k">Coagulación</span><span class="kv-v">TP · TTPa · TT</span></div></div>';
+}
+
+// ═══ INFORME ═══
+function reportBlock(){
+  return '<div class="sec-divider">Resumen para historia clínica</div>'+
+    '<pre class="informe-box" id="repBox"></pre>'+
+    '<div class="inf-actions">'+
+      '<button class="btn btn-outline" onclick="copyReport()">📋 Copiar</button>'+
+      '<button class="btn btn-primary" onclick="downloadReport()">⬇ Descargar</button>'+
+    '</div>'+
+    '<div class="disclaimer">Algoritmo orientativo de apoyo a la decisión. Adaptar siempre al protocolo del Servicio de Hematología del centro y al juicio clínico. · Dr. Hipólito García</div>';
+}
+function renderReport(){
+  const box=document.getElementById('repBox'); if(!box) return;
+  const s=SEV[state.sev], d=DRUG[state.drug], w=getW();
+  const fecha=new Date().toLocaleDateString('es-ES');
+  let lines=[];
+  lines.push('REVERSIÓN DE ANTICOAGULACIÓN · Urgencias HJ23 · '+fecha);
+  lines.push('');
+  lines.push('Escenario: '+s.name.toUpperCase());
+  lines.push('Anticoagulante: '+d.name+' ('+d.sub+')');
+  if(w) lines.push('Peso: '+w+' kg');
+  lines.push('');
+  lines.push('CONDUCTA');
+  lines.push(reportBody());
+  box.textContent=lines.join('\n');
+}
+function reportBody(){
+  const sev=state.sev, drug=state.drug, w=getW();
+  const ccpAvk=()=>{ const inr=parseFloat((document.getElementById('inrIn')||{}).value);
+    if(!inr||!w) return '- CCP según INR (25/35/50 UI/kg, máx 5000 UI) — introducir INR y peso para el cálculo.';
+    let pk = inr<1.5?0: inr<=3.9?25: inr<=6?35:50;
+    if(pk===0) return '- INR <1,5: reversión con CCP no necesaria de rutina.';
+    let wd=Math.min(w,100); let dose=Math.min(pk*wd,5000);
+    return '- CCP '+pk+' UI/kg (INR '+inr+') = '+Math.round(dose)+' UI'+(w>100?' (peso máx 100 kg)':'')+'.';
+  };
+  const ccpAcod=()=>{ if(!w) return '- CCP 25–50 UI/kg (máx 5000 UI) — introducir peso.';
+    let wd=Math.min(w,100); let lo=Math.min(25*wd,5000), hi=Math.min(50*wd,5000);
+    return '- CCP 25–50 UI/kg = '+Math.round(lo)+'–'+Math.round(hi)+' UI'+(w>100?' (peso máx 100 kg)':'')+'.';
+  };
+  const txaLine=(function(){ const o=state.txaOrigin;
+    if(!o) return '- Ácido tranexámico: valorar según el origen de la hemorragia.';
+    if(o==='gi') return '- Ácido tranexámico NO indicado (hemorragia digestiva — HALT-IT: ↑ETEV/convulsiones).';
+    if(o==='ic') return '- Ácido tranexámico sin beneficio funcional (HIC espontánea — TICH-2).';
+    const map={trauma:'traumática',obst:'obstétrica/posparto',mucosa:'mucosa/ginecológica',qx:'quirúrgica'};
+    return '- Ácido tranexámico 1 g EV + 1 g/6–8 h (origen: '+map[o]+').';
+  })();
+  if(sev==='vital'){
+    let b=['- Control del foco: compresión + hemostasia dirigida (quirúrgica / endoscópica / embolización / radioterapia).','- Soporte transfusional (Hb>7; plaquetas >50, >100 si SNC; no de rutina por antiagregantes—PATCH).',txaLine];
+    if(drug==='avk'){ b.push(ccpAvk()+' Reversor inmediato.'); b.push('- Vitamina K 10 mg EV lenta (adyuvante, junto al CCP).'); b.push('- Repetir CCP a los 15–30 min si persiste; PFC 10–30 ml/kg solo si no hay CCP.'); }
+    else if(drug==='dabi'){ b.push('- Idarucizumab 5 g EV (2×2,5 g), efecto en 3–4 min.'); b.push('- Si no disponible: '+ccpAcod().slice(2)); b.push('- Reevaluar 12–24 h; 2ª dosis de idarucizumab 5 g si TT alargado + sangrado.'); }
+    else { b.push('- 1ª línea: '+ccpAcod().slice(2)); b.push('- Andexanet alfa solo si disponible (riesgo trombótico ANNEXA-I; no combinar con CCP).'); }
+    return b.join('\n');
+  }
+  if(sev==='qx'){
+    let b=['- Solicitar hemograma, función renal (Cockcroft-Gault) y coagulación. Diferir si es posible.'];
+    if(drug==='avk'){ b.push('- INR objetivo <1,2 (neurocirugía) / <1,5 (cirugía general).'); b.push('- Vit K 10 mg EV si hay tiempo; si urgente, Vit K + '+ccpAvk().slice(2)); }
+    else if(drug==='dabi'){ b.push('- Diferir según FG/última dosis. Si no diferible: Idarucizumab 5 g EV.'); b.push('- Comprobar reversión (TT ratio <1,2). Anestesia neuroaxial contraindicada con actividad ACOD.'); }
+    else { b.push('- Diferir 24–48 h si posible. Si no diferible: '+ccpAcod().slice(2)); b.push('- Andexanet no recomendado en cirugía. Anestesia neuroaxial contraindicada con actividad ACOD.'); }
+    return b.join('\n');
+  }
+  // leve
+  let b=['- Hemostasia local + antifibrinolíticos tópicos.'];
+  if(drug==='avk') b.push('- Ajuste de dosis según INR (ver tabla); Vit K oral 1–5 mg VO si INR 6–8 o >8. Precaución en válvulas mecánicas.');
+  else b.push('- Retrasar/suspender 1 dosis y reiniciar al día siguiente. Revisar dosis, función renal e interacciones.');
+  return b.join('\n');
+}
+function copyReport(){
+  navigator.clipboard.writeText(document.getElementById('repBox').textContent);
+  const btn=event.target; const t=btn.textContent; btn.textContent='✓ Copiado'; setTimeout(()=>{btn.textContent=t;},1600);
+}
+function downloadReport(){
+  const text=document.getElementById('repBox').textContent;
+  const a=document.createElement('a');
+  a.href='data:text/plain;charset=utf-8,'+encodeURIComponent(text);
+  a.download='reversion-aco_'+new Date().toISOString().slice(0,10)+'.txt';
+  a.click();
+}
+
+render();
+</script>
+</body>
+</html>

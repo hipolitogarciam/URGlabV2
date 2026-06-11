@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>URGlab · Intoxicación por Paracetamol</title>
+<link rel="stylesheet" href="../../../../fonts.css">
+<style>
+:root{
+  --bg:#f4f6f9;--surface:#fff;--border:rgba(0,0,0,0.09);--border-mid:rgba(0,0,0,0.18);
+  --text:#1a2636;--muted:#8898aa;
+  --blue:#1a7fc8;--blue-dark:#1a6fad;--blue-s:#e8f3fb;
+  --teal:#09c797;--teal-s:#e6faf5;--teal-dark:#0a8c6a;
+  --epi:#c41520;--epi-s:#fdecec;--epi-border:#f3b4b7;
+  --amber:#e08600;--amber-s:#fff7e6;--amber-border:#f0cd7a;--amber-dark:#9a6500;
+  --display:'Barlow Condensed',sans-serif;--body:'IBM Plex Sans',sans-serif;--mono:'IBM Plex Mono',monospace;
+  --sev:#1a7fc8;--sev-s:#e8f3fb;--sev-border:#a8cceb;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);font-family:var(--body);color:var(--text);min-height:100svh;padding-bottom:48px}
+
+/* ── HEADER reglamentario ── */
+header{
+  background:linear-gradient(135deg,#1a7fc8 0%,#1a6fad 100%);
+  border-bottom:3px solid var(--teal);
+  padding:12px 18px;position:sticky;top:0;z-index:1000;
+  display:grid;grid-template-columns:48px 1fr 48px;align-items:center;gap:8px;min-height:68px;
+}
+.back-btn{display:flex;align-items:center;justify-content:center;width:44px;height:44px;
+  border-radius:10px;background:rgba(255,255,255,0.15);border:none;cursor:pointer;color:#fff;transition:background .15s;text-decoration:none}
+.back-btn:active{background:rgba(255,255,255,0.28)}
+.hdr-center{text-align:center;overflow:hidden}
+.hdr-label{font-family:var(--body);font-size:.58rem;font-weight:600;color:#09c797;
+  letter-spacing:.12em;text-transform:uppercase;margin-bottom:2px}
+.hdr-title{font-family:var(--display);font-size:1.4rem;font-weight:800;color:#fff;
+  letter-spacing:.04em;text-transform:uppercase;line-height:1}
+.reset-btn{display:flex;align-items:center;justify-content:center;width:44px;height:44px;
+  border-radius:10px;background:rgba(255,255,255,0.12);border:none;cursor:pointer;color:#fff}
+.reset-btn:active{background:rgba(255,255,255,0.26)}
+
+/* ── BARRA DE CONTEXTO sticky ── */
+.ctxbar{position:sticky;top:68px;z-index:900;background:#fff;border-bottom:1px solid var(--border);
+  padding:8px 0;display:none}
+.ctxbar.show{display:block}
+.ctx-row{max-width:480px;margin:0 auto;padding:0 14px;display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.ctx-chip{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:.66rem;font-weight:700;
+  letter-spacing:.03em;padding:5px 10px;border-radius:20px;cursor:pointer;border:1.5px solid var(--border-mid);
+  background:#fafbfc;color:var(--text);text-transform:uppercase;transition:all .12s}
+.ctx-chip:active{transform:scale(.96)}
+.ctx-chip.expo{background:var(--sev-s);border-color:var(--sev-border);color:var(--sev)}
+.ctx-chip .dotc{width:8px;height:8px;border-radius:50%;background:var(--sev);flex-shrink:0}
+.ctx-chip.fr{background:var(--blue-s);border-color:#a8cceb;color:var(--blue-dark)}
+.ctx-chip.weight{background:var(--teal-s);border-color:#7ddfc5;color:var(--teal-dark)}
+.ctx-edit{font-size:.58rem;opacity:.7;font-weight:600}
+
+/* ── CONTENEDOR ── */
+.cnt{max-width:480px;margin:0 auto;padding:16px 16px 20px}
+
+/* ── SECCIÓN / TÍTULOS ── */
+.step-lbl{font-family:var(--display);font-size:1.2rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.02em;color:var(--text);margin:4px 0 11px;display:flex;align-items:center;gap:9px}
+.step-num{width:30px;height:30px;border-radius:9px;background:var(--blue);color:#fff;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:800;font-size:1.05rem}
+.sec-divider{font-family:var(--display);font-size:1rem;font-weight:800;text-transform:uppercase;
+  letter-spacing:.03em;color:#3a4d63;margin:18px 0 9px;border-left:3px solid var(--sev);padding-left:9px}
+
+/* ── CARDS DE SELECCIÓN (triaje / exposición) ── */
+.triage{display:flex;flex-direction:column;gap:10px;margin-bottom:8px}
+.tcard{display:flex;align-items:center;gap:14px;background:var(--surface);border:2px solid var(--border-mid);
+  border-radius:14px;padding:15px 16px;cursor:pointer;transition:all .13s;box-shadow:0 1px 5px rgba(0,0,0,0.05)}
+.tcard:active{transform:scale(.985)}
+.tcard .tdot{width:18px;height:18px;border-radius:50%;flex-shrink:0;background:var(--muted)}
+.tcard .tbody{flex:1;min-width:0}
+.tcard .tname{font-family:var(--display);font-size:1.25rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.02em;line-height:1.05}
+.tcard .tsub{font-size:.74rem;color:var(--muted);line-height:1.3;margin-top:2px}
+.tcard.aguda .tdot{background:var(--blue)}
+.tcard.cronica .tdot{background:var(--amber)}
+.tcard.desconocida .tdot{background:#7a5cc4}
+.tcard.aguda.sel{border-color:var(--blue);background:var(--blue-s)}
+.tcard.aguda.sel .tname{color:var(--blue-dark)}
+.tcard.cronica.sel{border-color:var(--amber);background:var(--amber-s)}
+.tcard.cronica.sel .tname{color:var(--amber-dark)}
+.tcard.desconocida.sel{border-color:#7a5cc4;background:#f1edfa}
+.tcard.desconocida.sel .tname{color:#5b3fa0}
+
+/* ── SELECTOR DE FRANJA (pills) ── */
+.fr-row{display:flex;gap:9px;margin-bottom:6px}
+.fr-pill{flex:1;border:2px solid var(--border-mid);border-radius:12px;padding:12px 6px;text-align:center;
+  cursor:pointer;transition:all .12s;background:var(--surface)}
+.fr-pill:active{transform:scale(.97)}
+.fr-pill .fp-name{font-family:var(--display);font-size:1.15rem;font-weight:800;text-transform:uppercase;letter-spacing:.02em;line-height:1}
+.fr-pill .fp-sub{font-size:.58rem;color:var(--muted);margin-top:3px;line-height:1.2}
+.fr-pill.sel{border-color:var(--blue);background:var(--blue-s)}
+.fr-pill.sel .fp-name{color:var(--blue-dark)}
+
+/* ── SEGMENTADO (población general/riesgo, SNAP/Prescott) ── */
+.seg{display:flex;gap:0;border:1.5px solid var(--border-mid);border-radius:10px;overflow:hidden;margin-bottom:10px}
+.seg-opt{flex:1;text-align:center;padding:9px 6px;font-family:var(--display);font-size:.98rem;font-weight:800;
+  text-transform:uppercase;letter-spacing:.02em;cursor:pointer;background:#fff;color:var(--muted);transition:all .12s;line-height:1.05}
+.seg-opt+.seg-opt{border-left:1.5px solid var(--border-mid)}
+.seg-opt.sel{background:var(--blue);color:#fff}
+.seg-opt .so-sub{display:block;font-family:var(--body);font-size:.56rem;font-weight:600;text-transform:none;letter-spacing:0;opacity:.85;margin-top:1px}
+
+/* ── SCARD ── */
+.scard{background:var(--surface);border:1px solid var(--border);border-radius:14px;
+  padding:14px 15px;margin-bottom:12px;box-shadow:0 1px 5px rgba(0,0,0,0.05)}
+.scard.sev{border:1.5px solid var(--sev-border)}
+.scard-hdr{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.scard-icon{font-size:1.05rem}
+.scard-title{font-family:var(--display);font-size:1.05rem;font-weight:700;color:var(--text);
+  text-transform:uppercase;letter-spacing:.03em}
+
+b,strong{font-weight:600}
+.lead{font-size:.85rem;line-height:1.45}.lead strong{font-weight:600}
+.muted-note{font-size:.74rem;line-height:1.4;color:var(--muted);margin-top:8px}
+.kv{display:flex;justify-content:space-between;align-items:baseline;gap:10px;
+  padding:7px 0;border-bottom:1px dashed var(--border);font-size:.82rem}
+.kv:last-child{border-bottom:none}
+.kv-k{color:var(--muted);font-weight:500}
+.kv-v{font-family:var(--mono);font-weight:600;text-align:right}
+.kv-v.hi{color:var(--blue-dark);font-size:.98rem}
+
+/* listas */
+.rlist{list-style:none;margin:0}
+.rlist li{font-size:.82rem;line-height:1.42;padding:8px 0;border-bottom:1px dashed var(--border);position:relative;padding-left:16px}
+.rlist li:last-child{border-bottom:none}
+.rlist li::before{content:'›';position:absolute;left:0;color:var(--sev);font-weight:800}
+.rlist li b{font-weight:600}
+
+/* banners */
+.banner{border-radius:12px;padding:11px 13px;font-size:.8rem;line-height:1.42;margin-bottom:12px}
+.b-info{background:var(--blue-s);border:1.5px solid #a8cceb}
+.b-warn{background:var(--amber-s);border:1.5px solid var(--amber-border)}
+.b-epi{background:var(--epi-s);border:1.5px solid var(--epi-border)}
+.b-teal{background:var(--teal-s);border:1.5px solid #7ddfc5}
+.banner b{font-weight:600}
+.banner.lead-action{font-size:.86rem}
+
+/* dosis grande */
+.dose-hero{color:#fff;border-radius:14px;padding:16px;text-align:center;margin-bottom:12px}
+.dose-hero.epi{background:var(--epi);box-shadow:0 2px 12px rgba(196,21,32,0.22)}
+.dose-hero.blue{background:var(--blue);box-shadow:0 2px 12px rgba(26,127,200,0.2)}
+.dose-hero.teal{background:var(--teal-dark);box-shadow:0 2px 12px rgba(10,140,106,0.22)}
+.dose-hero .dh-name{font-family:var(--display);font-size:1.55rem;font-weight:800;letter-spacing:.02em;line-height:1.02}
+.dose-hero .dh-dose{font-family:var(--mono);font-size:.92rem;font-weight:600;opacity:.95;margin-top:5px}
+
+/* peso / calculadora peso */
+.wbar{display:flex;justify-content:space-between;align-items:center;background:var(--teal-s);
+  border:1px solid #7ddfc5;border-radius:10px;padding:8px 12px;margin-bottom:12px}
+.wbar-lbl{font-size:.72rem;color:var(--teal-dark);font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+.wbar-val{font-family:var(--mono);font-size:1rem;font-weight:700;color:var(--teal-dark)}
+.wpanel{background:var(--amber-s);border:1.5px solid var(--amber-border);border-radius:10px;padding:11px 13px;margin-bottom:12px}
+.wpanel-lbl{font-size:.72rem;font-weight:600;color:var(--amber-dark);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.wpanel-row{display:flex;gap:8px}
+.wpanel-row input{flex:1;border:1.5px solid #e3b95e;border-radius:9px;padding:9px 12px;background:#fff;
+  font-family:var(--mono);font-size:1.1rem;font-weight:700;color:var(--text);outline:none;min-width:0}
+.wpanel-row input:focus{border-color:var(--amber)}
+.wpanel-btn{font-family:var(--display);font-size:1rem;font-weight:800;text-transform:uppercase;letter-spacing:.03em;
+  color:#fff;background:var(--amber);border:none;border-radius:9px;padding:0 18px;cursor:pointer;white-space:nowrap}
+.wpanel-btn:active{opacity:.85}
+
+/* calculadora genérica (campos de entrada) */
+.calc-card{background:var(--surface);border:1.5px solid var(--border-mid);border-radius:14px;padding:14px 15px;margin-bottom:12px}
+.calc-card.alert{border-color:var(--epi-border)}
+.calc-title{font-family:var(--display);font-size:1.1rem;font-weight:800;text-transform:uppercase;letter-spacing:.03em;color:var(--text);margin-bottom:3px}
+.calc-sub{font-size:.7rem;color:var(--muted);margin-bottom:11px;line-height:1.35}
+.fld-row{display:flex;gap:8px;align-items:stretch;margin-bottom:11px}
+.fld{flex:1;border:1.5px solid var(--border-mid);border-radius:10px;padding:8px 11px;background:#fafbfc}
+.fld-lbl{font-size:.62rem;color:var(--muted);letter-spacing:.04em;font-weight:600}
+.fld input{width:100%;border:none;background:transparent;font-family:var(--mono);font-size:1.3rem;font-weight:700;color:var(--text);padding:1px 0;outline:none}
+.calc-result{border-radius:11px;padding:12px 14px;margin-top:4px;border:1px solid var(--border)}
+.calc-result.r-go{background:var(--epi-s);border-color:var(--epi-border)}
+.calc-result.r-stop{background:var(--teal-s);border-color:#7ddfc5}
+.calc-result.r-wait{background:var(--amber-s);border-color:var(--amber-border)}
+.calc-result.r-neutral{background:#f1f4f8;border-color:#d7dde5}
+.cr-k{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+.cr-v{font-family:var(--display);font-size:1.55rem;font-weight:800;line-height:1.1;text-transform:uppercase}
+.calc-result.r-go .cr-v{color:var(--epi)}
+.calc-result.r-stop .cr-v{color:var(--teal-dark)}
+.calc-result.r-wait .cr-v{color:var(--amber-dark)}
+.calc-result.r-neutral .cr-v{color:var(--muted)}
+.cr-detail{font-size:.76rem;color:var(--text);margin-top:4px;line-height:1.4}
+.cr-detail b{font-weight:600}
+
+/* bolsas NAC */
+.bag{display:flex;gap:11px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:11px 13px;margin-bottom:9px;align-items:flex-start}
+.bag-n{width:30px;height:30px;border-radius:9px;background:var(--blue);color:#fff;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:800;font-size:1.05rem}
+.bag-body{flex:1;min-width:0}
+.bag-ttl{font-family:var(--display);font-size:1rem;font-weight:800;text-transform:uppercase;letter-spacing:.02em;line-height:1.05}
+.bag-dose{font-family:var(--mono);font-size:1.15rem;font-weight:700;color:var(--blue-dark);margin-top:2px;line-height:1.1}
+.bag-meta{font-size:.72rem;color:var(--muted);margin-top:3px;line-height:1.35}
+.bag.opt .bag-n{background:var(--amber)}
+
+/* escalera */
+.ladder{margin:6px 0 12px}
+.lstep{display:flex;gap:11px;position:relative;padding-bottom:13px}
+.lstep:last-child{padding-bottom:0}
+.lstep::before{content:'';position:absolute;left:13px;top:28px;bottom:-2px;width:2px;background:var(--sev-border)}
+.lstep:last-child::before{display:none}
+.lnum{width:28px;height:28px;border-radius:50%;background:var(--sev);color:#fff;flex-shrink:0;z-index:1;
+  display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:800;font-size:.95rem}
+.lbody{flex:1;min-width:0;padding-top:2px}
+.lttl{font-family:var(--display);font-size:1rem;font-weight:800;text-transform:uppercase;letter-spacing:.02em;line-height:1.05;color:var(--text)}
+.ldesc{font-size:.78rem;color:var(--text);line-height:1.4;margin-top:3px}
+.ldesc b{font-weight:600}.ldesc .em{color:var(--sev);font-weight:600}
+
+/* desplegable */
+.acc{border:1px solid var(--border);border-radius:11px;margin-bottom:10px;overflow:hidden;background:var(--surface)}
+.acc-head{display:flex;align-items:center;gap:9px;padding:11px 13px;cursor:pointer;font-family:var(--display);
+  font-size:.98rem;font-weight:700;text-transform:uppercase;letter-spacing:.02em;color:var(--text)}
+.acc-head .acc-chev{margin-left:auto;color:var(--muted);transition:transform .15s}
+.acc.open .acc-chev{transform:rotate(90deg)}
+.acc-body{display:none;padding:0 13px 12px;border-top:1px solid var(--border)}
+.acc.open .acc-body{display:block;padding-top:11px}
+
+/* tabla nomograma */
+.nomo-tbl{width:100%;border-collapse:collapse;margin-bottom:12px;background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.nomo-tbl th{font-family:var(--mono);font-size:.56rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;
+  color:var(--muted);padding:8px 9px;text-align:left;border-bottom:1px solid var(--border);background:#fafbfc}
+.nomo-tbl td{padding:8px 9px;font-size:.78rem;color:var(--text);border-bottom:1px solid var(--border);line-height:1.3}
+.nomo-tbl tr:last-child td{border-bottom:none}
+.nomo-tbl td:first-child{font-family:var(--mono);font-weight:700;white-space:nowrap}
+.nomo-tbl td:not(:first-child){font-family:var(--mono);text-align:right}
+.nomo-tbl tr.hl td{background:var(--epi-s);font-weight:700}
+/* tabla del nomograma: cabecera y valores alineados por columna */
+#nomoTbl th,#nomoTbl td{text-align:center}
+#nomoTbl th:first-child,#nomoTbl td:first-child{text-align:left}
+
+/* checklist (King's) */
+.ci{display:flex;align-items:flex-start;gap:11px;background:var(--surface);border:1.5px solid var(--border-mid);
+  border-radius:11px;padding:11px 13px;margin-bottom:8px;cursor:pointer;transition:all .12s}
+.ci:active{transform:scale(.99)}
+.cibox{width:22px;height:22px;border-radius:6px;border:2px solid var(--border-mid);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;background:#fff;margin-top:1px}
+.ck-svg{width:12px;height:12px;stroke:#fff;stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round;display:none}
+.ci.ck{border-color:var(--epi);background:var(--epi-s)}
+.ci.ck .cibox{background:var(--epi);border-color:var(--epi)}
+.ci.ck .ck-svg{display:block}
+.ci-lbl{font-size:.82rem;line-height:1.35;color:var(--text)}
+.ci-lbl b{font-weight:600}
+
+/* tag */
+.tag{display:inline-block;font-family:var(--mono);font-size:.58rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.05em;padding:2px 7px;border-radius:6px;vertical-align:middle}
+.tag.go{background:var(--epi-s);color:var(--epi);border:1px solid var(--epi-border)}
+.tag.ok{background:var(--teal-s);color:var(--teal-dark);border:1px solid #7ddfc5}
+.tag.warn{background:var(--amber-s);color:var(--amber-dark);border:1px solid var(--amber-border)}
+
+/* botones / informe */
+.btn{display:block;width:100%;padding:14px;border-radius:13px;font-family:var(--display);
+  font-size:1.12rem;font-weight:800;text-transform:uppercase;letter-spacing:.03em;cursor:pointer;
+  border:none;margin-bottom:9px;transition:transform .1s,opacity .15s}
+.btn:active{transform:scale(.985)}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-outline{background:#fff;color:var(--blue);border:2px solid var(--blue)}
+.informe-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;
+  font-family:var(--mono);font-size:.76rem;line-height:1.6;white-space:pre-wrap;word-break:break-word;color:var(--text);margin-bottom:8px}
+.inf-actions{display:flex;gap:8px;margin:0 0 16px}
+.inf-actions .btn{flex:1;margin-bottom:0;font-size:1rem}
+
+.disclaimer{font-size:.68rem;color:var(--muted);line-height:1.4;text-align:center;margin-top:18px;padding:0 6px}
+.placeholder{text-align:center;color:var(--muted);font-size:.82rem;padding:26px 16px;line-height:1.5}
+.placeholder .ph-ic{font-size:1.6rem;display:block;margin-bottom:6px;opacity:.6}
+</style>
+</head>
+<body>
+
+<header>
+  <a class="back-btn" href="../index.html" aria-label="Volver">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+         fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+  </a>
+  <div class="hdr-center">
+    <div class="hdr-label">Hospital Universitari Joan XXIII</div>
+    <div class="hdr-title">Intox. Paracetamol</div>
+  </div>
+  <button class="reset-btn" onclick="restart()" aria-label="Reiniciar" title="Reiniciar">
+    <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24"
+         fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 2v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L3 8"/>
+    </svg>
+  </button>
+</header>
+
+<div class="ctxbar" id="ctxbar"></div>
+
+<div class="cnt"><div id="flow"></div></div>
+
+<script>
+// ═══════════════════ PESO COMPARTIDO (localStorage HJ23) ═══════════════════
+let patient=null;
+try{ const r=localStorage.getItem('hj23_patient'); if(r) patient=JSON.parse(r); }catch(e){}
+function getW(){ return (patient&&patient.weight&&+patient.weight>0)? +patient.weight : null; }
+function wbarHTML(){
+  const w=getW();
+  if(w) return '';  // el peso ya se muestra en el chip de la barra de contexto
+  return '<div class="wpanel">'+
+    '<div class="wpanel-lbl">⚠️ Introduce el peso para calcular las dosis</div>'+
+    '<div class="wpanel-row">'+
+      '<input type="number" inputmode="decimal" min="1" placeholder="kg" '+
+        'onkeydown="if(event.key===\'Enter\')setWeightInline(this)">'+
+      '<button class="wpanel-btn" onclick="setWeightInline(this)">Guardar</button>'+
+    '</div></div>';
+}
+function setWeightInline(el){
+  const inp = (el&&el.closest) ? el.closest('.wpanel-row').querySelector('input') : null;
+  const v=parseFloat(inp ? inp.value : '');
+  if(!v||v<=0) return;
+  patient=Object.assign({},patient||{},{weight:v});
+  try{ localStorage.setItem('hj23_patient',JSON.stringify(patient)); }catch(e){}
+  render();
+}
+
+// ═══════════════════ DEFINICIONES ═══════════════════
+const EXPO={
+  aguda:{name:'Aguda',sub:'dosis única conocida · hora cierta',col:'#1a7fc8',cs:'#e8f3fb',cb:'#a8cceb'},
+  cronica:{name:'Crónica / repetida',sub:'dosis supraterapéuticas repetidas',col:'#e08600',cs:'#fff7e6',cb:'#f0cd7a'},
+  desconocida:{name:'Hora / dosis desconocida',sub:'anamnesis no fiable · coma · suicida',col:'#7a5cc4',cs:'#f1edfa',cb:'#cbb8ee'}
+};
+const FRANJA={
+  lt4:{name:'< 4 h',sub:'fase precoz',short:'<4 h'},
+  m4_24:{name:'4–24 h',sub:'ventana nomograma',short:'4–24 h'},
+  gt24:{name:'> 24 h',sub:'nomograma no válido',short:'>24 h'}
+};
+// Nomograma HJ23 (umbral [paracetamol] µg/mL por hora — usar NAC si la cifra es superior)
+const NOMO=[
+  [4,150,100],[6,100,80],[8,80,50],[10,50,30],[12,30,20],
+  [14,20,10],[16,10,7],[18,7,6],[20,6,5],[22,5,4],[24,4,3]
+];
+// Umbrales de dosis tóxica (mg/kg) según PNT HJ23
+const UMBRAL_GEN=125, UMBRAL_RIESGO=100;
+// Factores de riesgo de hepatotoxicidad (PNT HJ23, Tabla 1)
+const FACTORES=[
+  ['alc','<b>Alcoholismo crónico</b>'],
+  ['cyp','<b>Inductores del CYP2E1</b>: carbamazepina, fenobarbital, fenitoína, isoniazida, rifampicina, efavirenz'],
+  ['malnut','<b>Malnutrición</b> / caquexia / anorexia nerviosa / fibrosis quística'],
+  ['otros','Otros (síndrome de Gilbert, homocistinuria) o criterio clínico']
+];
+
+let state={expo:null, franja:null, factores:[], nacPauta:'snap', dosisG:'', wEdit:false, criterios:[]};
+// Perfil de riesgo derivado de los factores marcados
+function esRiesgo(){ return state.factores.length>0; }
+
+// ═══════════════════ COLOR DE EXPOSICIÓN ═══════════════════
+function applyExpoColor(){
+  const root=document.documentElement.style;
+  if(state.expo){ const s=EXPO[state.expo]; root.setProperty('--sev',s.col); root.setProperty('--sev-s',s.cs); root.setProperty('--sev-border',s.cb); }
+  else { root.setProperty('--sev','#1a7fc8'); root.setProperty('--sev-s','#e8f3fb'); root.setProperty('--sev-border','#a8cceb'); }
+}
+
+// ═══════════════════ RENDER PRINCIPAL ═══════════════════
+function render(){
+  applyExpoColor();
+  renderCtxBar();
+  let h='';
+
+  // PANEL DE EDICIÓN DE PESO (cuando se pulsa "editar" en el chip)
+  if(state.wEdit){
+    h+='<div class="wpanel" style="border-color:#7ddfc5;background:var(--teal-s)">'+
+         '<div class="wpanel-lbl" style="color:var(--teal-dark)">✏️ Modificar peso</div>'+
+         '<div class="wpanel-row">'+
+           '<input type="number" id="wEditIn" inputmode="decimal" min="1" placeholder="kg" value="'+(getW()||'')+'" '+
+             'onkeydown="if(event.key===\'Enter\')saveWEdit()" style="border-color:#7ddfc5">'+
+           '<button class="wpanel-btn" style="background:var(--teal-dark)" onclick="saveWEdit()">Guardar</button>'+
+         '</div></div>';
+  }
+
+  // PASO 1 · TIPO DE EXPOSICIÓN
+  h+='<div class="step-lbl"><span class="step-num">1</span>Tipo de exposición</div>';
+  h+='<div class="triage">';
+  for(const k in EXPO){ const s=EXPO[k], sel=state.expo===k?' sel':'';
+    h+='<div class="tcard '+k+sel+'" onclick="setExpo(\''+k+'\')">'+
+         '<span class="tdot"></span>'+
+         '<div class="tbody"><div class="tname">'+s.name+'</div><div class="tsub">'+s.sub+'</div></div>'+
+       '</div>';
+  }
+  h+='</div>';
+
+  if(state.expo){
+    h+=cChecklistAnamnesis();
+    h+=cAltoRiesgo();
+  }
+
+  // PASO 2 · según rama
+  if(state.expo==='aguda'){
+    h+='<div class="step-lbl" id="step2"><span class="step-num">2</span>Tiempo desde la ingesta</div>';
+    h+='<div class="fr-row">';
+    for(const k in FRANJA){ const f=FRANJA[k], sel=state.franja===k?' sel':'';
+      h+='<div class="fr-pill'+sel+'" onclick="setFranja(\''+k+'\')">'+
+           '<div class="fp-name">'+f.name+'</div><div class="fp-sub">'+f.sub+'</div></div>';
+    }
+    h+='</div>';
+    if(state.franja){
+      h+='<div class="step-lbl" id="step3"><span class="step-num">3</span>Manejo</div>';
+      h+=manejoAguda(state.franja);
+      h+=cCola();
+      h+=reportBlock();
+    } else {
+      h+='<div class="placeholder"><span class="ph-ic">⏱️</span>Selecciona el tiempo transcurrido desde la ingesta.</div>';
+    }
+  }
+  else if(state.expo==='cronica'){
+    h+='<div class="step-lbl" id="step3"><span class="step-num">2</span>Manejo · intoxicación crónica</div>';
+    h+=manejoCronica();
+    h+=cCola();
+    h+=reportBlock();
+  }
+  else if(state.expo==='desconocida'){
+    h+='<div class="step-lbl" id="step3"><span class="step-num">2</span>Manejo · hora/dosis desconocida</div>';
+    h+=manejoDesconocida();
+    h+=cCola();
+    h+=reportBlock();
+  }
+
+  document.getElementById('flow').innerHTML=h;
+  // re-pintar pesos embebidos
+  document.querySelectorAll('.wslot').forEach(el=>{ el.innerHTML=wbarHTML(); });
+  if(typeof dosisRecalc==='function') dosisRecalc();
+  if(typeof nomoRecalc==='function') nomoRecalc();
+  if(typeof nacRecalc==='function') nacRecalc();
+  if(typeof shvRecalc==='function') shvRecalc();
+  renderReport();
+}
+
+function renderCtxBar(){
+  const bar=document.getElementById('ctxbar');
+  if(!state.expo){ bar.classList.remove('show'); bar.innerHTML=''; return; }
+  let h='<div class="ctx-row">';
+  h+='<span class="ctx-chip expo" onclick="scrollTop()"><span class="dotc"></span>'+EXPO[state.expo].name+' <span class="ctx-edit">cambiar</span></span>';
+  if(state.expo==='aguda'&&state.franja){ h+='<span class="ctx-chip fr" onclick="scrollStep2()">'+FRANJA[state.franja].short+' <span class="ctx-edit">cambiar</span></span>'; }
+  const w=getW(); if(w){ h+='<span class="ctx-chip weight" onclick="toggleWEdit()">'+w+' kg <span class="ctx-edit">editar</span></span>'; }
+  h+='</div>';
+  bar.innerHTML=h; bar.classList.add('show');
+}
+function scrollTop(){ window.scrollTo({top:0,behavior:'smooth'}); }
+function scrollStep2(){ const e=document.getElementById('step2'); if(e){ window.scrollTo({top:e.getBoundingClientRect().top+window.pageYOffset-110,behavior:'smooth'}); } }
+function scrollStep3(){ const e=document.getElementById('step3'); if(e){ window.scrollTo({top:e.getBoundingClientRect().top+window.pageYOffset-110,behavior:'smooth'}); } }
+
+function setExpo(k){ state.expo=(state.expo===k?null:k); state.franja=null; render(); }
+function setFranja(k){ state.franja=(state.franja===k?null:k); render(); if(state.franja) setTimeout(scrollStep3,60); }
+function setNacPauta(p){ state.nacPauta=p; render(); }
+function toggleFactor(k){ const i=state.factores.indexOf(k); if(i>=0) state.factores.splice(i,1); else state.factores.push(k); render(); }
+function onDosisInput(el){ state.dosisG=el.value; dosisRecalc(); }
+function toggleWEdit(){ state.wEdit=!state.wEdit; render(); if(state.wEdit) setTimeout(()=>{ const i=document.getElementById('wEditIn'); if(i){ i.focus(); i.select(); } },40); }
+function saveWEdit(){ const i=document.getElementById('wEditIn'); const v=parseFloat(i?i.value:''); if(!v||v<=0) return; patient=Object.assign({},patient||{},{weight:v}); try{ localStorage.setItem('hj23_patient',JSON.stringify(patient)); }catch(e){} state.wEdit=false; render(); }
+function restart(){ state={expo:null,franja:null,factores:[],nacPauta:'snap',dosisG:'',wEdit:false,criterios:[]}; window.scrollTo(0,0); render(); }
+function toggleAcc(el){ el.classList.toggle('open'); }
+
+// ═══════════════════ COMPONENTES REUTILIZABLES ═══════════════════
+
+// Checklist de anamnesis (plegable)
+function cChecklistAnamnesis(){
+  return '<div class="acc" onclick="toggleAcc(this)"><div class="acc-head">📋 Anamnesis'+
+    '<svg class="acc-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>'+
+    '<div class="acc-body"><ul class="rlist">'+
+      '<li><b>Hora</b> de la ingesta (única) u <b>hora inicio/fin</b> (repetida)</li>'+
+      '<li><b>Dosis total</b> de paracetamol ingerida y <b>peso</b> (kg)</li>'+
+      '<li><b>Coingesta</b> de alcohol u otros fármacos (¿retard? ¿opioides/anticolinérgicos → retrasan absorción?)</li>'+
+      '<li><b>Factores de riesgo</b>: malnutrición/caquexia/anorexia, alcoholismo crónico, inductores CYP2E1 (carbamazepina, fenobarbital, fenitoína, isoniazida, rifampicina, efavirenz)</li>'+
+      '<li><b>Síntomas</b>: náuseas, vómitos, dolor abdominal</li>'+
+      '<li><b>Tratamiento prehospitalario</b> (vómito inducido, carbón)</li>'+
+    '</ul></div></div>';
+}
+
+// Banner de alto riesgo (PNT)
+function cAltoRiesgo(){
+  return '<div class="acc" onclick="toggleAcc(this)"><div class="acc-head">🚩 Criterios de alto riesgo'+
+    '<svg class="acc-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>'+
+    '<div class="acc-body">'+
+      '<div class="muted-note" style="margin:0 0 9px">Riesgo de daño hepático <b>aun iniciando antídoto</b> → avisar precozmente a UCI:</div>'+
+      '<ul class="rlist">'+
+        '<li>Ingesta <b>&gt; 30 g</b> confirmada (intoxicación masiva)</li>'+
+        '<li>[Paracetamol] <b>&gt; 300 µg/mL a las 4 h</b></li>'+
+        '<li><b>Inestabilidad hemodinámica</b></li>'+
+        '<li><b>Alteración del estado mental + acidosis metabólica grave precoz</b> (&lt;12 h)</li>'+
+      '</ul></div></div>';
+}
+
+// Perfil analítico
+function cPerfil(){
+  return '<div class="scard"><div class="scard-hdr"><span class="scard-icon">🧪</span><span class="scard-title">Perfil analítico</span></div>'+
+    '<ul class="rlist">'+
+      '<li>Hemograma + bioquímica (glucemia, iones, bilirrubina, <b>función hepática y renal</b>)</li>'+
+      '<li><b>Coagulación</b> (INR) y <b>equilibrio ácido-base</b> (gasometría venosa)</li>'+
+      '<li><b>Niveles de paracetamol</b> — válidos solo <b>≥ 4 h</b> postingesta</li>'+
+    '</ul>'+
+    '<div class="muted-note">Monitorización: perfil hepático basal y cada <b>12 h</b>; glucemia, coagulación y gasometría. Niveles de paracetamol hasta negativización.</div></div>';
+}
+
+// ── Factores de riesgo de hepatotoxicidad (determinan el perfil) ──
+function cFactoresRiesgo(){
+  const r=esRiesgo();
+  let h='<div class="scard"><div class="scard-hdr"><span class="scard-icon">⚠️</span><span class="scard-title">Factores de riesgo</span></div>'+
+    '<div class="muted-note" style="margin:-2px 0 10px">Marca los que tenga el paciente. Eligen automáticamente el perfil (umbral de dosis y línea del nomograma).</div>';
+  FACTORES.forEach(f=>{ const on=state.factores.indexOf(f[0])>=0;
+    h+='<div class="ci'+(on?' ck':'')+'" onclick="toggleFactor(\''+f[0]+'\')"><div class="cibox"><svg class="ck-svg" viewBox="0 0 13 13"><polyline points="2,6.5 5.5,10 11,3"/></svg></div><div class="ci-lbl">'+f[1]+'</div></div>';
+  });
+  h+='<div class="banner '+(r?'b-warn':'b-teal')+'" style="margin:10px 0 0">Perfil: <b>'+(r?'RIESGO':'POBLACIÓN GENERAL')+'</b> · '+
+       (r?'umbral '+UMBRAL_RIESGO+' mg/kg · nomograma línea 100':'umbral '+UMBRAL_GEN+' mg/kg · nomograma línea 150')+'</div>';
+  h+='</div>';
+  return h;
+}
+
+// ── Dosis ingerida (estratificación de riesgo por mg/kg) ──
+function cDosis(){
+  const umbral=esRiesgo()?UMBRAL_RIESGO:UMBRAL_GEN;
+  let h='<div class="wslot"></div>';
+  h+='<div class="calc-card"><div class="calc-title">Dosis ingerida</div>'+
+     '<div class="calc-sub">Estratifica el riesgo por mg/kg. Umbral tóxico actual <b>'+umbral+' mg/kg</b> (perfil '+(esRiesgo()?'de riesgo':'general')+'). Masiva <b>&gt; 30 g</b>.</div>';
+  h+='<div class="fld-row"><div class="fld"><div class="fld-lbl">Paracetamol ingerido (g)</div>'+
+       '<input type="number" id="dosG" step="0.5" inputmode="decimal" min="0" placeholder="—" value="'+(state.dosisG||'')+'" oninput="onDosisInput(this)"></div></div>';
+  h+='<div class="calc-result r-neutral" id="dosRes"><div class="cr-k">Resultado</div><div class="cr-v">—</div><div class="cr-detail">Introduce los gramos ingeridos.</div></div>';
+  h+='</div>';
+  return h;
+}
+function dosisRecalc(){
+  const res=document.getElementById('dosRes');
+  const g=parseFloat((document.getElementById('dosG')||{}).value);
+  const w=getW();
+  const umbral=esRiesgo()?UMBRAL_RIESGO:UMBRAL_GEN;
+  let tier='none';  // none | bajo | toxica | masiva | sinpeso
+  if(res){
+    const vEl=res.querySelector('.cr-v'), dEl=res.querySelector('.cr-detail');
+    res.className='calc-result r-neutral';
+    if(isNaN(g)||g<=0){ vEl.textContent='—'; dEl.textContent='Introduce los gramos ingeridos.'; tier='none'; }
+    else if(g>30){
+      res.className='calc-result r-go'; vEl.textContent='Masiva · > 30 g';
+      dEl.innerHTML='Intoxicación masiva → <b>alto riesgo</b>. <b>Iniciar NAC precozmente</b> sin esperar niveles, carbón activado si procede y <b>avisar a UCI</b> (riesgo de daño hepático aun con antídoto).';
+      tier='masiva';
+    }
+    else if(!w){
+      res.className='calc-result r-wait'; vEl.textContent='Falta peso';
+      dEl.innerHTML='Introduce el peso para calcular mg/kg (umbral <b>'+umbral+' mg/kg</b>).';
+      tier='sinpeso';
+    }
+    else {
+      const mgkg=g*1000/w, mgkgTxt=mgkg.toFixed(0)+' mg/kg';
+      if(mgkg>=umbral){
+        res.className='calc-result r-go'; vEl.textContent='Dosis tóxica · '+mgkgTxt;
+        dEl.innerHTML='≥ '+umbral+' mg/kg → ingesta <b>significativa</b>. Sacar niveles a las 4 h, <b>preparar/iniciar NAC</b> y reinterpretar con el nomograma.';
+        tier='toxica';
+      } else {
+        res.className='calc-result r-stop'; vEl.textContent='Bajo umbral · '+mgkgTxt;
+        dEl.innerHTML='&lt; '+umbral+' mg/kg → hepatotoxicidad <b>improbable</b>. Aun así, confirmar con <b>nivel a las 4 h</b> antes del alta toxicológica.';
+        tier='bajo';
+      }
+    }
+  }
+  // Zona de decisión reactiva de la franja < 4 h
+  const dec=document.getElementById('lt4Decision');
+  if(dec) updateLt4Decision(dec,tier);
+}
+// Reconfigura la franja < 4 h según la dosis estratificada
+function updateLt4Decision(dec,tier){
+  if(tier==='masiva'){
+    dec.innerHTML='<div class="banner b-epi"><b>Intoxicación masiva → avisar a UCI.</b> Iniciar NAC ya, sin esperar a los niveles.</div>'+
+      '<div class="sec-divider">Antídoto · NAC</div>'+cNAC();
+  } else if(tier==='toxica'){
+    dec.innerHTML='<div class="sec-divider">Antídoto · NAC</div>'+cNAC();
+  } else {
+    dec.innerHTML='<div class="banner b-info"><b>No iniciar NAC todavía</b> (salvo intoxicación masiva o síntomas graves precoces). Extraer perfil hepático y coagulación; <b>sacar niveles de paracetamol a las 4 h</b> y reinterpretar en la franja 4–24 h.</div>';
+  }
+  // poblar los slots de peso y las bolsas dentro de lo recién inyectado
+  dec.querySelectorAll('.wslot').forEach(el=>el.innerHTML=wbarHTML());
+  if(typeof nacRecalc==='function') nacRecalc();
+}
+
+// Carbón activado
+function cCarbon(){
+  let h='<div class="wslot"></div>';
+  h+='<div class="calc-card"><div class="calc-title">Carbón activado</div>'+
+     '<div class="calc-sub">1 g/kg · dosis máxima 50 g</div>';
+  const w=getW();
+  let dose='introduce peso';
+  if(w){ const d=Math.min(w*1,50); dose=Math.round(d)+' g'+(w>50?' (tope 50 g)':''); }
+  h+='<div class="calc-result r-neutral"><div class="cr-k">Dosis</div><div class="cr-v" style="color:var(--blue-dark)">'+dose+'</div>'+
+     '<div class="cr-detail">Ventana: <b>&lt; 2 h</b> postingesta (hasta <b>4 h</b> si formas retard u opioides/anticolinérgicos que retrasen el vaciado).</div></div>'+
+     '<div class="muted-note">⛔ Contraindicado si <b>obstrucción intestinal</b> o <b>bajo nivel de conciencia</b> (valorar SNG con protección de vía aérea).</div></div>';
+  return h;
+}
+
+// ── Nomograma interactivo ──
+function cNomograma(){
+  const r=esRiesgo();
+  let h='<div class="calc-card alert"><div class="calc-title">Nomograma de Rumack-Matthew</div>'+
+     '<div class="calc-sub">Solo válido en intoxicación <b>aguda</b> con <b>hora cierta</b>, entre 4 y 24 h. Introduce horas y nivel.</div>';
+  // línea activa según el perfil (factores de riesgo marcados arriba)
+  h+='<div class="banner '+(r?'b-warn':'b-teal')+'" style="margin-bottom:11px">Línea activa: <b>'+(r?'100 (perfil de riesgo)':'150 (población general)')+'</b> · determinada por los <b>factores de riesgo</b>.</div>';
+  h+='<div class="fld-row">'+
+       '<div class="fld"><div class="fld-lbl">Horas postingesta</div><input type="number" id="nomoH" step="0.5" inputmode="decimal" min="0" placeholder="—" oninput="nomoRecalc()"></div>'+
+       '<div class="fld"><div class="fld-lbl">[Paracetamol] µg/mL</div><input type="number" id="nomoC" step="1" inputmode="decimal" min="0" placeholder="—" oninput="nomoRecalc()"></div>'+
+     '</div>';
+  h+='<div class="calc-result r-neutral" id="nomoRes"><div class="cr-k">Resultado</div><div class="cr-v">— —</div><div class="cr-detail">Introduce horas y nivel.</div></div>';
+  // tabla de referencia plegable
+  h+='<div class="acc" style="margin-top:11px" onclick="toggleAcc(this);event.stopPropagation()"><div class="acc-head" style="font-size:.86rem">Ver tabla de umbrales'+
+     '<svg class="acc-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>'+
+     '<div class="acc-body"><table class="nomo-tbl" id="nomoTbl"><tr><th>Horas</th><th>General (150)</th><th>Riesgo (100)</th></tr>';
+  NOMO.forEach(r=>{ h+='<tr data-h="'+r[0]+'"><td>'+r[0]+' h</td><td>&gt; '+r[1]+'</td><td>&gt; '+r[2]+'</td></tr>'; });
+  h+='</table><div class="muted-note">Usar NAC si la [paracetamol] es <b>superior</b> al umbral de la franja horaria.</div></div></div>';
+  h+='</div>';
+  return h;
+}
+// umbral interpolado (log-lineal) sobre la tabla HJ23
+function nomoThreshold(t,pop){
+  const idx=pop==='riesgo'?2:1;
+  if(t<4||t>24) return null;
+  for(let i=0;i<NOMO.length-1;i++){
+    const a=NOMO[i], b=NOMO[i+1];
+    if(t>=a[0]&&t<=b[0]){
+      const f=(t-a[0])/(b[0]-a[0]);
+      const va=Math.log(a[idx]), vb=Math.log(b[idx]);
+      return Math.exp(va+(vb-va)*f);
+    }
+  }
+  return null;
+}
+function nomoRecalc(){
+  const res=document.getElementById('nomoRes'); if(!res) return;
+  const t=parseFloat((document.getElementById('nomoH')||{}).value);
+  const c=parseFloat((document.getElementById('nomoC')||{}).value);
+  const vEl=res.querySelector('.cr-v'), dEl=res.querySelector('.cr-detail');
+  res.className='calc-result r-neutral';
+  // resaltar fila tabla
+  const tbl=document.getElementById('nomoTbl');
+  if(tbl){ tbl.querySelectorAll('tr[data-h]').forEach(tr=>tr.classList.remove('hl'));
+    if(!isNaN(t)){ let near=NOMO.reduce((p,r)=>Math.abs(r[0]-t)<Math.abs(p[0]-t)?r:p); const row=tbl.querySelector('tr[data-h="'+near[0]+'"]'); if(row) row.classList.add('hl'); } }
+  if(isNaN(t)||isNaN(c)){ vEl.textContent='— —'; dEl.textContent='Introduce horas y nivel.'; return; }
+  if(t<4){ res.className='calc-result r-wait'; vEl.textContent='Esperar'; dEl.innerHTML='<b>&lt;4 h:</b> nivel en fase de distribución, no interpretable. Repetir a las 4 h.'; return; }
+  if(t>24){ res.className='calc-result r-wait'; vEl.textContent='No aplicable'; dEl.innerHTML='<b>&gt;24 h:</b> el nomograma no es válido. Guiarse por afectación hepática y niveles detectables.'; return; }
+  const pop=esRiesgo()?'riesgo':'general';
+  const th=nomoThreshold(t,pop);
+  const pobTxt=esRiesgo()?'riesgo (línea 100)':'general (línea 150)';
+  if(c>th){ res.className='calc-result r-go'; vEl.textContent='Por encima · NAC'; dEl.innerHTML='Nivel <b>'+c+'</b> &gt; umbral <b>'+th.toFixed(0)+' µg/mL</b> a las '+t+' h (pob. '+pobTxt+'). <b>Iniciar / mantener NAC.</b>'; }
+  else { res.className='calc-result r-stop'; vEl.textContent='Por debajo'; dEl.innerHTML='Nivel <b>'+c+'</b> ≤ umbral <b>'+th.toFixed(0)+' µg/mL</b> a las '+t+' h (pob. '+pobTxt+'). Si no hay lesión hepática, <b>no precisa / suspender NAC.</b>'; }
+}
+
+// ── Calculadora NAC (SNAP / Prescott) ──
+function cNAC(){
+  const snap=state.nacPauta==='snap';
+  let h='<div class="wslot"></div>';
+  h+='<div class="calc-card"><div class="calc-title">N-acetilcisteína (NAC)</div>'+
+     '<div class="calc-sub">Dosis por peso (peso máx de cálculo <b>100 kg</b>). La dosis NO depende del nivel de paracetamol.</div>';
+  h+='<div class="seg">'+
+       '<div class="seg-opt'+(snap?' sel':'')+'" onclick="setNacPauta(\'snap\')">SNAP<span class="so-sub">2 bolsas · preferida</span></div>'+
+       '<div class="seg-opt'+(!snap?' sel':'')+'" onclick="setNacPauta(\'prescott\')">Prescott<span class="so-sub">3 bolsas · clásica</span></div>'+
+     '</div>';
+  h+='<div id="nacBags"></div>';
+  if(snap) h+='<div class="muted-note">SNAP: misma dosis total (300 mg/kg) en menos tiempo y solo 2 diluciones → <b>menos reacciones anafilactoides y menos errores</b> (Emergencias 2025). En &gt;90 kg, bolsa 2 preferiblemente en 1000 mL SG5% (vía central o en Y por osmolaridad).</div>';
+  else h+='<div class="muted-note">Pauta clásica de Prescott: 300 mg/kg en 21 h (3 perfusiones).</div>';
+  h+='</div>';
+  return h;
+}
+function nacRecalc(){
+  const cont=document.getElementById('nacBags'); if(!cont) return;
+  const w=getW();
+  const g=(mgkg,cap)=>{ if(!w) return null; let v=mgkg*Math.min(w,100)/1000; return Math.min(v,cap); };
+  const fmt=(v)=>v.toLocaleString('es-ES',{maximumFractionDigits:1});
+  let bags;
+  if(state.nacPauta==='snap'){
+    bags=[
+      {n:1,t:'Bolsa 1',mgkg:100,cap:11,vol:'250 mL SG5%',time:'2 h'},
+      {n:2,t:'Bolsa 2',mgkg:200,cap:22,vol:'500 mL SG5% (1000 mL si >90 kg)',time:'10 h'},
+      {n:3,t:'Bolsa 3 (si no cumple criterios de suspensión)',mgkg:200,cap:22,vol:'500 mL SG5%',time:'10 h más',opt:true}
+    ];
+  } else {
+    bags=[
+      {n:1,t:'Bolsa 1',mgkg:150,cap:15,vol:'250 mL SG5%',time:'60 min'},
+      {n:2,t:'Bolsa 2',mgkg:50,cap:99,vol:'500 mL SG5%',time:'4 h'},
+      {n:3,t:'Bolsa 3',mgkg:100,cap:99,vol:'500 mL SG5%',time:'16 h'}
+    ];
+  }
+  let h='';
+  bags.forEach(b=>{
+    const dose=g(b.mgkg,b.cap);
+    let dtxt = dose===null ? 'introduce peso' : fmt(dose)+' g'+(w&&w>100?' · peso 100 kg':'')+((dose>=b.cap&&w&&b.mgkg*Math.min(w,100)/1000>b.cap)?' (máx '+b.cap+' g)':'');
+    h+='<div class="bag'+(b.opt?' opt':'')+'"><div class="bag-n">'+b.n+'</div><div class="bag-body">'+
+         '<div class="bag-ttl">'+b.t+'</div>'+
+         '<div class="bag-dose">'+dtxt+'</div>'+
+         '<div class="bag-meta">'+b.mgkg+' mg/kg · '+b.vol+' · '+b.time+'</div>'+
+       '</div></div>';
+  });
+  cont.innerHTML=h;
+}
+
+// ── Criterios de suspensión NAC ──
+function cSuspension(){
+  return '<div class="acc" onclick="toggleAcc(this)"><div class="acc-head">⏹️ Criterios para suspender NAC'+
+    '<svg class="acc-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>'+
+    '<div class="acc-body">'+
+      '<div class="muted-note" style="margin:0 0 9px">2 h antes de terminar la última bolsa → analítica. Suspender si se cumplen <b>todos</b>:</div>'+
+      '<ul class="rlist">'+
+        '<li><b>INR ≤ 1,3</b> (criterio fin de pauta) — razonable hasta <b>INR &lt; 2,0</b> en bajo riesgo</li>'+
+        '<li><b>Transaminasas normales</b> o ≤ basal / descenso ≥ 25%</li>'+
+        '<li><b>Paracetamol &lt; 10 µg/mL</b> (indetectable)</li>'+
+        '<li>Paciente <b>asintomático</b></li>'+
+      '</ul>'+
+      '<div class="banner b-warn" style="margin:10px 0 0">Si <b>no</b> se cumplen → continuar bolsa adicional 10 h (SNAP) y control analítico, o NAC <b>150 mg/kg/24 h</b> en 500 mL SG5% cada 12 h hasta resolución o trasplante.</div></div></div>';
+}
+
+// ── Efectos adversos NAC ──
+function cReaccionNAC(){
+  return '<div class="acc" onclick="toggleAcc(this)"><div class="acc-head">💧 Reacción anafilactoide a NAC'+
+    '<svg class="acc-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>'+
+    '<div class="acc-body">'+
+      '<div class="muted-note" style="margin:0 0 9px">No IgE-mediadas, dependen del pico de infusión (primera hora). <b>No suspender el fármaco.</b></div>'+
+      '<ul class="rlist">'+
+        '<li><b>Urticaria/prurito:</b> antihistamínico EV + pausa 15 min → reiniciar más lento</li>'+
+        '<li><b>Angioedema/broncoespasmo:</b> antihistamínico EV + pausa 1 h → reiniciar más lento</li>'+
+        '<li><b>Hipotensión / shock:</b> suspender y tratar como anafilaxia (adrenalina, corticoide, antihistamínico)</li>'+
+      '</ul></div></div>';
+}
+
+// ── Cálculo de semivida T0/T2 ──
+function cSemivida(){
+  let h='<div class="calc-card"><div class="calc-title">Semivida de eliminación (T0/T2)</div>'+
+     '<div class="calc-sub">Dos niveles separados ≥ 2 h. Útil en hora desconocida o crónica.</div>';
+  h+='<div class="fld-row">'+
+       '<div class="fld"><div class="fld-lbl">T0 (µg/mL)</div><input type="number" id="shvT0" step="1" inputmode="decimal" min="0" placeholder="—" oninput="shvRecalc()"></div>'+
+       '<div class="fld"><div class="fld-lbl">T2 — ≥2 h después</div><input type="number" id="shvT2" step="1" inputmode="decimal" min="0" placeholder="—" oninput="shvRecalc()"></div>'+
+     '</div>';
+  h+='<div class="calc-result r-neutral" id="shvRes"><div class="cr-k">Cociente T0/T2</div><div class="cr-v">—</div><div class="cr-detail">Introduce ambos niveles.</div></div>';
+  h+='</div>';
+  return h;
+}
+function shvRecalc(){
+  const res=document.getElementById('shvRes'); if(!res) return;
+  const t0=parseFloat((document.getElementById('shvT0')||{}).value);
+  const t2=parseFloat((document.getElementById('shvT2')||{}).value);
+  const vEl=res.querySelector('.cr-v'), dEl=res.querySelector('.cr-detail');
+  res.className='calc-result r-neutral';
+  if(isNaN(t0)||isNaN(t2)||t2<=0){ vEl.textContent='—'; dEl.textContent='Introduce ambos niveles.'; return; }
+  if(t2>=t0){ res.className='calc-result r-wait'; vEl.textContent='Absorción incompleta'; dEl.innerHTML='T2 ≥ T0: la absorción no se había completado en T0 (ingesta &lt; 4 h al extraer). Repetir.'; return; }
+  const r=t0/t2;
+  if(r<1.4){ res.className='calc-result r-go'; vEl.textContent=r.toFixed(2)+' · alto riesgo'; dEl.innerHTML='Cociente &lt; 1,4 → semivida <b>&gt; 4 h</b> → <b>alto riesgo</b> de hepatotoxicidad. Mantener NAC.'; }
+  else { res.className='calc-result r-stop'; vEl.textContent=r.toFixed(2)+' · bajo riesgo'; dEl.innerHTML='Cociente &gt; 1,4 → semivida <b>&lt; 4 h</b> → bajo riesgo de hepatotoxicidad.'; }
+}
+
+// ═══════════════════ MATRIZ DE MANEJO ═══════════════════
+
+function manejoAguda(fr){
+  if(fr==='lt4')  return mLt4();
+  if(fr==='m4_24')return m4_24();
+  if(fr==='gt24') return mGt24();
+  return '';
+}
+
+function mLt4(){
+  let h='<div class="banner b-info lead-action"><b>&lt; 4 h postingesta.</b> Aún no se pueden interpretar los niveles. La conducta se guía por la <b>dosis ingerida</b>: estratifica el riesgo abajo.</div>';
+  h+=cFactoresRiesgo();
+  h+=cDosis();
+  h+=cCarbon();
+  h+='<div id="lt4Decision"></div>';
+  return h;
+}
+
+function m4_24(){
+  let h='<div class="banner b-epi lead-action"><b>4–24 h · ventana del nomograma.</b> Si se cree que ha tomado una <b>dosis significativa</b>, <b>iniciar NAC inmediatamente sin esperar a los niveles</b> (la NAC no altera la eliminación del paracetamol). Después, decidir continuar/suspender según nomograma.</div>';
+  h+=cFactoresRiesgo();
+  h+=cDosis();
+  h+='<div class="sec-divider">Decisión: ¿NAC?</div>';
+  h+=cNomograma();
+  h+='<div class="sec-divider">Antídoto · NAC</div>';
+  h+=cNAC();
+  h+='<div class="banner b-info"><b>Tras conocer los niveles:</b> si hay cualquier evidencia de lesión hepática → continuar NAC. Si no hay afectación hepática y el nivel queda <b>por debajo</b> de la línea de riesgo → suspender NAC.</div>';
+  return h;
+}
+
+function mGt24(){
+  let h='<div class="banner b-warn lead-action"><b>&gt; 24 h postingesta.</b> El nomograma <b>no es válido</b>: los niveles no se correlacionan con la toxicidad. Guiarse por la afectación hepática y los niveles detectables.</div>';
+  h+='<div class="ladder">'+
+      lstep('1','¿Afectación hepática?','Si hay cualquier signo de insuficiencia hepática <b>independientemente de los niveles</b> → <b>iniciar NAC.</b>')+
+      lstep('2','Sin afectación: valorar niveles','Si transaminasas normales pero <b>paracetamol detectable (≥10 µg/mL)</b> → sobredosis significativa → <b>iniciar NAC.</b> Repetir analítica cada 8–12 h.')+
+      lstep('3','Asintomático + indetectable + perfil normal','<b>Alta toxicológica.</b>')+
+     '</div>';
+  h+='<div class="sec-divider">Antídoto · NAC</div>';
+  h+=cNAC();
+  h+='<div class="sec-divider">Apoyo · cálculo de semivida</div>';
+  h+=cSemivida();
+  return h;
+}
+
+function manejoCronica(){
+  let h='<div class="banner b-warn lead-action"><b>Intoxicación crónica / supraterapéutica repetida.</b> No usar nomograma. Dosis supraterapéuticas: &gt; 6 g/día (150 mg/kg/día) si periodo 24–48 h · &gt; 4 g/día (100 mg/kg/día) si &gt; 48 h.</div>';
+  h+='<div class="muted-note" style="margin:-4px 2px 12px">Niveles de paracetamol a las <b>4 h de la última toma</b>.</div>';
+  h+='<div class="sec-divider">Decisión: ¿NAC?</div>';
+  h+='<div class="calc-card"><div class="calc-title">Indicación de NAC (crónica)</div>'+
+     '<ul class="rlist">'+
+       '<li><b>Iniciar NAC</b> si paracetamol <b>&gt; 20 µg/mL</b> y/o <b>transaminasas elevadas</b> (salvo que sean su basal en hepatopatía crónica)</li>'+
+       '<li><b>No precisa NAC</b> si paracetamol &lt; 20 µg/mL, función hepática normal (o basal) y sin datos de toxicidad</li>'+
+     '</ul></div>';
+  h+='<div class="sec-divider">Apoyo · cálculo de semivida</div>';
+  h+=cSemivida();
+  h+='<div class="sec-divider">Antídoto · NAC</div>';
+  h+=cNAC();
+  return h;
+}
+
+function manejoDesconocida(){
+  let h='<div class="banner b-epi lead-action"><b>Hora/dosis desconocida o anamnesis no fiable.</b> No hay pauta universal. <b>En caso de duda, administrar siempre NAC.</b></div>';
+  h+='<div class="ladder">'+
+      lstep('1','Determinar niveles + función hepática','Solicitar paracetamol, perfil hepático y coagulación.')+
+      lstep('2','¿Detectable o datos de toxicidad?','Si se detecta paracetamol <b>o</b> hay datos de toxicidad hepática → <b>iniciar NAC</b> y reevaluar en <b>12 h</b>.')+
+      lstep('3','Calcular semivida','Dos niveles separados ≥ 2 h para estimar el riesgo (ver abajo).')+
+     '</div>';
+  h+='<div class="sec-divider">Apoyo · cálculo de semivida</div>';
+  h+=cSemivida();
+  h+='<div class="sec-divider">Antídoto · NAC</div>';
+  h+=cNAC();
+  return h;
+}
+
+// ── Cola común (mismo orden en todos los escenarios) ──
+// NAC → Analítica → Reacción NAC → Gravedad/disposición → King's College → Suspender NAC
+function cCola(){
+  return '<div class="sec-divider">Analítica</div>'+cPerfil()+
+         cReaccionNAC()+
+         cDisposicion()+
+         cKings()+
+         cSuspension();
+}
+
+// ── Gravedad y disposición ──
+function cDisposicion(){
+  let h='<div class="sec-divider">Gravedad y disposición</div>';
+  h+='<div class="scard"><div class="scard-hdr"><span class="scard-icon">📊</span><span class="scard-title">Gradación clínica</span></div>'+
+     '<table class="nomo-tbl"><tr><th>Grado</th><th>Datos</th><th>Destino</th></tr>'+
+       '<tr><td style="color:var(--teal-dark)">Leve</td><td style="text-align:left;font-family:var(--body)">Asintomático · paracetamol &lt; línea · INR/transaminasas/Cr normales</td><td style="text-align:left;font-family:var(--body)">Observación / posible alta</td></tr>'+
+       '<tr><td style="color:var(--amber-dark)">Moderada</td><td style="text-align:left;font-family:var(--body)">Náuseas/vómitos/dolor abdominal persistente · &gt; línea · AST/ALT 50–500 · INR 1,3–2,5 · Cr &lt;2</td><td style="text-align:left;font-family:var(--body)">Ingreso en planta</td></tr>'+
+       '<tr><td style="color:var(--epi)">Grave</td><td style="text-align:left;font-family:var(--body)">Encefalopatía · ictericia · shock · AST/ALT &gt;500 · INR &gt;2,5 · Cr &gt;2 · oligoanuria</td><td style="text-align:left;font-family:var(--body)">UCI</td></tr>'+
+     '</table></div>';
+  return h;
+}
+
+// ── Criterios de King's College (trasplante) ──
+function cKings(){
+  return '<div class="acc" onclick="toggleAcc(this)"><div class="acc-head">🫁 Criterios de King\'s College (trasplante)'+
+     '<svg class="acc-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>'+
+     '<div class="acc-body">'+
+       '<div class="muted-note" style="margin:0 0 9px">Contactar con <b>Medicina Intensiva</b> y valorar derivación a centro de trasplante. Marca lo presente:</div>'+
+       cCrit('A','<b>pH &lt; 7,3</b> tras &gt;24 h de la ingesta y reanimación adecuada (independiente de la encefalopatía) — <b>criterio único suficiente</b>')+
+       '<div class="muted-note" style="margin:8px 0 6px">…o los <b>3</b> criterios siguientes juntos:</div>'+
+       cCrit('B','Encefalopatía hepática <b>grado III/IV</b>')+
+       cCrit('C','Tiempo de protrombina <b>&gt; 100 s</b>')+
+       cCrit('D','Creatinina <b>&gt; 3,4 mg/dL</b>')+
+       '<div id="kingRes"></div>'+
+     '</div></div>';
+}
+function cCrit(k,txt){
+  const on=state.criterios.indexOf(k)>=0;
+  return '<div class="ci'+(on?' ck':'')+'" onclick="toggleCrit(\''+k+'\');event.stopPropagation()"><div class="cibox"><svg class="ck-svg" viewBox="0 0 13 13"><polyline points="2,6.5 5.5,10 11,3"/></svg></div><div class="ci-lbl">'+txt+'</div></div>';
+}
+function toggleCrit(k){
+  const i=state.criterios.indexOf(k);
+  if(i>=0) state.criterios.splice(i,1); else state.criterios.push(k);
+  // mantener acordeón abierto
+  render();
+  const acc=[...document.querySelectorAll('.acc-head')].find(e=>e.textContent.indexOf("King")>=0);
+  if(acc) acc.parentElement.classList.add('open');
+  kingEval();
+}
+function kingEval(){
+  const box=document.getElementById('kingRes'); if(!box) return;
+  const c=state.criterios;
+  const triple=c.indexOf('B')>=0&&c.indexOf('C')>=0&&c.indexOf('D')>=0;
+  if(c.indexOf('A')>=0||triple){
+    box.innerHTML='<div class="banner b-epi" style="margin:11px 0 0"><b>Criterio de trasplante CUMPLIDO.</b> Avisar a UCI y centro de trasplante hepático con urgencia.</div>';
+  } else if(c.length){
+    box.innerHTML='<div class="banner b-warn" style="margin:11px 0 0">Criterio aún no cumplido. Reevaluar y monitorizar estrechamente.</div>';
+  } else box.innerHTML='';
+}
+
+// helpers
+function lstep(n,ttl,desc){
+  return '<div class="lstep"><div class="lnum">'+n+'</div><div class="lbody"><div class="lttl">'+ttl+'</div><div class="ldesc">'+desc+'</div></div></div>';
+}
+
+// ═══════════════════ INFORME ═══════════════════
+function reportBlock(){
+  return '<div class="sec-divider">Resumen para historia clínica</div>'+
+    '<pre class="informe-box" id="repBox"></pre>'+
+    '<div class="inf-actions">'+
+      '<button class="btn btn-outline" onclick="copyReport()">📋 Copiar</button>'+
+      '<button class="btn btn-primary" onclick="downloadReport()">⬇ Descargar</button>'+
+    '</div>'+
+    '<div class="disclaimer">Algoritmo orientativo de apoyo a la decisión basado en el PNT/DM/URG/PU 078 del HJ23. Adaptar siempre al juicio clínico y al protocolo vigente del Servicio. · Dr. Hipólito García</div>';
+}
+function renderReport(){
+  const box=document.getElementById('repBox'); if(!box) return;
+  const w=getW();
+  const fecha=new Date().toLocaleDateString('es-ES');
+  let L=[];
+  L.push('INTOXICACIÓN POR PARACETAMOL · Urgencias HJ23 · '+fecha);
+  L.push('');
+  L.push('Exposición: '+EXPO[state.expo].name.toUpperCase());
+  if(state.expo==='aguda'&&state.franja) L.push('Tiempo desde ingesta: '+FRANJA[state.franja].name);
+  if(w) L.push('Peso: '+w+' kg');
+  L.push('');
+  L.push('CONDUCTA');
+  L.push(reportBody());
+  // dosis ingerida
+  if(state.factores.length){
+    const map={alc:'alcoholismo crónico',cyp:'inductores CYP2E1',malnut:'malnutrición/anorexia/FQ',otros:'otros'};
+    L.push('- Perfil de RIESGO ('+state.factores.map(k=>map[k]).join(', ')+') → umbral '+UMBRAL_RIESGO+' mg/kg · nomograma línea 100.');
+  }
+  const dg=parseFloat((document.getElementById('dosG')||{}).value);
+  if(!isNaN(dg)&&dg>0){
+    const umbral=esRiesgo()?UMBRAL_RIESGO:UMBRAL_GEN;
+    let txt='- Dosis ingerida: '+dg+' g';
+    if(dg>30) txt+=' → MASIVA (>30 g): alto riesgo, NAC precoz + UCI.';
+    else if(w){ const mk=dg*1000/w; txt+=' ('+mk.toFixed(0)+' mg/kg, umbral '+umbral+') → '+(mk>=umbral?'dosis tóxica/significativa.':'bajo umbral, hepatotoxicidad improbable.'); }
+    L.push(txt);
+  }
+  // nomograma
+  const t=parseFloat((document.getElementById('nomoH')||{}).value), c=parseFloat((document.getElementById('nomoC')||{}).value);
+  if(!isNaN(t)&&!isNaN(c)&&t>=4&&t<=24){
+    const pop=esRiesgo()?'riesgo':'general';
+    const th=nomoThreshold(t,pop);
+    L.push('- Nomograma ('+(esRiesgo()?'línea 100':'línea 150')+'): '+c+' µg/mL a '+t+' h vs umbral '+th.toFixed(0)+' → '+(c>th?'POR ENCIMA, indicación de NAC.':'por debajo de la línea.'));
+  }
+  // NAC
+  if(w){
+    const cap=(v,c)=>Math.min(v*Math.min(w,100)/1000,c);
+    if(state.nacPauta==='snap') L.push('- NAC SNAP: B1 '+cap(100,11).toFixed(1)+' g/2h · B2 '+cap(200,22).toFixed(1)+' g/10h (250+500 mL SG5%).');
+    else L.push('- NAC Prescott: B1 '+cap(150,15).toFixed(1)+' g/60min · B2 '+(50*Math.min(w,100)/1000).toFixed(1)+' g/4h · B3 '+(100*Math.min(w,100)/1000).toFixed(1)+' g/16h.');
+  }
+  // semivida
+  const s0=parseFloat((document.getElementById('shvT0')||{}).value), s2=parseFloat((document.getElementById('shvT2')||{}).value);
+  if(!isNaN(s0)&&!isNaN(s2)&&s2>0&&s2<s0){ const r=s0/s2; L.push('- Semivida T0/T2 = '+r.toFixed(2)+' → '+(r<1.4?'ALTO riesgo (vida media >4 h).':'bajo riesgo.')); }
+  // King's
+  const cc=state.criterios; const triple=cc.indexOf('B')>=0&&cc.indexOf('C')>=0&&cc.indexOf('D')>=0;
+  if(cc.indexOf('A')>=0||triple) L.push('- King\'s College CUMPLIDO → avisar UCI + trasplante.');
+  box.textContent=L.join('\n');
+  kingEval();
+}
+function reportBody(){
+  const e=state.expo;
+  if(e==='aguda'){
+    if(state.franja==='lt4') return '- <4 h: carbón activado 1 g/kg (máx 50 g) si <2 h (<4 h si retard/opioides). Perfil hepático + coagulación. Niveles de paracetamol a las 4 h. No iniciar NAC salvo masiva/sintomático grave.'.replace(/<(\/?)b>/g,'');
+    if(state.franja==='m4_24') return '- 4–24 h: iniciar NAC empírica si dosis significativa sin esperar niveles. Interpretar nomograma; continuar si lesión hepática o nivel sobre la línea, suspender si por debajo y sin afectación.';
+    if(state.franja==='gt24') return '- >24 h: nomograma no válido. NAC si afectación hepática o paracetamol detectable (≥10 µg/mL). Alta toxicológica si asintomático, indetectable y perfil normal.';
+  }
+  if(e==='cronica') return '- Crónica: niveles a 4 h de última toma. NAC si paracetamol >20 µg/mL y/o transaminasas elevadas. Valorar semivida.';
+  if(e==='desconocida') return '- Desconocida: en duda, administrar NAC. Niveles + función hepática; si detectable o toxicidad → NAC y reevaluar 12 h. Calcular semivida.';
+  return '';
+}
+function copyReport(){
+  navigator.clipboard.writeText(document.getElementById('repBox').textContent);
+  const btn=event.target; const t=btn.textContent; btn.textContent='✓ Copiado'; setTimeout(()=>{btn.textContent=t;},1600);
+}
+function downloadReport(){
+  const text=document.getElementById('repBox').textContent;
+  const a=document.createElement('a');
+  a.href='data:text/plain;charset=utf-8,'+encodeURIComponent(text);
+  a.download='intox-paracetamol_'+new Date().toISOString().slice(0,10)+'.txt';
+  a.click();
+}
+
+render();
+</script>
+</body>
+</html>
