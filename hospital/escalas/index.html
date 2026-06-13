@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>URGlab · Escalas</title>
+<link rel="stylesheet" href="../../fonts.css">
+<style>
+    :root {
+        --blue:#1a6fad; --blue-light:#e8f3fb; --teal:#09c797; --teal-light:#e6faf5;
+        --black:#111111; --bg:#f4f6f9; --surface:#ffffff; --border:rgba(0,0,0,0.09);
+        --text:#1a2636; --text-muted:#8898aa;
+        --display:'Barlow Condensed',sans-serif; --body:'IBM Plex Sans',sans-serif; --mono:'IBM Plex Mono',monospace;
+    }
+    * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+    body { background:var(--bg); font-family:var(--body); min-height:100svh; padding-bottom:48px; color:var(--text); }
+
+    header {
+        background:linear-gradient(135deg,#1a7fc8 0%,#1a6fad 100%);
+        border-bottom:3px solid #09c797;
+        padding:12px 18px; position:sticky; top:0; z-index:1000;
+        display:grid; grid-template-columns:48px 1fr 48px; align-items:center; gap:8px; min-height:68px;
+    }
+    .back-btn { display:flex; align-items:center; justify-content:center; width:44px; height:44px;
+        border-radius:10px; background:rgba(255,255,255,0.15); border:none; cursor:pointer; color:#fff;
+        transition:background .15s; text-decoration:none; }
+    .back-btn:active { background:rgba(255,255,255,0.28); }
+    .header-center { text-align:center; }
+    .header-label { font-family:var(--body); font-size:0.58rem; font-weight:600; color:#09c797;
+        letter-spacing:0.12em; text-transform:uppercase; margin-bottom:2px; }
+    .header-title { font-family:var(--display); font-size:1.4rem; font-weight:800; color:#fff;
+        letter-spacing:0.04em; text-transform:uppercase; line-height:1; }
+    .header-right { display:flex; align-items:center; justify-content:flex-end; opacity:0.7; }
+
+    .wrap { max-width:480px; margin:0 auto; padding:20px; }
+
+    /* Tarjetas de navegación (subcategorías / listado) */
+    .menu-grid { display:flex; flex-direction:column; gap:12px; }
+    .cat-card { background:var(--surface); border:1px solid var(--border); border-radius:14px;
+        padding:18px; display:flex; align-items:center; gap:16px; cursor:pointer;
+        box-shadow:0 1px 6px rgba(0,0,0,0.06); transition:transform .13s,box-shadow .13s;
+        -webkit-user-select:none; user-select:none; text-decoration:none; color:var(--text); }
+    .cat-card:active { transform:scale(0.982); box-shadow:0 1px 3px rgba(0,0,0,0.07); }
+    .cat-icon { width:52px; height:52px; border-radius:13px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .cat-icon.blue{background:var(--blue-light);} .cat-icon.teal{background:var(--teal-light);}
+    .cat-icon.red{background:rgba(239,68,68,0.08);} .cat-icon.amber{background:rgba(245,158,11,0.1);}
+    .cat-icon.orange{background:rgba(249,115,22,0.1);} .cat-icon.purple{background:rgba(139,92,246,0.1);}
+    .cat-icon.slate{background:rgba(100,116,139,0.12);}
+    .cat-icon.cyan{background:rgba(8,145,178,0.1);}
+    .cat-icon.rose{background:rgba(219,39,119,0.1);}
+
+    /* Buscador interno de escalas */
+    .esc-search-wrap { position:relative; margin-bottom:16px; }
+    .esc-search-ico { position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--text-muted); pointer-events:none; }
+    .esc-search { width:100%; font-family:var(--body); font-size:0.95rem; color:var(--text); background:var(--surface);
+        border:1px solid var(--border); border-radius:12px; padding:13px 14px 13px 42px; outline:none;
+        box-shadow:0 1px 6px rgba(0,0,0,0.06); transition:border-color .12s; }
+    .esc-search:focus { border-color:var(--blue); }
+    .esc-empty { text-align:center; color:var(--text-muted); font-size:0.85rem; padding:30px 12px; }
+    .cat-text { flex:1; }
+    .cat-name { font-family:var(--display); font-size:1.2rem; font-weight:700; color:var(--black);
+        letter-spacing:0.02em; text-transform:uppercase; line-height:1.1; margin-bottom:2px; }
+    .cat-desc { font-family:var(--body); font-size:0.76rem; color:var(--text-muted); line-height:1.35; }
+    .cat-arrow { color:var(--text-muted); flex-shrink:0; }
+
+    /* Calculadora */
+    .esc-nota { font-size:0.82rem; line-height:1.45; color:var(--text-muted); margin-bottom:18px; }
+    .esc-form { display:flex; flex-direction:column; gap:18px; }
+    .campo { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:14px 14px 12px; box-shadow:0 1px 4px rgba(0,0,0,0.05); }
+    .campo-label { font-family:var(--body); font-size:0.86rem; font-weight:600; color:var(--text); display:block; margin-bottom:2px; }
+    .campo-sub { font-size:0.72rem; color:var(--text-muted); line-height:1.3; margin-bottom:9px; }
+    .opt-group { display:flex; flex-direction:column; gap:7px; margin-top:8px; }
+    .opt-btn { display:flex; align-items:center; justify-content:space-between; gap:10px; width:100%;
+        background:#f7f9fb; border:1.5px solid var(--border); border-radius:10px; padding:11px 13px;
+        font-family:var(--body); font-size:0.85rem; color:var(--text); cursor:pointer; text-align:left;
+        transition:all .12s; }
+    .opt-btn:active { transform:scale(0.99); }
+    .opt-btn.sel { background:var(--blue-light); border-color:var(--blue); color:var(--blue); font-weight:600; }
+    .opt-v { font-family:var(--mono); font-size:0.78rem; color:var(--text-muted); flex-shrink:0; }
+    .opt-btn.sel .opt-v { color:var(--blue); }
+
+    .input-wrap { display:flex; align-items:center; gap:8px; margin-top:8px; }
+    .input-wrap input { flex:1; min-width:0; font-family:var(--mono); font-size:1.05rem; color:var(--text);
+        background:#f7f9fb; border:1.5px solid var(--border); border-radius:10px; padding:11px 13px; outline:none; transition:border-color .12s; }
+    .input-wrap input:focus { border-color:var(--blue); background:#fff; }
+    .input-wrap input.prefilled { border-color:var(--teal); background:#fff; }
+    .input-unit { font-family:var(--mono); font-size:0.8rem; color:var(--text-muted); flex-shrink:0; min-width:48px; }
+    .prefill-note { font-family:var(--body); font-size:0.68rem; font-weight:600; color:#07a87e; margin-top:9px; }
+
+    /* Resultado */
+    .esc-result { margin-top:20px; border:2px solid var(--border); border-radius:16px; padding:18px; transition:all .15s; }
+    .esc-result.placeholder { background:#eef1f5; border-style:dashed; text-align:center; }
+    .esc-result.report { border:none; padding:0; background:transparent; }
+    .report-block { border:1.5px solid var(--border); border-radius:12px; padding:12px 14px; margin-bottom:10px; }
+    .report-block:last-child { margin-bottom:0; }
+    .report-titulo { font-family:var(--mono); font-size:0.68rem; text-transform:uppercase; letter-spacing:0.06em; font-weight:700; margin-bottom:4px; }
+    .report-valor { font-family:var(--display); font-size:1.2rem; font-weight:800; line-height:1.15; margin-bottom:4px; letter-spacing:0.02em; }
+    .report-texto { font-size:0.82rem; line-height:1.45; color:var(--text); }
+    .esc-result-hint { font-size:0.82rem; color:var(--text-muted); }
+    .result-head { display:flex; align-items:baseline; gap:10px; margin-bottom:10px; }
+    .result-num { font-family:var(--display); font-size:2.6rem; font-weight:800; line-height:1; }
+    .result-unit { font-size:1.1rem; font-weight:700; margin-left:2px; }
+    .result-label { font-family:var(--mono); font-size:0.72rem; text-transform:uppercase; letter-spacing:0.08em; opacity:0.8; }
+    .result-nivel { display:inline-block; color:#fff; font-family:var(--body); font-size:0.74rem; font-weight:700;
+        text-transform:uppercase; letter-spacing:0.05em; padding:4px 11px; border-radius:20px; margin-bottom:8px; }
+    .result-titulo { font-family:var(--mono); font-size:0.8rem; font-weight:600; margin-bottom:6px; }
+    .result-texto { font-size:0.85rem; line-height:1.5; color:var(--text); }
+
+    .esc-caveat { font-size:0.76rem; line-height:1.4; color:#92600a; background:#fff7e6;
+        border:1px solid rgba(245,158,11,0.4); border-radius:10px; padding:10px 12px; margin-top:16px; }
+    .esc-fuente { font-family:var(--mono); font-size:0.72rem; color:var(--text-muted); margin-top:16px; }
+    .esc-disclaimer { font-size:0.72rem; color:var(--text-muted); line-height:1.4; margin-top:6px; font-style:italic; }
+</style>
+</head>
+<body>
+
+<header>
+    <a class="back-btn" id="back-btn" href="../index.html#menu" aria-label="Volver">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+             fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"/>
+        </svg>
+    </a>
+    <div class="header-center">
+        <div class="header-label">Hospital Universitari Joan XXIII</div>
+        <div class="header-title" id="header-title">Escalas</div>
+    </div>
+    <div class="header-right">
+        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="10" y2="10"/><line x1="14" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="10" y2="14"/><line x1="14" y1="14" x2="16" y2="14"/><line x1="8" y1="18" x2="10" y2="18"/><line x1="14" y1="18" x2="16" y2="18"/></svg>
+    </div>
+</header>
+
+<div class="wrap"><div id="app"></div></div>
+
+<script src="escalas.js"></script>
+<script src="engine.js"></script>
+</body>
+</html>

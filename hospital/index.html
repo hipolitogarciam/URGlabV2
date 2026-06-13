@@ -426,6 +426,12 @@
                 <span class="input-unit">kg</span>
             </div>
 
+            <span class="field-label">Edad</span>
+            <div class="input-wrap">
+                <input type="number" id="age" placeholder="65" inputmode="numeric" min="0" max="120">
+                <span class="input-unit">años</span>
+            </div>
+
             <span class="field-label">Talla</span>
             <div class="input-wrap" style="margin-bottom:0;">
                 <input type="number" id="height" placeholder="175" inputmode="decimal" min="0" oninput="updateIBW()">
@@ -538,6 +544,29 @@
                 </div>
             </a>
 
+            <!-- Fármacos -->
+            <a class="cat-card" href="farmacos/index.html">
+                <div class="cat-icon teal">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24"
+                         fill="none" stroke="#07a87e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="7" y1="7" x2="17" y2="17"/>
+                        <line x1="17" y1="17" x2="20" y2="20"/>
+                        <line x1="4" y1="4" x2="7" y2="7"/>
+                        <line x1="3" y1="5" x2="5" y2="3"/>
+                        <rect x="6.5" y="4.5" width="3" height="11" rx="1" transform="rotate(45 8 10)"/>
+                    </svg>
+                </div>
+                <div class="cat-text">
+                    <div class="cat-name">Fármacos</div>
+                </div>
+                <div class="cat-arrow">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"/>
+                    </svg>
+                </div>
+            </a>
+
             <!-- Procedimientos -->
             <a class="cat-card" href="procedimientos/index.html">
                 <div class="cat-icon amber">
@@ -562,20 +591,20 @@
                 </div>
             </a>
 
-            <!-- Fármacos -->
-            <a class="cat-card" href="farmacos/index.html">
+            <!-- Escalas -->
+            <a class="cat-card" href="escalas/index.html">
                 <div class="cat-icon teal">
                     <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24"
                          fill="none" stroke="#07a87e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="7" y1="7" x2="17" y2="17"/>
-                        <line x1="17" y1="17" x2="20" y2="20"/>
-                        <line x1="4" y1="4" x2="7" y2="7"/>
-                        <line x1="3" y1="5" x2="5" y2="3"/>
-                        <rect x="6.5" y="4.5" width="3" height="11" rx="1" transform="rotate(45 8 10)"/>
+                        <rect x="4" y="2" width="16" height="20" rx="2"/>
+                        <line x1="8" y1="6" x2="16" y2="6"/>
+                        <line x1="8" y1="10" x2="10" y2="10"/><line x1="14" y1="10" x2="16" y2="10"/>
+                        <line x1="8" y1="14" x2="10" y2="14"/><line x1="14" y1="14" x2="16" y2="14"/>
+                        <line x1="8" y1="18" x2="10" y2="18"/><line x1="14" y1="18" x2="16" y2="18"/>
                     </svg>
                 </div>
                 <div class="cat-text">
-                    <div class="cat-name">Fármacos</div>
+                    <div class="cat-name">Escalas</div>
                 </div>
                 <div class="cat-arrow">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
@@ -610,7 +639,7 @@
 </div>
 
 <script>
-    let patient = { sex: 'M', weight: 0, height: 0, ibw: 0 };
+    let patient = { sex: 'M', weight: 0, height: 0, ibw: 0, age: 0 };
 
     function setSex(s) {
         patient.sex = s;
@@ -639,6 +668,7 @@
         }
         patient.weight = w;
         patient.height = parseFloat(document.getElementById('height').value) || 0;
+        patient.age = parseFloat(document.getElementById('age').value) || 0;
         if (!patient.ibw || patient.ibw <= 0) patient.ibw = patient.weight;
 
         localStorage.setItem('hj23_patient', JSON.stringify(patient));
@@ -659,6 +689,7 @@
                     patient = p;
                     setSex(p.sex);
                     document.getElementById('weight').value = p.weight || '';
+                    document.getElementById('age').value = p.age || '';
                     document.getElementById('height').value = p.height || '';
                     updateIBW();
                     updateBadge(p);
@@ -674,9 +705,10 @@
     // Borra los datos del paciente y oculta el aviso
     function clearPatient() {
         localStorage.removeItem('hj23_patient');
-        patient = { sex: 'M', weight: 0, height: 0, ibw: 0 };
+        patient = { sex: 'M', weight: 0, height: 0, ibw: 0, age: 0 };
         setSex('M');
         document.getElementById('weight').value = '';
+        document.getElementById('age').value = '';
         document.getElementById('height').value = '';
         updateIBW();
         updateBadge(null);
@@ -728,10 +760,12 @@ function updateBadge(p) {
         { label: 'Procedimientos', keywords: ['procedimientos','tecnicas'], category: 'Categoría', href: 'procedimientos/index.html' },
         { label: 'Fármacos', keywords: ['farmacos','medicacion','perfusiones','drogas','bombas'], category: 'Categoría', href: 'farmacos/index.html' },
         { label: 'Recursos', keywords: ['recursos','utilidades','enlaces'], category: 'Categoría', href: 'recursos/index.html' },
+        { label: 'Escalas', keywords: ['escalas','calculadoras','scores','indices','puntuaciones'], category: 'Categoría', href: 'escalas/index.html' },
 
         // Procedimientos
         { label: 'Intubación (IOT)', keywords: ['intubacion','iot','via aerea','tubo','laringoscopia','secuencia rapida','isr'], category: 'Procedimiento', href: 'procedimientos/iot/index.html' },
         { label: 'Paracentesis', keywords: ['paracentesis','ascitis','liquido ascitico','puncion abdominal'], category: 'Procedimiento', href: 'procedimientos/paracentesis/index.html' },
+        { label: 'Toracocentesis', keywords: ['toracocentesis','derrame pleural','puncion pleural','liquido pleural'], category: 'Procedimiento', href: 'procedimientos/toracocentesis/index.html' },
 
         // Patología — subcategorías
         { label: 'Patología Neurológica', keywords: ['neurologicas','neurologia','ictus','convulsiones','coma'], category: 'Patología', href: 'patologia/neurologicas/index.html' },
@@ -742,11 +776,73 @@ function updateBadge(p) {
         { label: 'Patología Metabólica', keywords: ['metabolicas','metabolico','electrolitos','hiperpotasemia','cetoacidosis'], category: 'Patología', href: 'patologia/metabolicas/index.html' },
         { label: 'Patología Toxicológica', keywords: ['toxicologicas','toxicologia','intoxicacion','antidotos','sobredosis'], category: 'Patología', href: 'patologia/toxicologicas/index.html' },
         { label: 'Patología Trauma', keywords: ['trauma','politraumatismo','tce','hemorragia'], category: 'Patología', href: 'patologia/trauma/index.html' },
+        { label: 'Patología Hematológica', keywords: ['hematologicas','hematologia','coagulacion','anticoagulantes','trombosis'], category: 'Patología', href: 'patologia/hematologicas/index.html' },
         // Patología — algoritmos
         { label: 'Anafilaxia', keywords: ['anafilaxia','alergia','shock anafilactico','reaccion alergica','adrenalina im'], category: 'Algoritmo', href: 'patologia/metabolicas/anafilaxia/index.html' },
+        { label: 'Reversión de Anticoagulantes', keywords: ['reversion anticoagulantes','anticoagulacion','acenocumarol','sintrom','apixaban','rivaroxaban','dabigatran','edoxaban','heparina','andexanet','idarucizumab','cpf4','cpf 4'], category: 'Algoritmo', href: 'patologia/hematologicas/reversion-anticoagulantes/index.html' },
+        { label: 'Intoxicación por Paracetamol', keywords: ['paracetamol','acetaminofen','intoxicacion paracetamol','nac','acetilcisteina','nomograma','hepatotoxicidad'], category: 'Algoritmo', href: 'patologia/toxicologicas/intoxicacion-paracetamol/index.html' },
 
         // Recursos
         { label: 'Agenda', keywords: ['agenda','contactos','telefonos','directorio'], category: 'Recurso', href: 'recursos/agenda/index.html' },
+
+        // Escalas
+        { label: 'HEART Score', keywords: ['heart','dolor toracico','sca','sindrome coronario','mace','troponina'], category: 'Escala', href: 'escalas/index.html#id=heart' },
+        { label: 'CHA₂DS₂-VASc', keywords: ['chads vasc','cha2ds2','fibrilacion auricular','fa','anticoagulacion','ictus embolico'], category: 'Escala', href: 'escalas/index.html#id=cha2ds2-vasc' },
+        { label: 'Shock Index', keywords: ['shock index','indice de shock','hipoperfusion','hemorragia','sepsis','perfusion'], category: 'Escala', href: 'escalas/index.html#id=shock-index' },
+        { label: 'FeNa', keywords: ['fena','excrecion fraccional sodio','fracaso renal','prerrenal','nta','necrosis tubular'], category: 'Escala', href: 'escalas/index.html#id=fena' },
+        { label: 'HAS-BLED', keywords: ['hasbled','has bled','riesgo hemorragico','sangrado','fibrilacion auricular','anticoagulacion'], category: 'Escala', href: 'escalas/index.html#id=has-bled' },
+        { label: 'CURB-65', keywords: ['curb65','curb 65','neumonia','nac','gravedad neumonia'], category: 'Escala', href: 'escalas/index.html#id=curb-65' },
+        { label: 'PaO₂/FiO₂', keywords: ['pafi','pao2 fio2','cociente oxigenacion','sdra','ards','berlin'], category: 'Escala', href: 'escalas/index.html#id=pafi' },
+        { label: 'SpO₂/FiO₂ (SaFi)', keywords: ['safi','spo2 fio2','sf','cociente oxigenacion no invasivo','sdra','ards'], category: 'Escala', href: 'escalas/index.html#id=safi' },
+        { label: 'Índice ROX', keywords: ['rox','oaf','alto flujo','fracaso respiratorio','intubacion'], category: 'Escala', href: 'escalas/index.html#id=rox' },
+        { label: 'Wells (TVP)', keywords: ['wells tvp','trombosis venosa','tvp','probabilidad tvp'], category: 'Escala', href: 'escalas/index.html#id=wells-tvp' },
+        { label: 'Wells (TEP)', keywords: ['wells tep','tromboembolismo pulmonar','tep','embolia pulmonar'], category: 'Escala', href: 'escalas/index.html#id=wells-tep' },
+        { label: 'PERC', keywords: ['perc','descartar tep','embolia pulmonar','dimero d'], category: 'Escala', href: 'escalas/index.html#id=perc' },
+        { label: 'Glasgow (GCS)', keywords: ['glasgow','gcs','coma','nivel consciencia','tce'], category: 'Escala', href: 'escalas/index.html#id=gcs' },
+        { label: 'RASS', keywords: ['rass','sedacion','agitacion','richmond','sedoanalgesia'], category: 'Escala', href: 'escalas/index.html#id=rass' },
+        { label: 'Clinical Frailty Scale', keywords: ['cfs','fragilidad','frailty','rockwood','adecuacion esfuerzo terapeutico'], category: 'Escala', href: 'escalas/index.html#id=cfs' },
+        { label: 'NEWS2', keywords: ['news2','news','early warning','deterioro clinico','alerta precoz'], category: 'Escala', href: 'escalas/index.html#id=news2' },
+        { label: 'SOFA', keywords: ['sofa','disfuncion organica','sepsis','fallo multiorganico','sepsis-3'], category: 'Escala', href: 'escalas/index.html#id=sofa' },
+        { label: 'Diastolic Shock Index', keywords: ['dsi','indice shock diastolico','vasoplejia','shock septico'], category: 'Escala', href: 'escalas/index.html#id=dsi' },
+        { label: 'Child-Pugh', keywords: ['child pugh','cirrosis','hepatopatia','insuficiencia hepatica'], category: 'Escala', href: 'escalas/index.html#id=child-pugh' },
+        { label: 'MELD', keywords: ['meld','trasplante hepatico','hepatopatia terminal','cirrosis'], category: 'Escala', href: 'escalas/index.html#id=meld' },
+        { label: 'Glasgow-Blatchford', keywords: ['gbs','glasgow blatchford','hemorragia digestiva alta','hda','melenas'], category: 'Escala', href: 'escalas/index.html#id=gbs' },
+        { label: 'BISAP', keywords: ['bisap','pancreatitis','gravedad pancreatitis','ranson'], category: 'Escala', href: 'escalas/index.html#id=bisap' },
+        { label: 'Déficit de agua libre', keywords: ['deficit agua libre','hipernatremia','agua corporal','reposicion'], category: 'Escala', href: 'escalas/index.html#id=deficit-agua' },
+        { label: 'Na corregido por glucemia', keywords: ['sodio corregido','hiponatremia','pseudohiponatremia','hiperglucemia'], category: 'Escala', href: 'escalas/index.html#id=na-glucosa' },
+        { label: 'Ca corregido por albúmina', keywords: ['calcio corregido','hipocalcemia','hipercalcemia','albumina'], category: 'Escala', href: 'escalas/index.html#id=ca-albumina' },
+        { label: 'Osmolaridad plasmática', keywords: ['osmolaridad','osmol gap','osmolalidad','toxicos','metanol','etilenglicol'], category: 'Escala', href: 'escalas/index.html#id=osmolaridad' },
+        { label: 'TIMI (SCASEST)', keywords: ['timi','angina inestable','iamsest','scasest','sca sin elevacion'], category: 'Escala', href: 'escalas/index.html#id=timi-scasest' },
+        { label: 'Canadian Syncope Risk', keywords: ['csrs','canadian syncope','sincope','riesgo sincope'], category: 'Escala', href: 'escalas/index.html#id=csrs' },
+        { label: 'ADD-RS', keywords: ['add rs','diseccion aortica','aorta','dolor toracico desgarrante','sindrome aortico'], category: 'Escala', href: 'escalas/index.html#id=add-rs' },
+        { label: 'PESI', keywords: ['pesi','tep','tromboembolismo pulmonar','gravedad tep','mortalidad tep'], category: 'Escala', href: 'escalas/index.html#id=pesi' },
+        { label: 'sPESI', keywords: ['spesi','pesi simplificado','tep','tromboembolismo pulmonar'], category: 'Escala', href: 'escalas/index.html#id=spesi' },
+        { label: 'Alvarado', keywords: ['alvarado','apendicitis','mantrels','fid','dolor fosa iliaca'], category: 'Escala', href: 'escalas/index.html#id=alvarado' },
+        { label: 'AIR Score', keywords: ['air','apendicitis','respuesta inflamatoria','pcr apendicitis'], category: 'Escala', href: 'escalas/index.html#id=air' },
+        { label: 'Centor / McIsaac', keywords: ['centor','mcisaac','faringitis','amigdalitis','estreptococo','sga','odinofagia'], category: 'Escala', href: 'escalas/index.html#id=centor' },
+        { label: 'HACOR', keywords: ['hacor','vmni','ventilacion no invasiva','fracaso vmni','bipap'], category: 'Escala', href: 'escalas/index.html#id=hacor' },
+        { label: 'Sgarbossa modificado', keywords: ['sgarbossa','smith','bri','bloqueo rama izquierda','marcapasos','iam','scacest'], category: 'Escala', href: 'escalas/index.html#id=sgarbossa' },
+        { label: 'Ranson', keywords: ['ranson','pancreatitis','pronostico pancreatitis'], category: 'Escala', href: 'escalas/index.html#id=ranson' },
+        { label: 'Harvey-Bradshaw', keywords: ['harvey bradshaw','crohn','actividad crohn','eii','hbi'], category: 'Escala', href: 'escalas/index.html#id=harvey-bradshaw' },
+        { label: 'Truelove-Witts', keywords: ['truelove witts','colitis ulcerosa','cu','brote colitis','eii'], category: 'Escala', href: 'escalas/index.html#id=truelove-witts' },
+        { label: 'MASCC', keywords: ['mascc','neutropenia febril','oncologico','riesgo neutropenia'], category: 'Escala', href: 'escalas/index.html#id=mascc' },
+        { label: 'NIHSS', keywords: ['nihss','ictus','stroke','gravedad ictus','codigo ictus','nih'], category: 'Escala', href: 'escalas/index.html#id=nihss' },
+        { label: 'CIWA-Ar', keywords: ['ciwa','abstinencia alcoholica','deprivacion','alcohol','delirium tremens','benzodiacepinas'], category: 'Escala', href: 'escalas/index.html#id=ciwa-ar' },
+        { label: 'Canadian C-Spine', keywords: ['canadian c-spine','cervical','columna cervical','trauma cervical','imagen cervical'], category: 'Escala', href: 'escalas/index.html#id=canadian-cspine' },
+        { label: 'NEXUS', keywords: ['nexus','cervical','columna cervical','bajo riesgo cervical','trauma cervical'], category: 'Escala', href: 'escalas/index.html#id=nexus' },
+        { label: 'PSI / PORT', keywords: ['psi','port','neumonia','gravedad neumonia','fine','mortalidad neumonia'], category: 'Escala', href: 'escalas/index.html#id=psi' },
+        { label: 'Tokyo · Colangitis', keywords: ['tokyo','colangitis','tg18','via biliar','sepsis biliar','drenaje biliar'], category: 'Escala', href: 'escalas/index.html#id=tokyo-colangitis' },
+        { label: 'Tokyo · Colecistitis', keywords: ['tokyo','colecistitis','tg18','vesicula','colecistectomia','murphy'], category: 'Escala', href: 'escalas/index.html#id=tokyo-colecistitis' },
+        { label: 'Analizador de gasometría', keywords: ['gasometria','abg','acido base','equilibrio acido-base','anion gap','gap osmolar','acidosis','alcalosis','winter','mudpiles','gold mark','intoxicacion'], category: 'Escala', href: 'escalas/index.html#id=abg' },
+        { label: 'Oakland', keywords: ['oakland','hemorragia digestiva baja','hdb','rectorragia','alta segura'], category: 'Escala', href: 'escalas/index.html#id=oakland' },
+        { label: 'Maddrey (DF)', keywords: ['maddrey','funcion discriminante','hepatitis alcoholica','corticoides','lille'], category: 'Escala', href: 'escalas/index.html#id=maddrey' },
+        { label: 'West Haven', keywords: ['west haven','encefalopatia hepatica','asterixis','amonio','cirrosis'], category: 'Escala', href: 'escalas/index.html#id=west-haven' },
+        { label: 'WSES / Hinchey', keywords: ['hinchey','wses','diverticulitis','absceso','peritonitis','colon'], category: 'Escala', href: 'escalas/index.html#id=wses-hinchey' },
+        { label: 'mSAD PERSONS', keywords: ['sad persons','msad','suicidio','riesgo suicida','psiquiatria','autolisis'], category: 'Escala', href: 'escalas/index.html#id=msad-persons' },
+        { label: 'Burch-Wartofsky', keywords: ['burch wartofsky','tormenta tiroidea','tirotoxicosis','hipertiroidismo','crisis tiroidea'], category: 'Escala', href: 'escalas/index.html#id=burch-wartofsky' },
+        { label: 'RACE', keywords: ['race','oclusion gran vaso','ogv','ictus','trombectomia','codigo ictus'], category: 'Escala', href: 'escalas/index.html#id=race' },
+        { label: 'Rankin (mRS)', keywords: ['rankin','mrs','discapacidad','escala rankin','pronostico ictus'], category: 'Escala', href: 'escalas/index.html#id=mrs' },
+        { label: 'Canadian CT Head', keywords: ['canadian ct head','tc craneal','tce','traumatismo craneal','fractura craneal'], category: 'Escala', href: 'escalas/index.html#id=canadian-cthead' },
 
         // Fármacos (perfusiones) — abren farmacos con deep-link
         ...['Adrenalina','Amiodarona','Dobutamina','Fentanilo','Flumazenilo','Furosemida',

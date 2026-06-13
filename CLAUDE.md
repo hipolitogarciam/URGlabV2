@@ -38,6 +38,18 @@ Todo header de herramienta debe seguir exactamente esta especificación — sin 
 - `hospital/` → Hub HJ23 activo. `prehospitalaria/` → archivos en standby (proyecto SEM separado)
 - El `index.html` raíz es el hub de hospitales ICS (solo Joan XXIII activo, resto "Próximamente")
 
+## Buscador global — OBLIGATORIO mantener actualizado
+
+El buscador de `hospital/index.html` usa un array estático `SEARCH_INDEX` (línea ~724). **Cada vez que se cree o modifique una herramienta, hay que añadir o actualizar su entrada en ese array.** Hacerlo siempre como parte de la misma tarea, sin esperar a que el usuario lo pida.
+
+Formato de entrada:
+```js
+{ label: 'Nombre visible', keywords: ['sinonimo1','sinonimo2'], category: 'Categoría|Procedimiento|Patología|Algoritmo|Recurso|Fármaco', href: 'ruta/relativa/index.html' }
+```
+- `href` siempre relativo a `hospital/`, con `index.html` explícito.
+- Añadir sinónimos clínicos relevantes en `keywords` (nombres alternativos, abreviaturas).
+- Categorías usadas: `Categoría`, `Procedimiento`, `Patología`, `Algoritmo`, `Recurso`, `Fármaco`.
+
 ## Sincronización con Gitea (intranet HJ23)
 
 El repositorio tiene dos remotes configurados:
