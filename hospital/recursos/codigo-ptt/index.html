@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>URGlab · Código PTT</title>
+    <meta name="theme-color" content="#1a6fad">
+
+    <style>
+        :root {
+            --blue:       #1a6fad;
+            --blue-dark:  #145a8f;
+            --blue-s:     #e8f3fb;
+            --teal:       #09c797;
+            --teal-dark:  #07a87e;
+            --teal-s:     #e6faf5;
+            --red:        #c0392b;
+            --red-s:      #fdecea;
+            --orange:     #e67e22;
+            --orange-s:   #fdf0e3;
+            --amber:      #f59e0b;
+            --amber-s:    #fef3c7;
+            --bg:         #f4f6f9;
+            --surface:    #ffffff;
+            --border:     rgba(0,0,0,0.09);
+            --border-mid: rgba(0,0,0,0.16);
+            --text:       #1a2636;
+            --muted:      #8898aa;
+            --display: 'Barlow Condensed', sans-serif;
+            --body:    'IBM Plex Sans', sans-serif;
+            --mono:    'IBM Plex Mono', monospace;
+        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+        body { background: var(--bg); color: var(--text); font-family: var(--body); min-height: 100svh; padding-bottom: 40px; }
+
+        /* HEADER */
+        header {
+            background: linear-gradient(135deg, #1a7fc8 0%, #1a6fad 100%);
+            border-bottom: 3px solid var(--teal);
+            padding: 12px 18px; position: sticky; top: 0; z-index: 1000;
+            display: grid; grid-template-columns: 48px 1fr 48px; align-items: center; gap: 8px; min-height: 68px;
+        }
+        .back-btn { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 10px; background: rgba(255,255,255,0.15); border: none; cursor: pointer; color: white; text-decoration: none; }
+        .back-btn:active { background: rgba(255,255,255,0.28); }
+        .header-center { text-align: center; }
+        .header-label { font-family: var(--body); font-size: 0.58rem; font-weight: 600; color: #09c797; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 2px; }
+        .header-title { font-family: var(--display); font-size: 1.4rem; font-weight: 800; color: #fff; letter-spacing: 0.04em; text-transform: uppercase; line-height: 1; }
+        .header-right { display: flex; align-items: center; justify-content: flex-end; opacity: 0.7; }
+
+        .container { max-width: 480px; margin: 0 auto; padding: 16px; }
+
+        /* DEMOGRAFÍA STRIP */
+        .demo-card {
+            background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+            padding: 12px; margin-bottom: 14px; box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+        }
+        .demo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .mini-label { font-family: var(--mono); font-size: 0.6rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 5px; display: block; }
+        .seg { display: flex; border: 1.5px solid var(--border-mid); border-radius: 9px; overflow: hidden; background: var(--surface); }
+        .seg button { flex: 1; border: none; background: transparent; padding: 9px 4px; font-family: var(--body); font-size: 0.82rem; font-weight: 600; color: var(--muted); cursor: pointer; transition: all .12s; }
+        .seg button.on { background: var(--blue); color: #fff; }
+        .seg button + button { border-left: 1.5px solid var(--border-mid); }
+        .demo-input { display: flex; gap: 6px; }
+        .num-input { width: 100%; border: 1.5px solid var(--border-mid); background: var(--surface); border-radius: 9px; padding: 9px 10px; font-family: var(--body); font-size: 0.95rem; color: var(--text); outline: none; }
+        .num-input:focus { border-color: var(--blue); }
+        .unit-seg { display: flex; border: 1.5px solid var(--border-mid); border-radius: 9px; overflow: hidden; flex: 0 0 auto; }
+        .unit-seg button { border: none; background: var(--surface); padding: 0 10px; font-size: 0.74rem; font-weight: 600; color: var(--muted); cursor: pointer; }
+        .unit-seg button.on { background: var(--blue); color: #fff; }
+
+        /* PED TOGGLE inline */
+        .ped-pill {
+            grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between;
+            border: 1.5px solid var(--border-mid); border-radius: 10px; padding: 9px 12px; cursor: pointer; margin-top: 2px;
+        }
+        .ped-pill .pl { font-size: 0.82rem; font-weight: 600; }
+        .ped-pill .ps { font-size: 0.68rem; color: var(--muted); }
+        .toggle { width: 42px; height: 25px; border-radius: 13px; background: var(--border-mid); position: relative; flex-shrink: 0; transition: background .15s; }
+        .toggle::after { content:''; position:absolute; top:3px; left:3px; width:19px; height:19px; border-radius:50%; background:#fff; transition:transform .15s; box-shadow:0 1px 3px rgba(0,0,0,.3); }
+        .toggle.on { background: var(--teal); }
+        .toggle.on::after { transform: translateX(17px); }
+
+        /* PRIORIDAD ROW */
+        .prio-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 12px; margin-bottom: 14px; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+        .prio-btns { display: grid; grid-template-columns: repeat(4,1fr); gap: 7px; margin-top: 8px; }
+        .prio-btn { border: 1.5px solid var(--border-mid); background: var(--surface); border-radius: 10px; padding: 9px 4px; cursor: pointer; text-align: center; transition: all .12s; }
+        .prio-btn .pn { font-family: var(--mono); font-size: 1.1rem; font-weight: 700; line-height: 1; }
+        .prio-btn .pt { font-size: 0.58rem; color: var(--muted); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.03em; line-height: 1.1; }
+        .prio-btn:active { transform: scale(.96); }
+        .prio-btn.on.p0 { background: var(--red); border-color: var(--red); }
+        .prio-btn.on.p1 { background: var(--orange); border-color: var(--orange); }
+        .prio-btn.on.p2 { background: var(--amber); border-color: var(--amber); }
+        .prio-btn.on.p3 { background: var(--teal-dark); border-color: var(--teal-dark); }
+        .prio-btn.on .pn, .prio-btn.on .pt { color: #fff; }
+
+        /* CODEPAD CARDS */
+        .code-card {
+            background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+            padding: 12px; margin-bottom: 11px; box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+            display: grid; grid-template-columns: 46px 1fr; gap: 12px; align-items: start;
+        }
+        .code-badge {
+            width: 46px; height: 46px; border-radius: 12px; background: var(--blue-s);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            color: var(--blue); flex-shrink: 0;
+        }
+        .code-badge .cl { font-family: var(--display); font-size: 1.6rem; font-weight: 800; line-height: 1; }
+        .code-main { min-width: 0; }
+        .code-name { font-family: var(--display); font-size: 1.05rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; line-height: 1; display: flex; align-items: baseline; gap: 7px; }
+        .code-name .cw { font-family: var(--mono); font-size: 0.6rem; font-weight: 700; color: var(--muted); letter-spacing: 0.06em; }
+        .code-name .multi { font-size: 0.6rem; color: var(--muted); font-family: var(--body); font-weight: 500; margin-left: auto; text-transform: none; letter-spacing: 0; }
+        .keypad { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 9px; }
+        .key {
+            min-width: 36px; height: 36px; padding: 0 4px; border: 1.5px solid var(--border-mid);
+            background: var(--surface); border-radius: 9px; font-family: var(--mono); font-size: 0.95rem;
+            font-weight: 700; color: var(--text); cursor: pointer; transition: all .1s;
+        }
+        .key:active { transform: scale(.92); }
+        .key.on { background: var(--blue); border-color: var(--blue); color: #fff; box-shadow: 0 2px 7px rgba(26,111,173,.28); }
+        .code-trans {
+            margin-top: 9px; font-size: 0.82rem; line-height: 1.4; color: var(--teal-dark); font-weight: 600;
+            min-height: 1.1em; padding-left: 1px;
+        }
+        .code-trans.empty { color: var(--muted); font-weight: 400; font-style: italic; }
+        .code-trans b { color: var(--text); font-weight: 700; }
+
+        /* GOLF stepper-like + ETA */
+        .golf-row { display: flex; align-items: center; gap: 9px; margin-top: 9px; }
+        .golf-val { font-family: var(--mono); font-size: 1.3rem; font-weight: 700; min-width: 54px; text-align: center; }
+        .golf-val .tot { font-size: 0.8rem; color: var(--muted); }
+        .step-btn { width: 40px; height: 40px; border-radius: 10px; border: 1.5px solid var(--border-mid); background: var(--surface); font-size: 1.4rem; font-weight: 700; color: var(--blue); cursor: pointer; line-height: 1; }
+        .step-btn:active { transform: scale(.93); }
+        .golf-clear { margin-left: auto; font-size: 0.72rem; color: var(--muted); background: none; border: none; cursor: pointer; text-decoration: underline; }
+
+        /* REFERENCIA */
+        details.ref { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; margin: 4px 0 16px; overflow: hidden; }
+        details.ref summary { list-style: none; cursor: pointer; padding: 12px 14px; font-weight: 600; font-size: 0.84rem; display: flex; align-items: center; gap: 9px; }
+        details.ref summary::-webkit-details-marker { display: none; }
+        details.ref summary .chev { margin-left: auto; transition: transform .18s; color: var(--muted); }
+        details.ref[open] summary .chev { transform: rotate(90deg); }
+        .ref-body { padding: 0 14px 12px; }
+        .ref-block { margin-top: 11px; }
+        .ref-block h4 { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--blue); margin-bottom: 5px; display: flex; align-items: center; gap: 7px; }
+        .pdot { font-family: var(--mono); font-size: 0.6rem; color: #fff; width: 17px; height: 17px; border-radius: 5px; display: inline-flex; align-items: center; justify-content: center; }
+        .pdot.p0{background:var(--red)} .pdot.p1{background:var(--orange)} .pdot.p2{background:var(--amber)} .pdot.p3{background:var(--teal-dark)}
+        .ref-block ul { margin: 0; padding-left: 17px; }
+        .ref-block li { font-size: 0.77rem; line-height: 1.45; margin-bottom: 2px; }
+
+        /* INFORME (canónico) */
+        .slabel { font-family: var(--display); font-size: 0.85rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); display: block; margin: 6px 2px 8px; }
+        .informe-box { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px; font-family: var(--mono); font-size: 0.78rem; line-height: 1.6; white-space: pre-wrap; word-break: break-word; color: var(--text); margin-bottom: 10px; min-height: 60px; }
+        .informe-box .ph { color: var(--muted); font-family: var(--body); font-style: italic; }
+        .inf-actions { display: flex; gap: 8px; }
+        .btn-primary { flex: 1; padding: 14px; border-radius: 13px; background: var(--blue); color: #fff; border: none; cursor: pointer; font-family: var(--display); font-size: 1.15rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; transition: opacity .15s; }
+        .btn-primary:active { opacity: .85; }
+        .btn-outline { background: #fff; color: var(--blue); border: 2px solid var(--blue); }
+        .btn-primary:disabled { opacity: .4; cursor: default; }
+    </style>
+    <link rel="stylesheet" href="../../../fonts.css">
+</head>
+<body>
+
+<header>
+    <a class="back-btn" href="../index.html" aria-label="Volver">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </a>
+    <div class="header-center">
+        <div class="header-label">Prealerta SEM · Politrauma</div>
+        <div class="header-title">Código PTT</div>
+    </div>
+    <div class="header-right">
+        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>
+    </div>
+</header>
+
+<div class="container">
+
+    <!-- DEMOGRAFÍA + PRIORIDAD -->
+    <div class="demo-card">
+        <div class="demo-grid">
+            <div>
+                <span class="mini-label">Sexo</span>
+                <div class="seg" id="sexo"><button data-v="Hombre">H</button><button data-v="Mujer">M</button></div>
+            </div>
+            <div>
+                <span class="mini-label">Edad</span>
+                <div class="demo-input">
+                    <input class="num-input" id="edad" type="number" inputmode="numeric" min="0" placeholder="—">
+                    <div class="unit-seg" id="edadUnit"><button data-v="años" class="on">años</button><button data-v="meses">meses</button></div>
+                </div>
+            </div>
+            <div class="ped-pill" id="pedRow">
+                <div><div class="pl">Pediátrico</div><div class="ps">cambia escala HOTEL y umbrales</div></div>
+                <div class="toggle" id="pedToggle"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="prio-card">
+        <span class="mini-label">Prioridad · gravedad</span>
+        <div class="prio-btns" id="prio">
+            <button class="prio-btn p0" data-i="0"><div class="pn">0</div><div class="pt">Fisiol.</div></button>
+            <button class="prio-btn p1" data-i="1"><div class="pn">1</div><div class="pt">Anatóm.</div></button>
+            <button class="prio-btn p2" data-i="2"><div class="pn">2</div><div class="pt">Mecan.</div></button>
+            <button class="prio-btn p3" data-i="3"><div class="pn">3</div><div class="pt">Especial</div></button>
+        </div>
+    </div>
+
+    <!-- CODEPADS -->
+    <div class="code-card">
+        <div class="code-badge"><span class="cl">A</span></div>
+        <div class="code-main">
+            <div class="code-name">Accidente <span class="cw">ALFA</span></div>
+            <div class="keypad" id="alfa"></div>
+            <div class="code-trans empty" id="alfaT">Pulsa el dígito que te dicten</div>
+        </div>
+    </div>
+
+    <div class="code-card">
+        <div class="code-badge"><span class="cl">C</span></div>
+        <div class="code-main">
+            <div class="code-name">Cuerpo <span class="cw">CHARLIE</span><span class="multi">varios</span></div>
+            <div class="keypad" id="charlie"></div>
+            <div class="code-trans empty" id="charlieT">Zona(s) corporal(es) afectada(s)</div>
+        </div>
+    </div>
+
+    <div class="code-card">
+        <div class="code-badge"><span class="cl">R</span></div>
+        <div class="code-main">
+            <div class="code-name">Respiración <span class="cw">ROMEO</span></div>
+            <div class="keypad" id="romeo"></div>
+            <div class="code-trans empty" id="romeoT">Estado respiratorio</div>
+        </div>
+    </div>
+
+    <div class="code-card">
+        <div class="code-badge"><span class="cl">H</span></div>
+        <div class="code-main">
+            <div class="code-name">Hemodinámica <span class="cw">HOTEL</span></div>
+            <div class="keypad" id="hotel"></div>
+            <div class="code-trans empty" id="hotelT">Estado hemodinámico</div>
+        </div>
+    </div>
+
+    <div class="code-card">
+        <div class="code-badge"><span class="cl">G</span></div>
+        <div class="code-main">
+            <div class="code-name">Glasgow <span class="cw">GOLF</span></div>
+            <div class="golf-row">
+                <button class="step-btn" id="golfMinus">−</button>
+                <div class="golf-val"><span id="golfVal">—</span><span class="tot" id="golfTot"></span></div>
+                <button class="step-btn" id="golfPlus">+</button>
+                <button class="golf-clear" id="golfClear">borrar</button>
+            </div>
+            <div class="code-trans empty" id="golfT">Glasgow Coma Scale (3–15)</div>
+        </div>
+    </div>
+
+    <div class="code-card">
+        <div class="code-badge" style="background:var(--teal-s);color:var(--teal-dark)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg></div>
+        <div class="code-main">
+            <div class="code-name">Llegada</div>
+            <div class="keypad" id="eta"></div>
+            <div class="demo-input" style="margin-top:7px;max-width:180px;">
+                <input class="num-input" id="etaMin" type="number" inputmode="numeric" min="0" placeholder="min">
+            </div>
+            <div class="code-trans empty" id="etaT">Minutos hasta la llegada</div>
+        </div>
+    </div>
+
+    <!-- REFERENCIA -->
+    <details class="ref">
+        <summary>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            Criterios de gravedad (prioridad)
+            <svg class="chev" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </summary>
+        <div class="ref-body">
+            <div class="ref-block"><h4><span class="pdot p0">0</span> Fisiológicos</h4><ul>
+                <li>FR &lt;10 rpm (&lt;20 en &lt;1 año) o FR &gt;29</li>
+                <li>TAS ≤90 mmHg (&lt;70 en &lt;1 año)</li>
+                <li>Ausencia de pulsos periféricos</li>
+                <li>Glasgow ≤13 (o pérdida transitoria de conciencia en &lt;1 año)</li></ul></div>
+            <div class="ref-block"><h4><span class="pdot p1">1</span> Anatómicos</h4><ul>
+                <li>Herida penetrante (cabeza, cuello, tórax; extremidades proximal a rodilla/codo)</li>
+                <li>Fractura de cráneo (abierta/hundimiento) · Tórax inestable · Fractura de pelvis</li>
+                <li>≥2 fracturas de huesos largos proximales; ≥1 en &lt;1 año</li>
+                <li>Amputación proximal a tobillo/muñeca · Extremidad catastrófica · Parálisis</li>
+                <li>Quemaduras ≥2.º grado y ≥15% SCQ (&lt;10% en &lt;1 año); cara/cuello completa</li></ul></div>
+            <div class="ref-block"><h4><span class="pdot p2">2</span> Mecanismo</h4><ul>
+                <li>Caída &gt;6 m (&gt;3 m o 2–3× la altura del niño)</li>
+                <li>Colisión de vehículos · Velocidad &gt;60 km/h · Eyección del vehículo</li>
+                <li>Intrusión &gt;30 cm (acompañante) / &gt;45 cm (otro lugar)</li>
+                <li>Muerte de un acompañante · Moto/bici a &gt;30 km/h</li></ul></div>
+            <div class="ref-block"><h4><span class="pdot p3">3</span> Consideraciones especiales</h4><ul>
+                <li>&gt;55 años · &lt;15 años (lactantes &lt;1 año)</li>
+                <li>Embarazo &gt;20 semanas · Anticoagulación/coagulopatía</li>
+                <li>Paciente en diálisis · Criterio del profesional</li></ul></div>
+        </div>
+    </details>
+
+    <!-- INFORME -->
+    <span class="slabel">Informe para la historia clínica</span>
+    <div class="informe-box" id="informeBox"><span class="ph">Introduce los datos del código y el informe aparecerá aquí…</span></div>
+    <div class="inf-actions">
+        <button class="btn-primary btn-outline" id="btnCopy">📋 Copiar</button>
+        <button class="btn-primary" id="btnDownload">⬇️ Descargar</button>
+    </div>
+</div>
+
+<script>
+const DICT = {
+    alfa: ['Desconocido','Accidente de tráfico','Atropello (transeúnte o ciclista)','Precipitado / caída','Agresión por arma blanca / de fuego','Agresión por otro mecanismo','Quemado','Ahogado','Accidente de metro o ferroviario','Otros'],
+    charlie: ['Sin lesiones aparentes','Cabeza','Cara','Cuello','Tórax','Abdomen','Pelvis (huesos)','Raquis','Extremidades','Lesiones externas (incl. quemaduras)'],
+    romeo: ['Vía aérea con manejo invasivo (IOT / ML / cricotirotomía)','Dificultad respiratoria','Respiración normal'],
+    hotelAdulto: ['Sin pulso o TA <50 mmHg','TAS 50–90 mmHg','TAS >90 mmHg'],
+    hotelNino: ['Pulso central NO · periférico NO','Central SÍ · periférico NO','Central + periférico SÍ, mala perfusión','Central + periférico SÍ, buena perfusión'],
+    prio: ['Criterios fisiológicos','Criterios anatómicos','Mecanismo de lesión','Consideraciones especiales'],
+};
+
+const state = { ped:false, sexo:null, edad:'', edadUnit:'años', prio:null, alfa:null, charlie:[], romeo:null, hotel:null, golf:null, etaMin:'' };
+
+function keypad(id, n, onClick) {
+    const wrap = document.getElementById(id); wrap.innerHTML = '';
+    for (let i = 0; i < n; i++) {
+        const b = document.createElement('button');
+        b.className = 'key'; b.textContent = i; b.dataset.i = i;
+        b.addEventListener('click', () => onClick(i));
+        wrap.appendChild(b);
+    }
+}
+function paintKeys(id, isOn) {
+    document.querySelectorAll('#' + id + ' .key').forEach((k, i) => k.classList.toggle('on', isOn(i)));
+}
+
+function pickSingle(key, id, dict, transId) {
+    return i => {
+        state[key] = (state[key] === i ? null : i);
+        paintKeys(id, x => state[key] === x);
+        setTrans(transId, state[key] === null ? null : dict[state[key]], state[key]);
+        update();
+    };
+}
+function setTrans(transId, text, code) {
+    const el = document.getElementById(transId);
+    if (text == null) { el.classList.add('empty'); el.dataset.def = el.dataset.def || el.textContent; el.textContent = el.dataset.def; return; }
+    el.classList.remove('empty');
+    el.innerHTML = '<b>' + code + '</b> · ' + text;
+}
+
+/* HOTEL depende de pediátrico */
+function bindHotel() {
+    const dict = state.ped ? DICT.hotelNino : DICT.hotelAdulto;
+    keypad('hotel', dict.length, i => {
+        state.hotel = (state.hotel === i ? null : i);
+        paintKeys('hotel', x => state.hotel === x);
+        setTrans('hotelT', state.hotel === null ? null : (state.ped ? DICT.hotelNino : DICT.hotelAdulto)[state.hotel], state.hotel);
+        update();
+    });
+    paintKeys('hotel', x => state.hotel === x);
+    setTrans('hotelT', state.hotel === null ? null : dict[state.hotel], state.hotel);
+}
+
+/* CHARLIE multi */
+function bindCharlie() {
+    keypad('charlie', DICT.charlie.length, i => {
+        const idx = state.charlie.indexOf(i);
+        if (idx >= 0) state.charlie.splice(idx, 1);
+        else if (i === 0) state.charlie = [0];
+        else state.charlie = state.charlie.filter(x => x !== 0).concat(i);
+        paintKeys('charlie', x => state.charlie.includes(x));
+        const el = document.getElementById('charlieT');
+        if (!state.charlie.length) { el.classList.add('empty'); el.textContent = el.dataset.def; }
+        else { el.classList.remove('empty'); const s = state.charlie.slice().sort((a,b)=>a-b); el.innerHTML = '<b>' + s.join(',') + '</b> · ' + s.map(x=>DICT.charlie[x]).join('; '); }
+        update();
+    });
+}
+
+/* GOLF stepper */
+function paintGolf() {
+    document.getElementById('golfVal').textContent = state.golf == null ? '—' : state.golf;
+    document.getElementById('golfTot').textContent = state.golf == null ? '' : '/15';
+    const t = document.getElementById('golfT');
+    if (state.golf == null) { t.classList.add('empty'); t.textContent = t.dataset.def; }
+    else {
+        t.classList.remove('empty');
+        let sev = state.golf >= 14 ? 'leve' : state.golf >= 9 ? 'moderado' : 'grave';
+        t.innerHTML = '<b>' + state.golf + '/15</b> · TCE ' + sev;
+    }
+}
+function golfStep(d) {
+    if (state.golf == null) state.golf = d > 0 ? 15 : 14;
+    else state.golf = Math.min(15, Math.max(3, state.golf + d));
+    paintGolf(); update();
+}
+
+/* ETA quick */
+function bindEta() {
+    const wrap = document.getElementById('eta'); wrap.innerHTML = '';
+    [5,10,15,20,30].forEach(m => {
+        const b = document.createElement('button'); b.className = 'key'; b.style.minWidth='48px'; b.textContent = m; b.dataset.m = m;
+        b.addEventListener('click', () => { state.etaMin = String(m); document.getElementById('etaMin').value = m; paintEta(); update(); });
+        wrap.appendChild(b);
+    });
+}
+function paintEta() {
+    document.querySelectorAll('#eta .key').forEach(k => k.classList.toggle('on', state.etaMin !== '' && Number(state.etaMin) === Number(k.dataset.m)));
+    const t = document.getElementById('etaT');
+    if (state.etaMin === '' || isNaN(Number(state.etaMin))) { t.classList.add('empty'); t.textContent = t.dataset.def; }
+    else {
+        const eta = new Date(Date.now() + Number(state.etaMin) * 60000);
+        t.classList.remove('empty');
+        t.innerHTML = 'Llegada ≈ <b>' + pad(eta.getHours()) + ':' + pad(eta.getMinutes()) + '</b> (en ' + state.etaMin + ' min)';
+    }
+}
+
+function pad(n){ return String(n).padStart(2,'0'); }
+
+/* Segmented */
+function setupSeg(id, key, onChange) {
+    document.querySelectorAll('#' + id + ' button').forEach(btn => {
+        btn.addEventListener('click', () => {
+            state[key] = (state[key] === btn.dataset.v && id === 'sexo') ? null : btn.dataset.v;
+            document.querySelectorAll('#' + id + ' button').forEach(b => b.classList.toggle('on', b.dataset.v === state[key]));
+            if (onChange) onChange(); update();
+        });
+    });
+}
+
+/* INFORME */
+function reportLines() {
+    const L = [];
+    const demo = [];
+    if (state.sexo) demo.push(state.sexo === 'Hombre' ? 'Varón' : 'Mujer');
+    if (state.edad !== '') demo.push(state.edad + ' ' + state.edadUnit);
+    if (state.ped) demo.push('paciente pediátrico');
+    if (demo.length) L.push('Paciente: ' + demo.join(', '));
+    if (state.prio !== null) L.push('Prioridad ' + state.prio + ' — ' + DICT.prio[state.prio]);
+    if (state.alfa !== null) L.push('Mecanismo (ALFA-' + state.alfa + '): ' + DICT.alfa[state.alfa]);
+    if (state.charlie.length) { const s = state.charlie.slice().sort((a,b)=>a-b); L.push('Zona afectada (CHARLIE-' + s.join(',') + '): ' + s.map(i=>DICT.charlie[i]).join('; ')); }
+    if (state.romeo !== null) L.push('Respiración (ROMEO-' + state.romeo + '): ' + DICT.romeo[state.romeo]);
+    if (state.hotel !== null) { const d = state.ped ? DICT.hotelNino : DICT.hotelAdulto; L.push('Hemodinámica (HOTEL-' + state.hotel + '): ' + d[state.hotel]); }
+    if (state.golf !== null) L.push('Glasgow (GOLF): ' + state.golf + '/15');
+    if (state.etaMin !== '' && !isNaN(Number(state.etaMin))) { const eta = new Date(Date.now() + Number(state.etaMin)*60000); L.push('Llegada prevista: ' + pad(eta.getHours()) + ':' + pad(eta.getMinutes()) + ' (en ' + state.etaMin + ' min)'); }
+    return L;
+}
+function reportText() {
+    const L = reportLines(); if (!L.length) return '';
+    const now = new Date();
+    const head = 'PREALERTA SEM · CÓDIGO PTT (POLITRAUMA)\nRecepción: ' + pad(now.getDate()) + '/' + pad(now.getMonth()+1) + '/' + now.getFullYear() + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes());
+    return head + '\n\n' + L.join('\n');
+}
+function update() {
+    const txt = reportText();
+    const box = document.getElementById('informeBox');
+    box.textContent = txt || '';
+    if (!txt) box.innerHTML = '<span class="ph">Introduce los datos del código y el informe aparecerá aquí…</span>';
+    document.getElementById('btnCopy').disabled = !txt;
+    document.getElementById('btnDownload').disabled = !txt;
+}
+
+function init() {
+    keypad('alfa', 10, pickSingle('alfa','alfa',DICT.alfa,'alfaT'));
+    bindCharlie();
+    keypad('romeo', 3, pickSingle('romeo','romeo',DICT.romeo,'romeoT'));
+    bindHotel();
+    bindEta();
+    paintGolf();
+
+    setupSeg('sexo','sexo');
+    setupSeg('edadUnit','edadUnit');
+    document.getElementById('edad').addEventListener('input', e => { state.edad = e.target.value.trim(); update(); });
+    document.getElementById('etaMin').addEventListener('input', e => { state.etaMin = e.target.value.trim(); paintEta(); update(); });
+
+    document.querySelectorAll('#prio .prio-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const i = Number(btn.dataset.i);
+            state.prio = (state.prio === i ? null : i);
+            document.querySelectorAll('#prio .prio-btn').forEach(b => b.classList.toggle('on', Number(b.dataset.i) === state.prio));
+            update();
+        });
+    });
+
+    const pedToggle = document.getElementById('pedToggle');
+    document.getElementById('pedRow').addEventListener('click', () => {
+        state.ped = !state.ped;
+        pedToggle.classList.toggle('on', state.ped);
+        if (state.hotel !== null && !state.ped && state.hotel > 2) state.hotel = null;
+        bindHotel(); update();
+    });
+
+    document.getElementById('golfPlus').addEventListener('click', () => golfStep(+1));
+    document.getElementById('golfMinus').addEventListener('click', () => golfStep(-1));
+    document.getElementById('golfClear').addEventListener('click', () => { state.golf = null; paintGolf(); update(); });
+
+    document.getElementById('btnCopy').addEventListener('click', async function() {
+        const txt = reportText(); if (!txt) return;
+        try { await navigator.clipboard.writeText(txt); }
+        catch(e) { const ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy');}catch(_){} document.body.removeChild(ta); }
+        this.textContent = '✓ Copiado'; setTimeout(() => this.textContent = '📋 Copiar', 1700);
+    });
+    document.getElementById('btnDownload').addEventListener('click', () => {
+        const txt = reportText(); if (!txt) return;
+        const a = document.createElement('a');
+        a.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(txt);
+        a.download = 'codigo-ptt_' + new Date().toISOString().slice(0,10) + '.txt';
+        a.click();
+    });
+
+    update();
+}
+init();
+</script>
+</body>
+</html>

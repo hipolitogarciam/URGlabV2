@@ -2017,6 +2017,36 @@ const ESCALAS = [
         },
     },
 
+    /* ─────────────────────── Sudbury Vertigo Risk Score ─────────────────
+       Lelli D et al. Ann Emerg Med 2024 (derivación) · validación 2025.   */
+    {
+        id: 'sudbury-vertigo',
+        nombre: 'Sudbury Vertigo',
+        sub: 'neuro',
+        abrev: 'Vértigo · causa central grave',
+        tipo: 'puntos',
+        fuente: 'Lelli D 2024 · validación 2025',
+        nota: 'Estratifica el riesgo de una causa central grave (ictus, AIT, disección vertebral, tumor) en el paciente con vértigo agudo en urgencias.',
+        campos: [
+            { id: 'sexo', label: 'Sexo masculino', prefillSex: true, opciones: [ { t: 'No', v: 0, sex: 'F' }, { t: 'Sí', v: 1, sex: 'M' } ]},
+            { id: 'edad', label: 'Edad > 65 años', prefillAge: true, opciones: [ { t: 'No', v: 0, ageMax: 65 }, { t: 'Sí', v: 1, ageMin: 66 } ]},
+            { id: 'dm', label: 'Diabetes', opciones: [ { t: 'No', v: 0 }, { t: 'Sí', v: 1 } ]},
+            { id: 'hta', label: 'Hipertensión', opciones: [ { t: 'No', v: 0 }, { t: 'Sí', v: 3 } ]},
+            { id: 'deficit', label: 'Déficit motor o sensitivo', opciones: [ { t: 'No', v: 0 }, { t: 'Sí', v: 5 } ]},
+            { id: 'cerebelo', label: 'Signos cerebelosos', sublabel: 'Diplopía, disartria, disfagia, dismetría o ataxia', opciones: [ { t: 'No', v: 0 }, { t: 'Sí', v: 6 } ]},
+            { id: 'vppb', label: 'Diagnóstico de VPPB', sublabel: 'Vértigo posicional paroxístico benigno — factor protector', opciones: [ { t: 'No', v: 0 }, { t: 'Sí', v: -5 } ]},
+        ],
+        resultadoLabel: 'Sudbury',
+        interpretar: (total) => {
+            if (total < 5) return { nivel: 'Riesgo bajo', color: 'verde',
+                titulo: '< 5 puntos', texto: 'Causa central grave muy improbable (≈ 0 %). Imagen generalmente innecesaria si no hay datos de alarma.' };
+            if (total <= 8) return { nivel: 'Riesgo moderado', color: 'ambar',
+                titulo: '5 – 8 puntos', texto: 'Riesgo ≈ 2 %. Si la causa periférica no es clara, valorar RM (± angio).' };
+            return { nivel: 'Riesgo alto', color: 'rojo',
+                titulo: '> 8 puntos', texto: 'Riesgo ≈ 41 %. Neuroimagen urgente (RM/angio-RM o TC/angio-TC) para descartar causa central.' };
+        },
+    },
+
 ];
 
 /* ── Orden de presentación dentro de cada subcategoría (por grupos clínicos) ── */
@@ -2028,7 +2058,7 @@ const ORDEN = {
     infeccioso:     ['centor','mascc'],
     nefro:          ['fena','deficit-agua','na-glucosa','ca-albumina','osmolaridad','burch-wartofsky','abg'],
     geriatria:      ['cfs'],
-    neuro:          ['gcs','nihss','race','mrs','ciwa-ar'],
+    neuro:          ['gcs','nihss','race','mrs','sudbury-vertigo','ciwa-ar'],
     trauma:         ['canadian-cspine','nexus','canadian-cthead'],
     psiquiatricas:  ['msad-persons'],
 };
