@@ -420,16 +420,16 @@
                 <button id="btn-female" class="sex-btn" onclick="setSex('F')">♀ MUJER</button>
             </div>
 
-            <span class="field-label">Peso real</span>
-            <div class="input-wrap">
-                <input type="number" id="weight" placeholder="80" inputmode="decimal" min="0">
-                <span class="input-unit">kg</span>
-            </div>
-
             <span class="field-label">Edad</span>
             <div class="input-wrap">
                 <input type="number" id="age" placeholder="65" inputmode="numeric" min="0" max="120">
                 <span class="input-unit">años</span>
+            </div>
+
+            <span class="field-label">Peso real</span>
+            <div class="input-wrap">
+                <input type="number" id="weight" placeholder="80" inputmode="decimal" min="0">
+                <span class="input-unit">kg</span>
             </div>
 
             <span class="field-label">Talla</span>
@@ -482,6 +482,10 @@
                 <div class="patient-data-item">
                     <span class="patient-data-label">Sexo</span>
                     <span class="patient-data-value" id="badge-sex">--</span>
+                </div>
+                <div class="patient-data-item">
+                    <span class="patient-data-label">Edad</span>
+                    <span class="patient-data-value" id="badge-age">-- a</span>
                 </div>
                 <div class="patient-data-item">
                     <span class="patient-data-label">Peso real</span>
@@ -718,11 +722,13 @@
 function updateBadge(p) {
         if (p && p.weight) {
             document.getElementById('badge-sex').textContent = p.sex === 'M' ? 'H' : 'M';
+            document.getElementById('badge-age').textContent = p.age ? p.age + ' a' : '--';
             document.getElementById('badge-weight').textContent = p.weight + ' kg';
             document.getElementById('badge-height').textContent = p.height ? p.height + ' cm' : '--';
             document.getElementById('badge-ibw').textContent = p.ibw + ' kg';
         } else {
             document.getElementById('badge-sex').textContent = '--';
+            document.getElementById('badge-age').textContent = '-- a';
             document.getElementById('badge-weight').textContent = '-- kg';
             document.getElementById('badge-height').textContent = '-- cm';
             document.getElementById('badge-ibw').textContent = '-- kg';
@@ -784,7 +790,7 @@ function updateBadge(p) {
 
         // Recursos
         { label: 'Agenda', keywords: ['agenda','contactos','telefonos','directorio'], category: 'Recurso', href: 'recursos/agenda/index.html' },
-        { label: 'Código PTT', keywords: ['ptt','politrauma','codigo politrauma','prealerta','sem','trauma grave','alfa charlie romeo hotel golf','traductor codigo','centro coordinador'], category: 'Recurso', href: 'recursos/codigo-ptt/index.html' },
+        { label: 'Prealerta PTT', keywords: ['ptt','prealerta ptt','politrauma','codigo ptt','codigo politrauma','prealerta','sem','trauma grave','alfa charlie romeo hotel golf','traductor codigo','centro coordinador'], category: 'Recurso', href: 'recursos/codigo-ptt/index.html' },
 
         // Escalas
         { label: 'HEART Score', keywords: ['heart','dolor toracico','sca','sindrome coronario','mace','troponina'], category: 'Escala', href: 'escalas/index.html#id=heart' },
@@ -845,6 +851,7 @@ function updateBadge(p) {
         { label: 'Rankin (mRS)', keywords: ['rankin','mrs','discapacidad','escala rankin','pronostico ictus'], category: 'Escala', href: 'escalas/index.html#id=mrs' },
         { label: 'Canadian CT Head', keywords: ['canadian ct head','tc craneal','tce','traumatismo craneal','fractura craneal'], category: 'Escala', href: 'escalas/index.html#id=canadian-cthead' },
         { label: 'Sudbury Vertigo', keywords: ['sudbury','vertigo','mareo','causa central','ictus vertigo','vppb','inestabilidad'], category: 'Escala', href: 'escalas/index.html#id=sudbury-vertigo' },
+        { label: 'modified BIG (mBIG)', keywords: ['mbig','big','brain injury guidelines','tce','hemorragia intracraneal','hematoma subdural','contusion cerebral','neurocirugia'], category: 'Escala', href: 'escalas/index.html#id=mbig' },
 
         // Fármacos (perfusiones) — abren farmacos con deep-link
         ...['Adrenalina','Amiodarona','Dobutamina','Fentanilo','Flumazenilo','Furosemida',

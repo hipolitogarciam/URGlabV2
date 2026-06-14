@@ -57,6 +57,17 @@
         box-shadow:0 1px 6px rgba(0,0,0,0.06); transition:border-color .12s; }
     .esc-search:focus { border-color:var(--blue); }
     .esc-empty { text-align:center; color:var(--text-muted); font-size:0.85rem; padding:30px 12px; }
+
+    /* Asistente secuencial (wizard) */
+    .wiz-group { font-family:var(--display); font-size:1.05rem; font-weight:800; color:var(--text);
+        letter-spacing:0.03em; text-transform:uppercase; margin:0 2px 12px; }
+    .campo + .wiz-group { margin-top:24px; padding-top:18px; border-top:1px solid var(--border); }
+    .wiz-progress { font-family:var(--mono); font-size:0.7rem; font-weight:700; color:var(--text-muted);
+        text-transform:uppercase; letter-spacing:0.07em; margin-bottom:10px; }
+    .wiz-nav { margin-top:14px; }
+    .wiz-link { background:none; border:none; color:var(--blue); font-family:var(--body); font-size:0.88rem;
+        font-weight:600; cursor:pointer; padding:6px 2px; }
+    .wiz-link:active { opacity:0.6; }
     .cat-text { flex:1; }
     .cat-name { font-family:var(--display); font-size:1.2rem; font-weight:700; color:var(--black);
         letter-spacing:0.02em; text-transform:uppercase; line-height:1.1; margin-bottom:2px; }

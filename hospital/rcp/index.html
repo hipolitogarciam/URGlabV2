@@ -1669,7 +1669,8 @@ function prSavePat(){
   const sex=window._prSex;
   if(!sex||!w){ alert('Introduce al menos sexo y peso'); return; }
   const ibw=ht?calcIBW(sex,ht):null;
-  try{ localStorage.setItem('hj23_patient',JSON.stringify({sex,weight:w,height:ht||null,ibw})); }catch(e){}
+  const prev=getPatient();
+  try{ localStorage.setItem('hj23_patient',JSON.stringify({sex,weight:w,height:ht||null,ibw,age:(prev&&prev.age)||0})); }catch(e){}
   window._prEditing=false; window._prSex=null; window._prPatConfirmed=true;
   _renderPostRCP();
 }

@@ -98,8 +98,62 @@ function renderLista(s) {
     window.scrollTo(0, 0);
 }
 
+/* ── Vista: asistente secuencial (wizard) — una pregunta a la vez ───────── */
+function renderWizard(e) {
+    $title().textContent = e.nombre;
+    $back().href = `#sub=${e.sub}`;
+    e._sel = {};
+    const notaTop = e.nota ? `<p class="esc-nota">${esc(e.nota)}</p>` : '';
+    $app().innerHTML = `
+        ${notaTop}
+        <div id="wizard"></div>
+        <div id="resultado" class="esc-result placeholder"><span class="esc-result-hint">Responde para clasificar.</span></div>
+        <p class="esc-fuente">Fuente: ${esc(e.fuente)}</p>
+        <p class="esc-disclaimer">Herramienta de apoyo a la decisión. No sustituye el juicio clínico.</p>`;
+    wizardRender(e);
+    window.scrollTo(0, 0);
+}
+
+function resetResultPlaceholder() {
+    const r = document.getElementById('resultado');
+    if (!r) return;
+    r.className = 'esc-result placeholder';
+    r.style.background = ''; r.style.borderColor = '';
+    r.innerHTML = '<span class="esc-result-hint">Responde para clasificar.</span>';
+}
+
+// Asistente acumulativo: los criterios respondidos «No» permanecen visibles; el primer
+// «Sí» (o agotar todos en «No») fija la categoría, mostrada justo debajo del último criterio.
+function wizardRender(e) {
+    const wz = document.getElementById('wizard');
+    let html = '', tier = null, lastGroup = null, stop = false;
+    for (let i = 0; i < e.campos.length; i++) {
+        const c = e.campos[i];
+        if (c.grupo && c.grupo !== lastGroup) {        // cabecera de sección (mBIG 3 / mBIG 2)
+            html += `<div class="wiz-group">${esc(c.grupo)}</div>`;
+            lastGroup = c.grupo;
+        }
+        const ans = e._sel[c.id];
+        if (ans === undefined) { html += campoHTML(c); stop = true; break; }   // criterio activo
+        html += campoHTML(c, ans);                                             // respondido (permanece)
+        if (ans > 1) { tier = ans; stop = true; break; }                       // primer «Sí» decide
+    }
+    if (!stop) tier = 1;                                                       // todos «No» → mBIG 1
+    wz.innerHTML = html;
+    wz.querySelectorAll('.opt-btn').forEach(btn => btn.addEventListener('click', () => {
+        const id = btn.dataset.campo;
+        e._sel[id] = Number(btn.dataset.v);
+        const idx = e.campos.findIndex(c => c.id === id);
+        for (let j = idx + 1; j < e.campos.length; j++) delete e._sel[e.campos[j].id]; // recalcula desde aquí
+        wizardRender(e);
+    }));
+    if (tier !== null) showResult(e, tier, e._sel);
+    else resetResultPlaceholder();
+}
+
 /* ── Vista: calculadora ─────────────────────────────────────────────────── */
 function renderCalc(e) {
+    if (e.wizard) return renderWizard(e);
     $title().textContent = e.nombre;
     $back().href = `#sub=${e.sub}`;
 
@@ -153,10 +207,10 @@ function renderCalc(e) {
     window.scrollTo(0, 0);
 }
 
-function campoHTML(c) {
+function campoHTML(c, selVal) {
     const sub = c.sublabel ? `<div class="campo-sub">${esc(c.sublabel)}</div>` : '';
     const opts = c.opciones.map(o =>
-        `<button class="opt-btn" data-campo="${c.id}" data-v="${o.v}">
+        `<button class="opt-btn${selVal !== undefined && Number(o.v) === Number(selVal) ? ' sel' : ''}" data-campo="${c.id}" data-v="${o.v}">
             <span class="opt-t">${esc(o.t)}</span>${c.noPoints ? '' : `<span class="opt-v">${o.v > 0 ? '+' + o.v : o.v}</span>`}
          </button>`).join('');
     return `<div class="campo">
@@ -198,6 +252,15 @@ function computeFormula(e) {
     const valor = e.calcular(v);
     if (!isFinite(valor)) return showPlaceholder('Revisa los valores (división no válida).');
     showResult(e, valor, v);
+}
+
+// Desplaza al resultado si ha quedado fuera de la vista (tras escalar de categoría)
+function revealResult() {
+    const r = document.getElementById('resultado');
+    if (!r) return;
+    const rect = r.getBoundingClientRect();
+    const vh = window.innerHeight || document.documentElement.clientHeight;
+    if (rect.bottom > vh - 8 || rect.top < 60) r.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
 // Mixto: campos numéricos (input:'numero') + campos de opciones; puntúa con calcular(v)

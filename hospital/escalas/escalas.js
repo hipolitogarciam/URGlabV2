@@ -2047,6 +2047,48 @@ const ESCALAS = [
         },
     },
 
+    /* ─────────────── modified Brain Injury Guidelines (mBIG) ─────────────
+       Joseph B et al. (BIG) · mBIG. Manejo del TCE leve con HIC traumática.
+       Clasifica en la categoría MÁS ALTA cuyo criterio se cumpla.          */
+    {
+        id: 'mbig',
+        nombre: 'modified BIG (mBIG)',
+        sub: 'trauma',
+        abrev: 'TCE leve con hemorragia intracraneal',
+        kw: ['brain injury guidelines','hematoma subdural','contusion cerebral','neurocirugia'],
+        tipo: 'mixto',
+        noNumero: true,
+        wizard: true,
+        fuente: 'modified Brain Injury Guidelines',
+        nota: 'Usar en TCE con hemorragia intracraneal, GCS 13–15 y sin déficit neurológico focal ni alteración pupilar. Se pregunta criterio a criterio, del más grave al menos: el primer «Sí» asigna la categoría.',
+        campos: [
+            // mBIG 3 — cualquier «Sí» → mBIG 3
+            { id: 'acoag', grupo: 'Criterios mBIG 3', label: 'Anticoagulación / antiagregación', sublabel: 'Warfarina, ACOD, clopidogrel, heparina/HBPM. El AAS y los AINE NO cuentan', noPoints: true, opciones: [ { t: 'No', v: 1 }, { t: 'Sí', v: 3 } ]},
+            { id: 'edh', label: 'Hematoma epidural', noPoints: true, opciones: [ { t: 'No', v: 1 }, { t: 'Sí', v: 3 } ]},
+            { id: 'ivh', label: 'Hemorragia intraventricular', noPoints: true, opciones: [ { t: 'No', v: 1 }, { t: 'Sí', v: 3 } ]},
+            { id: 'fx_d', label: 'Fractura craneal desplazada', noPoints: true, opciones: [ { t: 'No', v: 1 }, { t: 'Sí', v: 3 } ]},
+            { id: 'sdh3', label: 'Hematoma subdural ≥ 8 mm', noPoints: true, opciones: [ { t: 'No', v: 1 }, { t: 'Sí', v: 3 } ]},
+            { id: 'iph3', label: 'Hemorragia intraparenquimatosa ≥ 8 mm o múltiple', noPoints: true, opciones: [ { t: 'No', v: 1 }, { t: 'Sí', v: 3 } ]},
+            { id: 'hsa3', label: 'HSA bihemisférica o > 3 mm', noPoints: true, opciones: [ { t: 'No', v: 1 }, { t: 'Sí', v: 3 } ]},
+            // mBIG 2 — cualquier «Sí» → mBIG 2
+            { id: 'alcohol', grupo: 'Criterios mBIG 2', label: 'Alcoholemia > 80 mg/dL (> 17,4 mmol/L)', noPoints: true, opciones: [ { t: 'No', v: 1 }, { t: 'Sí', v: 2 } ]},
+            { id: 'fx_nd', label: 'Fractura craneal no desplazada', noPoints: true, opciones: [ { t: 'No', v: 1 }, { t: 'Sí', v: 2 } ]},
+            { id: 'sdh2', label: 'Hematoma subdural > 4 a < 8 mm', noPoints: true, opciones: [ { t: 'No', v: 1 }, { t: 'Sí', v: 2 } ]},
+            { id: 'iph2', label: 'Hemorragia intraparenquimatosa > 4 a < 8 mm', noPoints: true, opciones: [ { t: 'No', v: 1 }, { t: 'Sí', v: 2 } ]},
+            { id: 'hsa2', label: 'HSA en un hemisferio, > 3 surcos, 1 – 3 mm', noPoints: true, opciones: [ { t: 'No', v: 1 }, { t: 'Sí', v: 2 } ]},
+        ],
+        resultadoLabel: 'mBIG',
+        calcular: (v) => Math.max(v.acoag, v.edh, v.ivh, v.fx_d, v.sdh3, v.iph3, v.hsa3, v.alcohol, v.fx_nd, v.sdh2, v.iph2, v.hsa2),
+        interpretar: (tier) => {
+            if (tier === 1) return { nivel: 'mBIG 1 · bajo riesgo', color: 'verde',
+                titulo: 'Observación', texto: 'Observación ~ 6 h con controles neurológicos. Sin TC de control ni interconsulta a neurocirugía; alta si permanece estable.' };
+            if (tier === 2) return { nivel: 'mBIG 2 · riesgo moderado', color: 'ambar',
+                titulo: 'Ingreso y vigilancia', texto: 'Ingreso 24 – 48 h con controles neurológicos seriados. Habitualmente sin TC de control ni interconsulta sistemática a neurocirugía.' };
+            return { nivel: 'mBIG 3 · alto riesgo', color: 'rojo',
+                titulo: 'Neurocirugía + TC de control', texto: 'Interconsulta a neurocirugía, TC craneal de control e ingreso en UCI / unidad neurocrítica.' };
+        },
+    },
+
 ];
 
 /* ── Orden de presentación dentro de cada subcategoría (por grupos clínicos) ── */
@@ -2059,6 +2101,6 @@ const ORDEN = {
     nefro:          ['fena','deficit-agua','na-glucosa','ca-albumina','osmolaridad','burch-wartofsky','abg'],
     geriatria:      ['cfs'],
     neuro:          ['gcs','nihss','race','mrs','sudbury-vertigo','ciwa-ar'],
-    trauma:         ['canadian-cspine','nexus','canadian-cthead'],
+    trauma:         ['canadian-cspine','nexus','canadian-cthead','mbig'],
     psiquiatricas:  ['msad-persons'],
 };
