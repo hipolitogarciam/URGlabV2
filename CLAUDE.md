@@ -7,7 +7,7 @@ Todo el contenido interior usa siempre `max-width: 480px; margin: 0 auto`. Esto 
 - **Área de scroll / contenido:** envolver en un div contenedor con `max-width: 480px; margin: 0 auto; padding: 20px;`
 - **Headers/hero:** pueden ser full-width visualmente, pero su contenido interior también va dentro de un div `max-width: 480px; width: 100%; margin: 0 auto`
 - **Modales y bottom sheets:** overlay full-screen, sheet interior `max-width: 480px; width: 100%; margin: 0 auto`
-- **Sin excepción:** aplicar en index.html principal, hospital/, prehospitalaria/ y cualquier módulo nuevo
+- **Sin excepción:** aplicar en index.html principal, hospital/ y cualquier módulo nuevo
 
 ## Header uniforme (OBLIGATORIO en todos los módulos)
 
@@ -21,7 +21,6 @@ Todo header de herramienta debe seguir exactamente esta especificación — sin 
 ## Paleta de colores
 
 - Azul hospital: `#1a7fc8 → #1a6fad` (gradiente), borde teal `#09c797`
-- Rojo prehospitalaria/SEM: `#c41520 → #B5121B`, borde `rgba(255,255,255,0.3)`
 - Fondo: `#f4f6f9`, superficie: `#ffffff`
 
 ## Fuentes
@@ -35,7 +34,7 @@ Todo header de herramienta debe seguir exactamente esta especificación — sin 
 
 - Cada herramienta vive en su propia carpeta con `index.html`
 - Navegación siempre con `index.html` explícito (Chrome file:// no resuelve directorios)
-- `hospital/` → Hub HJ23 activo. `prehospitalaria/` → archivos en standby (proyecto SEM separado)
+- `hospital/` → Hub HJ23 activo. La atención prehospitalaria/SEM es un proyecto completamente separado, fuera de este repositorio.
 - El `index.html` raíz es el hub de hospitales ICS (solo Joan XXIII activo, resto "Próximamente")
 
 ## Buscador global — OBLIGATORIO mantener actualizado

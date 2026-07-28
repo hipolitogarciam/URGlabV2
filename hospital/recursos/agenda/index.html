@@ -185,17 +185,24 @@
         }
 
         /* ─── SECTION HEADER ─────────────────────────────────────────── */
+        .section {
+            margin-top: 16px;
+        }
+
+        .section:first-child { margin-top: 4px; }
+
         .section-header {
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-top: 20px;
-            margin-bottom: 10px;
             padding-bottom: 8px;
+            margin-bottom: 10px;
             border-bottom: 2px solid var(--border);
+            cursor: pointer;
+            list-style: none;
         }
 
-        .section-header:first-child { margin-top: 4px; }
+        .section-header::-webkit-details-marker { display: none; }
 
         .section-icon { font-size: 1rem; line-height: 1; }
 
@@ -215,6 +222,17 @@
             color: var(--text-muted);
             margin-left: auto;
             letter-spacing: 0.04em;
+        }
+
+        .section-chevron {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            transition: transform 0.15s;
+            transform: rotate(0deg);
+        }
+
+        details[open] > .section-header .section-chevron {
+            transform: rotate(90deg);
         }
 
         /* ─── CONTACT CARD ───────────────────────────────────────────── */
@@ -344,11 +362,21 @@
 <script>
     const directoryData = [
         {
+            category: "Buscas Urgencias",
+            icon: "📟",
+            contacts: [
+                { s: "Busca Críticos",     n: "79568 · 638 686 905", t: "log" },
+                { s: "Busca Observación",  n: "79824",               t: "log" },
+                { s: "Busca Box 1-9",      n: "79822",               t: "log" },
+                { s: "Busca Box 10-19",    n: "79604",               t: "log" }
+            ]
+        },
+        {
             category: "Código Politrauma",
             icon: "🔴",
             contacts: [
-                { s: "Busca Críticos",        n: "79568",          t: "crit" },
-                { s: "Politrauma",            n: "1019",           t: "crit" },
+                { s: "Busca Críticos",        n: "79568 · 638 686 905", t: "crit" },
+                { s: "Admisiones Urgencias",  n: "1019",           t: "crit" },
                 { s: "Anestesia",             n: "79546",          t: "crit" },
                 { s: "Cirugía General",       n: "79549",          t: "crit" },
                 { s: "UCI",                   n: "79570 · 79571",  t: "crit" },
@@ -415,11 +443,11 @@
             contacts: [
                 { s: "Jefa de Servicio",            n: "74402",       t: "log" },
                 { s: "Supervisor Urgencias",        n: "79569",       t: "log" },
-                { s: "MAUH Urgencias adultos",      n: "79568",       t: "log" },
                 { s: "Habitación MAUH",             n: "1960",        t: "log" },
                 { s: "Habitación Residentes",       n: "1961",        t: "log" },
                 { s: "Farmacéutica",                n: "79690",       t: "log" },
-                { s: "Secretaría Urgencias",        n: "1019 · 5811", t: "log" },
+                { s: "Secretaría Urgencias",        n: "5811",        t: "log" },
+                { s: "Admisiones Urgencias",        n: "1019",        t: "log" },
                 { s: "Triaje 1",                    n: "1037",        t: "log" },
                 { s: "Triaje 2",                    n: "1091",        t: "log" },
                 { s: "Central Puerta A",            n: "5881 · 1010", t: "log" },
@@ -447,7 +475,7 @@
                 { s: "Informática",             n: "40201 (Cód. 58)", t: "log" },
                 { s: "Traslados",               n: "40125",           t: "log" },
                 { s: "Técnicos de RX",          n: "79530",           t: "log" },
-                { s: "Politrauma 0",            n: "1019",            t: "log" }
+                { s: "Admisiones Urgencias",    n: "1019",            t: "log" }
             ]
         },
         {
@@ -461,9 +489,10 @@
                 { s: "HAD – Médico",             n: "74430",              t: "log" },
                 { s: "HAD – Enfermera",          n: "74415",              t: "log" },
                 { s: "Diálisis",                 n: "5895",               t: "log" },
-                { s: "UCI",                      n: "1182·83 / 79570·71", t: "log" },
+                { s: "UCI – Central Enfermería", n: "1182 · 1183",        t: "log" },
+                { s: "UCI – Buscas Médicos",     n: "79570 · 79571",      t: "log" },
                 { s: "Semicríticos",             n: "1149 · 1150",        t: "log" },
-                { s: "Banco de Sangre",          n: "79530 · 3104",       t: "log" },
+                { s: "Banco de Sangre",          n: "79529",              t: "log" },
                 { s: "Despacho Neumología",      n: "1175 · 1619",        t: "log" },
                 { s: "Alergias",                 n: "2215 · 2216",        t: "log" },
                 { s: "URPA",                     n: "1264",               t: "log" },
@@ -536,10 +565,14 @@
             '</div>';
     }
 
+    // Categorías abiertas manualmente durante esta sesión (no se persiste entre visitas)
+    const openCategories = new Set();
+
     function render(query = "") {
         directoryDiv.innerHTML = "";
         const tokens = norm(query).split(/\s+/).filter(Boolean);
-        clearBtn.style.display = tokens.length ? "flex" : "none";
+        const searching = tokens.length > 0;
+        clearBtn.style.display = searching ? "flex" : "none";
         let totalResults = 0;
 
         directoryData.forEach(cat => {
@@ -551,14 +584,25 @@
             if (filtered.length === 0) return;
             totalResults += filtered.length;
 
-            const section = document.createElement('div');
+            const section = document.createElement('details');
+            section.className = 'section';
+            section.open = searching ? true : openCategories.has(cat.category);
 
-            const hdr = document.createElement('div');
+            const hdr = document.createElement('summary');
             hdr.className = 'section-header';
             hdr.innerHTML = `
                 <span class="section-icon">${cat.icon}</span>
                 <span class="section-title">${cat.category}</span>
-                <span class="section-count">${filtered.length} ext.</span>`;
+                <span class="section-count">${filtered.length} ext.</span>
+                <span class="section-chevron">▶</span>`;
+            if (!searching) {
+                hdr.addEventListener('click', () => {
+                    setTimeout(() => {
+                        if (section.open) openCategories.add(cat.category);
+                        else openCategories.delete(cat.category);
+                    }, 0);
+                });
+            }
             section.appendChild(hdr);
 
             filtered.forEach(c => {
