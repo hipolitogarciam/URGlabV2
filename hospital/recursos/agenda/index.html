@@ -266,23 +266,8 @@
             font-size: 0.9rem;
             font-weight: 600;
             color: var(--text);
-            margin-bottom: 4px;
             line-height: 1.2;
         }
-
-        .contact-tag {
-            font-family: var(--mono);
-            font-size: 0.55rem;
-            font-weight: 500;
-            padding: 2px 7px;
-            border-radius: 4px;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
-        }
-
-        .tag-crit  { background: var(--red-light);  color: var(--red); }
-        .tag-guard { background: var(--teal-light); color: var(--teal-dark); }
-        .tag-log   { background: var(--blue-light); color: var(--blue-dark); }
 
         .number-chips {
             display: flex;
@@ -301,6 +286,12 @@
             border-radius: 7px;
             white-space: nowrap;
             letter-spacing: 0.02em;
+        }
+
+        .number-chip.chip-mobile {
+            font-size: 0.75rem;
+            font-weight: 500;
+            opacity: 0.8;
         }
 
         .t-crit .number-chip  { color: var(--red);       background: var(--red-light);  }
@@ -364,152 +355,181 @@
         {
             category: "Buscas Urgencias",
             icon: "📟",
+            keepOrder: true,
             contacts: [
-                { s: "Busca Críticos",     n: "79568 · 638 686 905", t: "log" },
-                { s: "Busca Observación",  n: "79824",               t: "log" },
-                { s: "Busca Box 1-9",      n: "79822",               t: "log" },
-                { s: "Busca Box 10-19",    n: "79604",               t: "log" }
+                { s: "Busca Críticos",              n: "79568 · 638 686 905", t: "log" },
+                { s: "Busca Observación",           n: "79824",               t: "log" },
+                { s: "Busca Box 1-9",               n: "79822",               t: "log" },
+                { s: "Busca Box 10-19",             n: "79604 · 671 572 687", t: "log" }
             ]
         },
         {
             category: "Código Politrauma",
             icon: "🔴",
+            keepOrder: true,
             contacts: [
-                { s: "Busca Críticos",        n: "79568 · 638 686 905", t: "crit" },
-                { s: "Admisiones Urgencias",  n: "1019",           t: "crit" },
-                { s: "Anestesia",             n: "79546",          t: "crit" },
-                { s: "Cirugía General",       n: "79549",          t: "crit" },
-                { s: "UCI",                   n: "79570 · 79571",  t: "crit" },
-                { s: "Traumatología",         n: "79563 · 79564",  t: "crit" },
-                { s: "Banco de Sangre",       n: "79529",          t: "crit" },
-                { s: "Técnicos de RX",        n: "79530",          t: "crit" },
-                { s: "Laboratorio Urgencias", n: "1245",           t: "crit" },
-                { s: "Radiología",            n: "79562",          t: "crit" },
-                { s: "Cirugía Torácica",      n: "79593",          t: "crit" },
-                { s: "Neurocirugía",          n: "74421",          t: "crit" }
+                { s: "Busca Críticos",                  n: "79568 · 638 686 905", t: "crit" },
+                { s: "Admisiones Urgencias",             n: "1019",                t: "crit" },
+                { s: "Anestesia – Obstetricia",          n: "79546 · 638 686 882", t: "crit" },
+                { s: "Anestesia – REA/Urgencias",        n: "79732 · 634 746 035", t: "crit" },
+                { s: "Cirugía General",                  n: "79549 · 638 686 884", t: "crit" },
+                { s: "UCI – Residente",                  n: "79570 · 638 686 907", t: "crit" },
+                { s: "UCI – Adjunto",                    n: "79571 · 638 686 908", t: "crit" },
+                { s: "Traumatología – Residente",        n: "79563 · 638 686 898", t: "crit" },
+                { s: "Traumatología – Adjunto",          n: "79564 · 638 686 899", t: "crit" },
+                { s: "Banco de Sangre",                  n: "79529 · 638 686 871", t: "crit" },
+                { s: "Técnicos de RX",                   n: "79530 · 638 686 872", t: "crit" },
+                { s: "Laboratorio Urgencias",             n: "1245",                t: "crit" },
+                { s: "Radiología",                       n: "79562 · 638 686 897", t: "crit" },
+                { s: "Radiología Intervencionista",      n: "79670 · 667 116 848", t: "crit" },
+                { s: "Cirugía Torácica",                 n: "79593 · 637 368 797", t: "crit" },
+                { s: "Neurocirugía",                     n: "74421 · 606 409 904", t: "crit" }
             ]
         },
         {
             category: "Código ICTUS",
             icon: "🟡",
+            keepOrder: true,
             contacts: [
-                { s: "Neurología", n: "79557",       t: "crit" },
-                { s: "Radiología", n: "79562",       t: "crit" },
-                { s: "TAC",        n: "4508 · 4509", t: "crit" }
+                { s: "Neurología", n: "79557 · 638 686 892", t: "crit" },
+                { s: "Radiología", n: "79562 · 638 686 897", t: "crit" },
+                { s: "TAC",        n: "4508 · 4509",         t: "crit" }
             ]
         },
         {
             category: "Código IAM",
             icon: "🟠",
+            keepOrder: true,
             contacts: [
-                { s: "Cardiología – Adjunto",   n: "79526", t: "crit" },
-                { s: "Cardiología – Residente", n: "79548", t: "crit" }
+                { s: "Cardiología – Adjunto",   n: "79526 · 638 686 869", t: "crit" },
+                { s: "Cardiología – Residente", n: "79548 · 638 686 883", t: "crit" }
+            ]
+        },
+        {
+            category: "RCP Intrahospitalaria",
+            icon: "🔵",
+            keepOrder: true,
+            contacts: [
+                { s: "RCP – Aviso 1", n: "74444 · 667 008 476", t: "crit" },
+                { s: "RCP – Aviso 2", n: "79999 · 667 008 529", t: "crit" },
+                { s: "RCP Hospital",  n: "79682 · 634 960 253", t: "crit" }
             ]
         },
         {
             category: "Guardias especializadas",
             icon: "🩺",
             contacts: [
-                { s: "Urología",                         n: "79543",         t: "guard" },
-                { s: "Anestesia",                        n: "79546",         t: "guard" },
-                { s: "Cirugía Torácica",                 n: "79593",         t: "guard" },
-                { s: "Cirugía General",                  n: "79549",         t: "guard" },
-                { s: "Cirugía Pediátrica",               n: "79550",         t: "guard" },
-                { s: "Vascular – Adjunto",               n: "79551",         t: "guard" },
-                { s: "Vascular – Residente",             n: "79578",         t: "guard" },
-                { s: "Hematología",                      n: "79552",         t: "guard" },
-                { s: "Maxilofacial",                     n: "79553",         t: "guard" },
-                { s: "Medicina Interna – Residente",     n: "79698 · 79619", t: "guard" },
-                { s: "Medicina Interna – Adjunto",       n: "79622",         t: "guard" },
-                { s: "Nefrología",                       n: "79556",         t: "guard" },
-                { s: "Neurología",                       n: "79557",         t: "guard" },
-                { s: "Neurología no ICTUS",              n: "79765",         t: "guard" },
-                { s: "Oftalmología",                     n: "79558",         t: "guard" },
-                { s: "Otorrinolaringología",             n: "79559",         t: "guard" },
-                { s: "Pediatría",                        n: "79560 · 79561", t: "guard" },
-                { s: "Radiología",                       n: "79562",         t: "guard" },
-                { s: "Traumatología – Residente",        n: "79563",         t: "guard" },
-                { s: "Traumatología – Adjunto",          n: "79564",         t: "guard" },
-                { s: "Toco-Ginecología",                 n: "79566",         t: "guard" },
-                { s: "UCI",                              n: "79570 · 79571", t: "guard" },
-                { s: "Neurocirugía",                     n: "74421",         t: "guard" },
-                { s: "Endoscopias",                      n: "79523",         t: "guard" },
-                { s: "Digestivo",                        n: "79581",         t: "guard" }
+                { s: "Busca Urgencias Pediátricas",             n: "79573 · 638 686 910", t: "guard" },
+                { s: "Radiología Intervencionista",             n: "79670 · 667 116 848", t: "guard" },
+                { s: "Urología",                                n: "79543 · 638 686 880", t: "guard" },
+                { s: "Anestesia – Obstetricia",                 n: "79546 · 638 686 882", t: "guard" },
+                { s: "Anestesia – REA/Urgencias",               n: "79732 · 634 746 035", t: "guard" },
+                { s: "Cirugía Torácica",                        n: "79593 · 637 368 797", t: "guard" },
+                { s: "Cirugía General",                         n: "79549 · 638 686 884", t: "guard" },
+                { s: "Cirugía Pediátrica",                      n: "79550 · 638 686 885", t: "guard" },
+                { s: "Vascular – Adjunto",                      n: "79551",               t: "guard" },
+                { s: "Vascular – Residente",                    n: "79578 · 638 686 915", t: "guard" },
+                { s: "Hematología",                             n: "79552 · 638 686 887", t: "guard" },
+                { s: "Maxilofacial",                            n: "79553 · 638 686 888", t: "guard" },
+                { s: "Medicina Interna – Interconsultas (día)", n: "79619 · 667 075 981", t: "guard" },
+                { s: "Medicina Interna – Guardia (residente)",  n: "79698 · 677 346 811", t: "guard" },
+                { s: "Medicina Interna – Guardia (adjunto)",    n: "79622 · 638 686 890", t: "guard" },
+                { s: "Nefrología",                              n: "79556 · 638 686 891", t: "guard" },
+                { s: "Neurología",                              n: "79557 · 638 686 892", t: "guard" },
+                { s: "Oftalmología",                            n: "79558 · 638 686 893", t: "guard" },
+                { s: "Otorrinolaringología",                    n: "79559 · 638 686 894", t: "guard" },
+                { s: "Pediatría – Adjunto",                     n: "79560 · 638 686 895", t: "guard" },
+                { s: "Pediatría – Residente",                   n: "79561 · 638 686 896", t: "guard" },
+                { s: "Radiología",                              n: "79562 · 638 686 897", t: "guard" },
+                { s: "Traumatología – Residente",               n: "79563 · 638 686 898", t: "guard" },
+                { s: "Traumatología – Adjunto",                 n: "79564 · 638 686 899", t: "guard" },
+                { s: "Ginecología – Adjunto",                   n: "79565 · 638 686 900", t: "guard" },
+                { s: "Ginecología – Residente",                 n: "79566 · 638 686 901", t: "guard" },
+                { s: "UCI – Residente",                         n: "79570 · 638 686 907", t: "guard" },
+                { s: "UCI – Adjunto",                           n: "79571 · 638 686 908", t: "guard" },
+                { s: "Neurocirugía",                            n: "74421 · 606 409 904", t: "guard" },
+                { s: "Endoscopias",                             n: "79523 · 638 686 817", t: "guard" },
+                { s: "Digestivo – Residente",                   n: "79581 · 638 686 918", t: "guard" },
+                { s: "Digestivo – Adjunto",                     n: "79524 · 638 686 818", t: "guard" }
             ]
         },
         {
             category: "Urgencias",
             icon: "🚨",
             contacts: [
-                { s: "Jefa de Servicio",            n: "74402",       t: "log" },
-                { s: "Supervisor Urgencias",        n: "79569",       t: "log" },
-                { s: "Habitación MAUH",             n: "1960",        t: "log" },
-                { s: "Habitación Residentes",       n: "1961",        t: "log" },
-                { s: "Farmacéutica",                n: "79690",       t: "log" },
-                { s: "Secretaría Urgencias",        n: "5811",        t: "log" },
-                { s: "Admisiones Urgencias",        n: "1019",        t: "log" },
-                { s: "Triaje 1",                    n: "1037",        t: "log" },
-                { s: "Triaje 2",                    n: "1091",        t: "log" },
-                { s: "Central Puerta A",            n: "5881 · 1010", t: "log" },
-                { s: "Observación Puerta A",        n: "1073",        t: "log" },
-                { s: "Central Puerta B",            n: "1083 · 1093", t: "log" },
-                { s: "Trauma Urgencias",            n: "1085 · 1095", t: "log" },
-                { s: "Pediatría Urgencias",         n: "1063",        t: "log" },
-                { s: "Sala de trabajo médicos",     n: "1990 · 1991", t: "log" },
-                { s: "Sala Planta -1",              n: "1014",        t: "log" }
+                { s: "Jefa de Servicio",            n: "74402 · 609 534 937", t: "log" },
+                { s: "Supervisor Urgencias",        n: "79569 · 638 686 906", t: "log" },
+                { s: "Habitación MAUH",             n: "1960",                t: "log" },
+                { s: "Habitación Residentes",       n: "1961",                t: "log" },
+                { s: "Farmacéutica",                n: "79690",               t: "log" },
+                { s: "Secretaría Urgencias",        n: "5811",                t: "log" },
+                { s: "Admisiones Urgencias",        n: "1019",                t: "log" },
+                { s: "Triaje 1",                    n: "1037",                t: "log" },
+                { s: "Triaje 2",                    n: "1091",                t: "log" },
+                { s: "Central Puerta A",            n: "5881 · 1010",         t: "log" },
+                { s: "Observación Puerta A",        n: "1073",                t: "log" },
+                { s: "Central Puerta B",            n: "1083 · 1093",         t: "log" },
+                { s: "Trauma Urgencias",            n: "1085 · 1095",         t: "log" },
+                { s: "Pediatría Urgencias",         n: "1063",                t: "log" },
+                { s: "Sala de trabajo médicos",     n: "1990 · 1991",         t: "log" },
+                { s: "Sala Planta -1",              n: "1014",                t: "log" }
             ]
         },
         {
             category: "Coordinación y Logística",
             icon: "⚙️",
             contacts: [
-                { s: "Laboratorio Urgencias",   n: "1245",            t: "log" },
-                { s: "Inter hospitalarios SEM", n: "40036",           t: "log" },
-                { s: "Seguridad",               n: "79501 · 79502",   t: "log" },
-                { s: "Mantenimiento",           n: "79503",           t: "log" },
-                { s: "Atención al usuario",     n: "79507",           t: "log" },
-                { s: "Limpieza",                n: "79511",           t: "log" },
-                { s: "Limpieza Urgencias",      n: "79533",           t: "log" },
-                { s: "Supervisor de Guardia",   n: "79512",           t: "log" },
-                { s: "Oficina SAP",             n: "1270",            t: "log" },
-                { s: "Informática",             n: "40201 (Cód. 58)", t: "log" },
-                { s: "Traslados",               n: "40125",           t: "log" },
-                { s: "Técnicos de RX",          n: "79530",           t: "log" },
-                { s: "Admisiones Urgencias",    n: "1019",            t: "log" }
+                { s: "Laboratorio Urgencias",   n: "1245",                t: "log" },
+                { s: "Inter hospitalarios SEM", n: "40036",               t: "log" },
+                { s: "Seguridad – Línea 1",     n: "79501 · 638 686 798", t: "log" },
+                { s: "Seguridad – Línea 2",     n: "79502 · 638 686 800", t: "log" },
+                { s: "Mantenimiento",           n: "79503 · 638 686 801", t: "log" },
+                { s: "Atención al usuario",     n: "74492 · 667 074 704", t: "log" },
+                { s: "Limpieza",                n: "79511",               t: "log" },
+                { s: "Limpieza Urgencias",      n: "79533",               t: "log" },
+                { s: "Supervisor de Guardia",   n: "79512 · 638 686 807", t: "log" },
+                { s: "Oficina SAP",             n: "1270",                t: "log" },
+                { s: "SAP (busca)",             n: "79576 · 638 686 913", t: "log" },
+                { s: "Cap de Guàrdia Mèdica",   n: "79588 · 638 687 878", t: "log" },
+                { s: "Informática",             n: "40201 (Cód. 58)",     t: "log" },
+                { s: "Traslados",               n: "40125",               t: "log" },
+                { s: "Técnicos de RX",          n: "79530 · 638 686 872", t: "log" },
+                { s: "Admisiones Urgencias",    n: "1019",                t: "log" }
             ]
         },
         {
             category: "Unidades Hospitalarias",
             icon: "🏥",
             contacts: [
-                { s: "Psiquiatría",              n: "79532",              t: "log" },
-                { s: "IPM",                      n: "40066",              t: "log" },
-                { s: "UFFIS",                    n: "79534",              t: "log" },
-                { s: "PADES UFFIS",              n: "79535",              t: "log" },
-                { s: "HAD – Médico",             n: "74430",              t: "log" },
-                { s: "HAD – Enfermera",          n: "74415",              t: "log" },
-                { s: "Diálisis",                 n: "5895",               t: "log" },
-                { s: "UCI – Central Enfermería", n: "1182 · 1183",        t: "log" },
-                { s: "UCI – Buscas Médicos",     n: "79570 · 79571",      t: "log" },
-                { s: "Semicríticos",             n: "1149 · 1150",        t: "log" },
-                { s: "Banco de Sangre",          n: "79529",              t: "log" },
-                { s: "Despacho Neumología",      n: "1175 · 1619",        t: "log" },
-                { s: "Alergias",                 n: "2215 · 2216",        t: "log" },
-                { s: "URPA",                     n: "1264",               t: "log" },
-                { s: "REA",                      n: "1272",               t: "log" },
-                { s: "URPA Ocupación Urgencias", n: "1028",               t: "log" },
-                { s: "Subagudos Francolí",       n: "671 610 881",        t: "log" },
-                { s: "Hospital Francolí",        n: "40144",              t: "log" }
+                { s: "Psiquiatría",              n: "79532 · 638 686 874", t: "log" },
+                { s: "IPM",                      n: "40066",               t: "log" },
+                { s: "UFFIS",                    n: "79535 · 638 686 877", t: "log" },
+                { s: "Hospitalización a Domicilio – Médico",     n: "74430 · 629 284 152", t: "log" },
+                { s: "Hospitalización a Domicilio – Enfermera",  n: "74415 · 619 370 792", t: "log" },
+                { s: "Diálisis",                 n: "5895",                t: "log" },
+                { s: "UCI – Central Enfermería", n: "1182 · 1183",         t: "log" },
+                { s: "UCI – Médico Residente",   n: "79570 · 638 686 907", t: "log" },
+                { s: "UCI – Médico Adjunto",     n: "79571 · 638 686 908", t: "log" },
+                { s: "Semicríticos",             n: "1149 · 1150",         t: "log" },
+                { s: "Banco de Sangre",          n: "79529 · 638 686 871", t: "log" },
+                { s: "Despacho Neumología",      n: "1175 · 1619",         t: "log" },
+                { s: "Alergias",                 n: "2215 · 2216",         t: "log" },
+                { s: "URPA",                     n: "1264",                t: "log" },
+                { s: "REA",                      n: "1272",                t: "log" },
+                { s: "URPA Ocupación Urgencias", n: "1028",                t: "log" },
+                { s: "Subagudos Francolí",       n: "671 610 881",         t: "log" },
+                { s: "Hospital Francolí",        n: "40144",               t: "log" }
             ]
         },
         {
             category: "Celadores",
             icon: "🚑",
             contacts: [
-                { s: "Celador Puerta A", n: "79719", t: "log" },
-                { s: "Celador Puerta B", n: "79710", t: "log" },
-                { s: "Refuerzo",         n: "79723", t: "log" },
-                { s: "Triaje",           n: "79706", t: "log" }
+                { s: "Celador Urgencias",   n: "79607 · 671 523 979", t: "log" },
+                { s: "Celador Puerta A",    n: "79719 · 667 089 770", t: "log" },
+                { s: "Celador Puerta B",    n: "79710 · 638 686 816", t: "log" },
+                { s: "Refuerzo",            n: "79723",               t: "log" },
+                { s: "Triaje",              n: "79706",               t: "log" }
             ]
         },
         {
@@ -525,11 +545,13 @@
             category: "Diagnóstico por Imagen",
             icon: "📸",
             contacts: [
-                { s: "Radiología",           n: "79562",       t: "log" },
-                { s: "Técnicos de RX",       n: "79530",       t: "log" },
-                { s: "Resonancia Magnética", n: "4518 · 4519", t: "log" },
-                { s: "TAC",                  n: "4508 · 4509", t: "log" },
-                { s: "Ecografía",            n: "4511 · 4512", t: "log" }
+                { s: "Radiología",                            n: "79562 · 638 686 897", t: "log" },
+                { s: "Técnicos de RX",                        n: "79530 · 638 686 872", t: "log" },
+                { s: "Radiología Intervencionista",           n: "79670 · 667 116 848", t: "log" },
+                { s: "Radiología Intervencionista (Bellvitge)", n: "634 727 431",       t: "log" },
+                { s: "Resonancia Magnética",                  n: "4518 · 4519",         t: "log" },
+                { s: "TAC",                                   n: "4508 · 4509",         t: "log" },
+                { s: "Ecografía",                             n: "4511 · 4512",         t: "log" }
             ]
         }
     ];
@@ -557,11 +579,14 @@
         return out;
     }
 
+    // Detecta números de móvil (9 dígitos empezando por 6 o 7) para mostrarlos más pequeños
+    const isMobile = p => /^[67]\d{2} ?\d{3} ?\d{3}$/.test(p.trim());
+
     // Convierte el campo n (string con "·") en chips HTML
     function chipsHTML(n, tokens) {
         const parts = String(n).split('·').map(x => x.trim()).filter(Boolean);
         return '<div class="number-chips">' +
-            parts.map(p => `<span class="number-chip">${hl(p, tokens)}</span>`).join('') +
+            parts.map(p => `<span class="number-chip${isMobile(p) ? ' chip-mobile' : ''}">${hl(p, tokens)}</span>`).join('') +
             '</div>';
     }
 
@@ -582,6 +607,9 @@
                 return tokens.every(t => hay.includes(t));
             });
             if (filtered.length === 0) return;
+            if (!cat.keepOrder) {
+                filtered.sort((a, b) => norm(a.s).localeCompare(norm(b.s), 'es'));
+            }
             totalResults += filtered.length;
 
             const section = document.createElement('details');
@@ -608,11 +636,9 @@
             filtered.forEach(c => {
                 const card = document.createElement('div');
                 card.className = `contact-card t-${c.t}`;
-                const tagLabel = c.t === 'crit' ? 'Crítico' : c.t === 'guard' ? 'Guardia' : 'Logística';
                 card.innerHTML = `
                     <div class="contact-info">
                         <div class="contact-name">${hl(c.s, tokens)}</div>
-                        <span class="contact-tag tag-${c.t}">${tagLabel}</span>
                     </div>
                     ${chipsHTML(c.n, tokens)}`;
                 section.appendChild(card);
